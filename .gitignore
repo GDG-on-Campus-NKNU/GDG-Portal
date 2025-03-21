@@ -1,0 +1,33 @@
+.vs/
+*.esproj
+*.njsproj
+*.config
+
+# node_modules
+node_modules/
+
+# logs
+logs
+*.log
+
+# build output
+dist/
+build/
+.next/
+out/
+
+# env & config
+.env
+.env.local
+.env.*.local
+
+# system files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# coverage / test
+coverage/

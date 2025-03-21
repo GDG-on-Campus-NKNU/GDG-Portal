@@ -1,0 +1,13 @@
+{
+  "name": "GDG on Campus-portal",
+  "version": "0.0.0",
+  "description": "GDG on Campus-Portal",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1"
+  },
+  "eslintConfig": {}
+}
