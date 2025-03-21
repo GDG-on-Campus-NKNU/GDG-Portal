@@ -1,4 +1,4 @@
-﻿import express from 'express'
+import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 
@@ -11,7 +11,7 @@ app.use(cors())
 app.use(express.json())
 
 app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello from GDG Backend!' })
+  res.json({ message: 'Hello from GDG Backend! We\'ll go from here now.' })
 })
 
 app.listen(PORT, () => {
