@@ -5,7 +5,7 @@ function App() {
     const [message, setMessage] = useState('')
 
     useEffect(() => {
-        fetch('http://localhost:7000/api/hello')
+        fetch('http://localhost:5000/api/hello')
             .then(res => res.json())
             .then(data => setMessage(data.message))
     }, [])
