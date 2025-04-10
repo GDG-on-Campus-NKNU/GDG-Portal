@@ -7,4 +7,9 @@
     <CleanCommand>
     </CleanCommand>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="client\src\components\" />
+    <Folder Include="client\src\pages\api\" />
+    <Folder Include="client\src\pages\auth\" />
+  </ItemGroup>
 </Project>
