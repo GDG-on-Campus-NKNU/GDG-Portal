@@ -1,5 +1,5 @@
 .vs/
-*.esproj
+.esproj
 *.njsproj
 *.config
 
