@@ -17,3 +17,13 @@
 
 ---
 
+## Added some basic component code awaiting rebrand. 04/19
+
+> 2025-04-19 01:03:06
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `c4d4b71dbbdee4c42e43730e2d68bfdcd3a03983`
+
+---
+

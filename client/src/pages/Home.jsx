@@ -1,12 +1,27 @@
-// Home page placeholder
-
-function Home() {
+import { Navbar } from '../components/Navbar'
+import { Sidebar } from '../components/Sidebar'
+import { Footer } from '../components/Footer'
+import { PostCard } from '../components/PostCard'
+export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold mb-4">這是<span><a href="https://github.com/GDG-on-Campus-NKNU/GDG-Portal">GDG on Campus NKNU</a></span>的主頁!</h1>
-      <p className="text-lg mb-8">歡迎來到我們的網站！ (第一步完成)</p>
-    </div>
-  );
-}
+    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+      <Navbar />
 
-export default Home;
+      <main className="flex flex-1 w-full max-w-7xl mx-auto px-4 py-6">
+        {/* 左側主內容區塊 */}
+        <section className="flex-1 space-y-6">
+          <h1 className="text-2xl font-semibold">最新公告</h1>
+          <PostCard title="期中講座開放報名！" date="2025-05-01" excerpt="本次活動將邀請業界講師分享 AI 開發經驗..." />
+          <PostCard title="社員資料更新通知" date="2025-04-20" excerpt="請所有社員至會員頁面確認個人資訊是否正確..." />
+        </section>
+
+        {/* 右側側邊欄 */}
+        <aside className="w-80 pl-6 hidden lg:block">
+          <Sidebar />
+        </aside>
+      </main>
+
+      <Footer />
+    </div>
+  )
+} 
