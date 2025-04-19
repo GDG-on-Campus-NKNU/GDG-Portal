@@ -37,3 +37,13 @@
 
 ---
 
+## Updated some copyright symbol thingy. 04/20
+
+> 2025-04-20 00:05:08
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `877c37611f83252e2cca6c2e17724073274dd81a`
+
+---
+
