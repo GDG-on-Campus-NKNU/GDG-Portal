@@ -27,3 +27,13 @@
 
 ---
 
+## Added some more components to make it look better. 04/19
+
+> 2025-04-19 14:26:29
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `f041aff5d65a34ffdcbdecb0b558de3ac5bae51d`
+
+---
+
