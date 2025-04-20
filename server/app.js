@@ -18,6 +18,19 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from GDG Backend! We\'ll go from here now.' })
 })
 
-app.listen(PORT, async () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`)
-})
+const startServer = (port) => {
+  const server = app.listen(port, () => {
+    console.log(`✅ Server running on http://localhost:${port}`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`⚠️ Port ${port} is in use, trying port ${port + 1}...`);
+      startServer(port + 1);
+    } else {
+      console.error(`❌ Server error: ${err.message}`);
+    }
+  });
+};
+
+startServer(PORT);

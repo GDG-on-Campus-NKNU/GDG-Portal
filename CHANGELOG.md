@@ -47,3 +47,13 @@
 
 ---
 
+## Added a fail prevention to app.js of backend, and altered the prohect structure a bit. 04/20
+
+> 2025-04-20 18:26:45
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `6b804b393fb04cd6f48921b584bc6095892f6bc6`
+
+---
+

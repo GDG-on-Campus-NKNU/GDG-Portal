@@ -13,13 +13,12 @@
 GDG on Campus-portal/
 ├── client/                  # 前端 (建議使用 Next.js 或 React)
 │   ├── public/              # 靜態資源 (logo, favicon, 全域 CSS)
+│       ├── assets/          # 圖片、影片等資源
 │   └── src/
 │       ├── components/      # 通用元件（Navbar, Footer, ProfileCard 等）
-│       ├── pages/           # 頁面 (index.js, profile.js, register.js...)
+│       ├── pages/           # 頁面 (index.jsx, profile.jsx, register.jsx...)
 │       ├── hooks/           # 自定義 hooks
 │       ├── utils/           # 前端工具 (API handler, formatter...)
-│       ├── assets/          # 圖片、影片等資源
-│       ├── styles/          # Tailwind CSS 樣式
 │       ├── tests/           # 前端測試
 │       ├── App.js
 │       └── index.js
