@@ -6,6 +6,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: write
+
 jobs:
   tag_release:
     if: github.event.pull_request.merged == true
@@ -23,8 +26,8 @@ jobs:
           echo "🔍 PR 來源分支：$SOURCE_BRANCH"
 
           if [[ $SOURCE_BRANCH == release/* ]]; then
-            VERSION="${SOURCE_BRANCH#release/}"
-            TAG_NAME="v$VERSION"
+            VERSION="${SOURCE_BRANCH#release/v}"  # 直接移除 release/v
+            TAG_NAME="v$VERSION"  # 這樣就不會重複加 v
             echo "🏷️ 將要打的 tag：$TAG_NAME"
             git config user.name "${{ github.actor }}"
             git config user.email "${{ github.actor }}@users.noreply.github.com"
