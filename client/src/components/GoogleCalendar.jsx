@@ -4,7 +4,7 @@ export function GoogleCalendar() {
       <h3 className="text-lg font-bold text-gray-800 mb-4">活動行事曆</h3>
       <div className="aspect-video">
         <iframe
-          src="https://calendar.google.com/calendar/embed?src=gdscnknu%40gmail.com&ctz=Asia%2FTaipei"
+          src="https://calendar.google.com/calendar/embed?src=98bcdcaef3fd5bdf1ff55004c040815a8ec3c3370071ec9d2d17ee9d5b227b98%40group.calendar.google.com&ctz=Asia%2FTaipei"
           className="w-full h-full rounded-lg"
         />
       </div>

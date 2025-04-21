@@ -67,3 +67,13 @@
 
 ---
 
+## Updated google calendar iframe and added some details in docs.
+
+> 2025-04-21 15:01:33
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `bc142e0c116780ad3c3a581a70dc078ca3b7e7ba`
+
+---
+
