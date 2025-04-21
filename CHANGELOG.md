@@ -57,3 +57,13 @@
 
 ---
 
+## Updated README.md and a .env.example. 04/21
+
+> 2025-04-21 14:42:20
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `3bd1c37bcb7a161279924b75573fd3ddfdd99361`
+
+---
+
