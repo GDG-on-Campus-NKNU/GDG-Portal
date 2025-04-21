@@ -47,7 +47,7 @@ GDG on Campus-portal/
 
 1. **Clone 專案**
 ```bash
-git clone https://github.com/GDG-on-Campus-NKNU/GDG on Campus-Portal
+git clone https://github.com/GDG-on-Campus-NKNU/GDG-Portal
 cd GDG on Campus-portal
 ```
 

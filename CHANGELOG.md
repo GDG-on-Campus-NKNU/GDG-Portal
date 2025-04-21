@@ -77,3 +77,13 @@
 
 ---
 
+## Hotfix #1: README info error fixed. 04/21
+
+> 2025-04-21 19:07:39
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `f768c17627ccf1899dbea19c9463e77e9d7345c2`
+
+---
+
