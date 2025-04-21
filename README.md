@@ -13,13 +13,12 @@
 GDG on Campus-portal/
 ├── client/                  # 前端 (建議使用 Next.js 或 React)
 │   ├── public/              # 靜態資源 (logo, favicon, 全域 CSS)
+│       ├── assets/          # 圖片、影片等資源
 │   └── src/
 │       ├── components/      # 通用元件（Navbar, Footer, ProfileCard 等）
-│       ├── pages/           # 頁面 (index.js, profile.js, register.js...)
+│       ├── pages/           # 頁面 (index.jsx, profile.jsx, register.jsx...)
 │       ├── hooks/           # 自定義 hooks
 │       ├── utils/           # 前端工具 (API handler, formatter...)
-│       ├── assets/          # 圖片、影片等資源
-│       ├── styles/          # Tailwind CSS 樣式
 │       ├── tests/           # 前端測試
 │       ├── App.js
 │       └── index.js
@@ -53,11 +52,17 @@ cd GDG on Campus-portal
 ```
 
 2. **安裝前後端套件**
-待補
+```bash
+cd client
+npm install
+cd ../server
+npm install
+```
 
-3. **啟動開發環境**
-待補
-
+3. **啟動開發環境 (於根目錄下)**
+```bash
+node dev-runner.mjs
+```
 ---
 
 ## 📦 使用技術
@@ -70,7 +75,7 @@ cd GDG on Campus-portal
 
 ### 後端：
 - Node.js + Express
-- MongoDB / PostgreSQL
+- MongoDB / PostgreSQL (預計)
 - JWT 驗證、bcrypt 密碼加密
 - RESTful API 架構
 
@@ -99,8 +104,8 @@ cd GDG on Campus-portal
 ## 🧪 其他
 
 - 環境變數請參考 `.env.example`
-- 資料庫結構詳見 `docs/architecture.md`
+- 資料庫結構詳見 `docs/architecture.md` (尚在規劃中)
 
 ---
 
-GDG on Campus Together, Let’s Build & Grow! 🚀 (這句話是GPT寫的)
+GDG on Campus Together, Let’s Build & Grow! 🚀
