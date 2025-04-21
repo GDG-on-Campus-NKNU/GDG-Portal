@@ -52,11 +52,17 @@ cd GDG on Campus-portal
 ```
 
 2. **安裝前後端套件**
-待補
+```bash
+cd client
+npm install
+cd ../server
+npm install
+```
 
-3. **啟動開發環境**
-待補
-
+3. **啟動開發環境 (於根目錄下)**
+```bash
+node dev-runner.mjs
+```
 ---
 
 ## 📦 使用技術
@@ -69,7 +75,7 @@ cd GDG on Campus-portal
 
 ### 後端：
 - Node.js + Express
-- MongoDB / PostgreSQL
+- MongoDB / PostgreSQL (預計)
 - JWT 驗證、bcrypt 密碼加密
 - RESTful API 架構
 
@@ -98,8 +104,8 @@ cd GDG on Campus-portal
 ## 🧪 其他
 
 - 環境變數請參考 `.env.example`
-- 資料庫結構詳見 `docs/architecture.md`
+- 資料庫結構詳見 `docs/architecture.md` (尚在規劃中)
 
 ---
 
-GDG on Campus Together, Let’s Build & Grow! 🚀 (這句話是GPT寫的)
+GDG on Campus Together, Let’s Build & Grow! 🚀

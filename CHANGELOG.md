@@ -57,3 +57,23 @@
 
 ---
 
+## Updated README.md and a .env.example. 04/21
+
+> 2025-04-21 14:42:20
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `3bd1c37bcb7a161279924b75573fd3ddfdd99361`
+
+---
+
+## Updated google calendar iframe and added some details in docs.
+
+> 2025-04-21 15:01:33
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `bc142e0c116780ad3c3a581a70dc078ca3b7e7ba`
+
+---
+
