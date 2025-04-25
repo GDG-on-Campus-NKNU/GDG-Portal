@@ -7,7 +7,7 @@ import FilterPanel from '../components/general/FilterPanel'
 import LoadingSpinner from '../components/general/LoadingSpinner'
 import NotificationToast from '../components/general/NotificationToast'
 import Pagination from '../components/general/Pagination'
-import { PostCard } from '../components/Postcard'
+import { PostCard } from '../components/PostCard'
 import { useAnnouncementData } from '../hooks/useAnnouncementData' // 引入 hook
 import { useEventData } from '../hooks/useEventData'
 
