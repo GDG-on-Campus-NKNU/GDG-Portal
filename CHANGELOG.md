@@ -77,3 +77,73 @@
 
 ---
 
+## Temporary disabled login button, and added some more general components. 04/25
+
+> 2025-04-25 21:28:03
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `f7f0105f97667c52d7f6fd2e19fdd37047ea1885`
+
+---
+
+## Added an announcement page. 04/25
+
+> 2025-04-25 21:50:31
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `f1c81f8a00d75ad27962d3907af6358aa2b28cbe`
+
+---
+
+## Added animations to the home page and some more components. 04/25
+
+> 2025-04-25 21:59:06
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `96642bbf2eb0b7f7683840c0452b8a8c7e0cc956`
+
+---
+
+## Added a event page, awaiting more revise. 04/25
+
+> 2025-04-25 22:24:55
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `9d2decc6688ac65ab84413cf96703d8ce1d8b1d6`
+
+---
+
+## Updated dependency. 04/25
+
+> 2025-04-25 22:39:55
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `3138df27a40eecde8d365b165601ca08a2e495f8`
+
+---
+
+## Updated dependency. 04/25
+
+> 2025-04-25 22:44:09
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `b3b6a4d0767fe5ef3835680a5c8908c1bf7935aa`
+
+---
+
+## Solved conflict. 04/25
+
+> 2025-04-25 22:45:18
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `5b63315ba253af8604e0a5d73dbc2228a6317058`
+
+---
+
