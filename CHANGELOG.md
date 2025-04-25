@@ -107,3 +107,13 @@
 
 ---
 
+## Added a event page, awaiting more revise. 04/25
+
+> 2025-04-25 22:24:55
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `9d2decc6688ac65ab84413cf96703d8ce1d8b1d6`
+
+---
+
