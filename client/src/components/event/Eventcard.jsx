@@ -42,7 +42,7 @@ export default function EventCard({
           onClick={handleViewDetail}
           className="w-full py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
         >
-          查看詳情
+          View details →
         </button>
       </div>
     </article>

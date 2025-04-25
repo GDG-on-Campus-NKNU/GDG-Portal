@@ -1,4 +1,20 @@
-export function PostCard({ title, date, excerpt, tags = [], isPinned = false }) {
+import { useNavigate } from 'react-router-dom';
+
+export function PostCard({
+  id,
+  title,
+  date,
+  excerpt,
+  tags = [],
+  isPinned = false
+}) {
+  const navigate = useNavigate();
+
+  const handleReadMore = (e) => {
+    e.preventDefault(); // 阻止默認行為
+    navigate(`/announcements/${id}`);
+  };
+
   return (
     <article className="bg-white shadow rounded-lg p-5 border border-gray-100 hover:shadow-lg transition duration-300 relative">
       {isPinned && (
@@ -12,7 +28,6 @@ export function PostCard({ title, date, excerpt, tags = [], isPinned = false }) 
       <p className="text-sm text-gray-500 mb-2">{date}</p>
       <p className="text-sm text-gray-700 mb-3">{excerpt}</p>
 
-      {/* 標籤 */}
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {tags.map(tag => (
@@ -37,10 +52,13 @@ export function PostCard({ title, date, excerpt, tags = [], isPinned = false }) 
       )}
 
       <div className="flex justify-end mt-3">
-        <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition">
-          閱讀更多 →
-        </a>
+        <button
+          onClick={handleReadMore}
+          className="text-sm text-blue-600 hover:text-blue-800 transition focus:outline-none"
+        >
+          View details →
+        </button>
       </div>
     </article>
-  )
+  );
 }

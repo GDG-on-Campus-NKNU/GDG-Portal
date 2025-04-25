@@ -5,6 +5,7 @@ dotenv.config()
 
 import authRoutes from "./routes/auth_routes.js";
 import eventRoutes from "./routes/eventRoutes.js"; // 引入活動路由
+import announcementRoutes from "./routes/announcementRoutes.js"; // 引入公告路由
 import "./config/passport.js";
 
 const app = express()
@@ -14,7 +15,8 @@ app.use(cors())
 app.use(express.json())
 
 app.use("/api/auth", authRoutes);
-app.use("/api/events", eventRoutes); // 註冊活動路由
+app.use("/api/events", eventRoutes); // 活動路由
+app.use("/api/announcements", announcementRoutes); // 公告路由
 
 app.get('/', (req, res) => {
   res.send('伺服器運行中 🚀');

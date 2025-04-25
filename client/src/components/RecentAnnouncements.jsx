@@ -66,6 +66,7 @@ export function RecentAnnouncements({ limit = 2, showTitle = true }) {
               whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
             >
               <PostCard
+                id={announcement.id}
                 title={announcement.title}
                 date={new Date(announcement.date).toLocaleDateString()}
                 excerpt={announcement.excerpt}
