@@ -18,14 +18,28 @@ export default function EventsPage() {
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'calendar'
   const [selectedMonth, setSelectedMonth] = useState(new Date()) // 追蹤選擇的月份
 
+  // 當視圖模式改變時重置一些狀態
+  useEffect(() => {
+    if (viewMode === 'grid') {
+      setPage(1); // 重置到第一頁
+
+      // 可以考慮添加一個強制重新獲取資料的機制
+      // 或者保留當前篩選條件，因為用戶可能想在不同視圖下保持相同的篩選條件
+      console.log('切換到網格視圖，當前篩選條件:', { keyword, tags });
+    } else {
+      console.log('切換到月曆視圖，當前篩選條件:', { keyword, tags });
+    }
+  }, [viewMode]);
+
   // 使用 hook 獲取所有活動資料 - 針對網格視圖
   const { events, loading, error, totalPages } = useEventData({
     page,
     limit: 8,
     keyword,
     tags,
-    future: viewMode === 'grid' ? undefined : false // 網格視圖使用預設
-  })
+    sort: 'desc', // 添加排序參數，確保從新到舊排序
+    future: undefined // 對網格視圖不限制未來活動
+  });
 
   // 使用 hook 獲取所有月曆視圖的活動資料 - 不使用 future 過濾
   const { events: calendarEvents, loading: loadingCalendar } = useEventData({
@@ -33,15 +47,9 @@ export default function EventsPage() {
     limit: 100, // 較大的限制，確保獲取所有活動
     future: false, // 不過濾過去的活動
     keyword, // 保持關鍵字搜尋
-    tags // 保持標籤篩選
-  })
-
-  // 當視圖模式改變時重置一些狀態
-  useEffect(() => {
-    if (viewMode === 'grid') {
-      setPage(1) // 重置到第一頁
-    }
-  }, [viewMode])
+    tags, // 保持標籤篩選
+    sort: 'asc' // 月曆視圖按日期升序排序
+  });
 
   // 使用 hook 獲取即將到來的活動 (不受搜尋和標籤篩選影響)
   const {
@@ -50,7 +58,8 @@ export default function EventsPage() {
   } = useEventData({
     page: 1,
     limit: 3,
-    future: true // 只顯示未來的活動
+    future: true, // 只顯示未來的活動
+    sort: 'asc' // 從最近到最遠排序
   })
 
   const availableTags = [
@@ -119,6 +128,37 @@ export default function EventsPage() {
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xl font-semibold">搜尋與篩選</h2>
                 <div className="flex items-center space-x-2">
+                  {/* 清除篩選按鈕 */}
+                  {(keyword || tags.length > 0) && (
+                    <button
+                      onClick={() => {
+                        setKeyword('');
+                        setTags([]);
+                        setPage(1);
+                      }}
+                      className="text-sm text-gray-500 hover:text-red-500 mr-2 flex items-center"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      清除篩選
+                    </button>
+                  )}
+
+                  {/* 添加重新載入按鈕 */}
+                  <button
+                    onClick={() => {
+                      // 強制重新載入
+                      setPage(prev => 0); // 先設為不可能的值
+                      setTimeout(() => setPage(1), 10); // 然後設回第一頁
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-800 mr-2 flex items-center"
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    重新載入
+                  </button>
                   <button
                     onClick={() => setViewMode('grid')}
                     className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
