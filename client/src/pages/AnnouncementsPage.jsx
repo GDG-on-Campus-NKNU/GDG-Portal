@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion' // 用於動畫效果，不要管他
+import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import SearchBar from '../components/general/SearchBar'
@@ -8,15 +8,36 @@ import LoadingSpinner from '../components/general/LoadingSpinner'
 import NotificationToast from '../components/general/NotificationToast'
 import Pagination from '../components/general/Pagination'
 import { PostCard } from '../components/PostCard'
+import { useAnnouncementData } from '../hooks/useAnnouncementData' // 引入 hook
+import { useEventData } from '../hooks/useEventData'
 
 export default function AnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const [keyword, setKeyword] = useState('')
   const [tags, setTags] = useState([])
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+
+  // 使用 hook 獲取所有公告資料
+  const { announcements, loading, error, totalPages } = useAnnouncementData({
+    page,
+    limit: 5,
+    keyword,
+    tags
+  })
+
+  // 使用 hook 獲取置頂公告 (不受搜尋和標籤篩選影響)
+  const { announcements: pinnedAnnouncements, loading: loadingPinned } = useAnnouncementData({
+    page: 1,
+    limit: 5,  // 最多顯示5則置頂公告
+    isPinned: true  // 只獲取置頂公告
+  })
+
+  // 新增：使用 hook 獲取即將到來的活動
+  const { events: upcomingEvents, loading: loadingUpcoming } = useEventData({
+    page: 1,
+    limit: 3,
+    future: true // 只顯示未來的活動
+  })
+
   const availableTags = [
     { label: '技術', value: 'tech' },
     { label: '活動', value: 'event' },
@@ -25,53 +46,17 @@ export default function AnnouncementsPage() {
     { label: '實習', value: 'internship' },
   ]
 
-  const fetchAnnouncements = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const q = new URLSearchParams({ page, keyword, tags: tags.join(',') })
-      const res = await fetch(`/api/announcements?${q}`)
-      const { data, totalPages: tp } = await res.json()
-      setAnnouncements(data)
-      setTotalPages(tp)
-    } catch (e) {
-      setError('載入公告失敗: ' + e)
-    } finally {
-      setLoading(false)
-    }
+  const getTagLabel = (tagValue) => {
+    const eventTags = [
+      { label: '線上', value: 'online' },
+      { label: '實體', value: 'offline' },
+      { label: '工作坊', value: 'workshop' },
+      { label: '分享會', value: 'talk' }
+    ]
+
+    const tag = eventTags.find(t => t.value === tagValue)
+    return tag ? tag.label : tagValue
   }
-
-  useEffect(() => {
-    fetchAnnouncements()
-  }, [page, keyword, tags])
-
-  // 模擬一些測試數據
-  const dummyAnnouncements = !loading && announcements.length === 0 ? [
-    {
-      id: 1,
-      title: 'Google I/O 2025 觀賞派對報名中!',
-      date: '2025-05-01',
-      excerpt: '一起來參加我們的 Google I/O 2025 觀賞派對，了解最新的 Google 技術發展與創新...',
-      tags: ['event', 'tech'],
-      isPinned: true
-    },
-    {
-      id: 2,
-      title: '2025 學期技術講座系列公布',
-      date: '2025-04-20',
-      excerpt: '本學期將舉辦 Android、Flutter、Firebase 與 AI 等多場技術講座，請密切關注報名時間...',
-      tags: ['notice', 'course'],
-      isPinned: false
-    },
-    {
-      id: 3,
-      title: '徵求技術分享講者',
-      date: '2025-04-15',
-      excerpt: '邀請有開發經驗的同學報名成為我們的技術講者，分享你的專案經驗與技術心得...',
-      tags: ['notice'],
-      isPinned: false
-    }
-  ] : announcements;
 
   const container = {
     hidden: { opacity: 0 },
@@ -118,7 +103,7 @@ export default function AnnouncementsPage() {
               className="bg-white rounded-lg shadow-md p-6 space-y-4"
             >
               <h2 className="text-xl font-semibold">搜尋與篩選</h2>
-              <SearchBar onSearch={kw => { setKeyword(kw); setPage(1) }} />
+              <SearchBar onSearch={kw => { setKeyword(kw); setPage(1) }} placeholder="搜尋公告..." />
               <FilterPanel
                 filters={availableTags}
                 selected={tags}
@@ -148,7 +133,7 @@ export default function AnnouncementsPage() {
                   animate="show"
                   className="space-y-4"
                 >
-                  {dummyAnnouncements.map((a, index) => (
+                  {announcements.map(a => (
                     <motion.div key={a.id} variants={item} whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}>
                       <PostCard
                         title={a.title}
@@ -160,7 +145,7 @@ export default function AnnouncementsPage() {
                     </motion.div>
                   ))}
 
-                  {dummyAnnouncements.length === 0 && (
+                  {announcements.length === 0 && (
                     <div className="bg-white rounded-lg shadow-md p-8 text-center">
                       <p className="text-gray-500">沒有符合條件的公告</p>
                     </div>
@@ -191,47 +176,106 @@ export default function AnnouncementsPage() {
             transition={{ delay: 0.3 }}
             className="w-full lg:w-80 space-y-6"
           >
-            {/* 置頂公告 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                <svg className="w-5 h-5 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.799-2.034c-.784-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                置頂公告
-              </h3>
-              <div className="space-y-4">
-                <div className="border-l-4 border-yellow-500 pl-4 py-1">
-                  <h4 className="font-medium text-gray-800">本學期徵才考核開始</h4>
-                  <p className="text-xs text-gray-500">2025-04-10</p>
-                </div>
-                <div className="border-l-4 border-yellow-500 pl-4 py-1">
-                  <h4 className="font-medium text-gray-800">校際技術交流活動報名</h4>
-                  <p className="text-xs text-gray-500">2025-04-05</p>
-                </div>
-              </div>
+
+          {/* 置頂公告 - 動態顯示真實置頂資料 */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <svg className="w-5 h-5 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.799-2.034c-.784-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            置頂公告
+            </h3>
+
+            {loadingPinned ? (
+            <div className="flex justify-center p-3">
+              <LoadingSpinner size={6} />
             </div>
+              ) : (
+            <div className="space-y-3">
+             {pinnedAnnouncements && pinnedAnnouncements.length > 0 ? (
+              pinnedAnnouncements.map(announcement => (
+              <a
+                key={announcement.id}
+                href={`/announcements/${announcement.id}`}
+                className="block bg-gray-50 rounded hover:bg-gray-100 transition"
+              >
+              <div className="border-l-4 border-yellow-500 p-3">
+               <h4 className="font-medium text-gray-800">{announcement.title}</h4>
+                <p className="text-xs text-gray-500 mt-1">
+                 {new Date(announcement.date).toLocaleDateString()}
+                </p>
+                {announcement.tags && announcement.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {announcement.tags.map(tag => (
+                    <span
+                      key={tag}
+                      className="text-xs px-2 py-0.5 bg-yellow-50 text-yellow-600 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                )}
+              </div>
+            </a>
+          ))
+       ) : (
+          <p className="text-sm text-gray-500 text-center py-2">目前沒有置頂公告</p>
+        )}
+
+      <div className="mt-4 text-center">
+        <a href="/announcements" className="text-blue-600 text-sm hover:underline">查看所有公告 →</a>
+      </div>
+    </div>
+  )}
+</div>
 
             {/* 最新活動 */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
                 <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" />
                 </svg>
-                最新活動
+                即將到來的活動
               </h3>
-              <div className="space-y-3">
-                <a href="/events/1" className="block p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
-                  <h4 className="font-medium text-blue-600">Android 開發入門工作坊</h4>
-                  <p className="text-xs text-gray-500">2025-05-10</p>
-                </a>
-                <a href="/events/2" className="block p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
-                  <h4 className="font-medium text-blue-600">Flutter 跨平台開發分享會</h4>
-                  <p className="text-xs text-gray-500">2025-05-15</p>
-                </a>
-              </div>
-              <div className="mt-4 text-center">
-                <a href="/events" className="text-blue-600 text-sm hover:underline">查看所有活動 →</a>
-              </div>
+
+              {loadingUpcoming ? (
+                <div className="flex justify-center p-3">
+                  <LoadingSpinner size={6} />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {upcomingEvents && upcomingEvents.length > 0 ? (
+                    upcomingEvents.map(ev => (
+                      <a
+                        key={ev.id}
+                        href={`/events/${ev.id}`}
+                        className="block p-3 bg-gray-50 rounded hover:bg-gray-100 transition"
+                      >
+                        <h4 className="font-medium text-blue-600">{ev.title}</h4>
+                        <p className="text-xs text-gray-500">
+                          {new Date(ev.date).toLocaleDateString()}
+                        </p>
+                        <div className="flex mt-1 gap-1">
+                          {ev.tags.map(tag => (
+                            <span key={tag} className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
+                              {getTagLabel(tag)}
+                            </span>
+                          ))}
+                        </div>
+                      </a>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 text-center py-2">
+                      近兩週內沒有活動
+                    </p>
+                  )}
+
+                  <div className="mt-4 text-center">
+                    <a href="/events" className="text-blue-600 text-sm hover:underline">查看所有活動 →</a>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 訂閱 */}

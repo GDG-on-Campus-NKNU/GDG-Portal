@@ -1,19 +1,47 @@
-import React, { useState } from 'react'
-export default function SearchBar({ onSearch }) {
-  const [value, setValue] = useState('')
+import React, { useState, useEffect, useRef } from 'react'
 
+export default function SearchBar({ onSearch, placeholder = "搜尋...", debounceDelay = 300 }) {
+  const [value, setValue] = useState('')
+  const debounceTimer = useRef(null)
+
+  // 處理使用者輸入變化
+  const handleInputChange = (e) => {
+    const newValue = e.target.value
+    setValue(newValue)
+
+    // 清除前一個計時器
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
+    }
+
+    // 設定新的計時器，延遲觸發搜尋
+    debounceTimer.current = setTimeout(() => {
+      onSearch(newValue.trim())
+    }, debounceDelay)
+  }
+
+  // 處理表單提交
   const handleSubmit = (e) => {
     e.preventDefault()
     onSearch(value.trim())
   }
+
+  // 清理計時器
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+    }
+  }, [])
 
   return (
     <form onSubmit={handleSubmit} className="relative">
       <input
         type="text"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="搜尋公告..."
+        onChange={handleInputChange}
+        placeholder={placeholder}
         className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
       />
       <button

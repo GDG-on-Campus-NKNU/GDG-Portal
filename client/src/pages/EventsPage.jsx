@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
@@ -9,16 +9,31 @@ import NotificationToast from '../components/general/NotificationToast'
 import Pagination from '../components/general/Pagination'
 import EventCard from '../components/event/EventCard'
 import CalendarView from '../components/event/CalendarView'
+import { useEventData } from '../hooks/useEventData'
 
 export default function EventsPage() {
-  const [events, setEvents] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const [keyword, setKeyword] = useState('')
   const [tags, setTags] = useState([])
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'calendar'
+
+  // 使用 hook 獲取所有活動資料
+  const { events, loading, error, totalPages } = useEventData({
+    page,
+    limit: 8,
+    keyword,
+    tags
+  })
+
+  // 使用 hook 獲取即將到來的活動 (不受搜尋和標籤篩選影響)
+  const {
+    events: upcomingEvents,
+    loading: loadingUpcoming
+  } = useEventData({
+    page: 1,
+    limit: 3,
+    future: true // 只顯示未來的活動
+  })
 
   const availableTags = [
     { label: '線上', value: 'online' },
@@ -26,42 +41,6 @@ export default function EventsPage() {
     { label: '工作坊', value: 'workshop' },
     { label: '分享會', value: 'talk' },
   ]
-
-  // 範例用 Dummy Data
-  const dummyEvents = [
-    { id: 1, title: 'Android 開發入門工作坊', date: '2025-05-10T18:30:00', location: 'E101 教室', tags: ['offline', 'workshop'], excerpt: '從零開始學習 Android 應用程式開發，適合初學者參加。' },
-    { id: 2, title: 'Flutter 跨平台分享會', date: '2025-05-15T18:30:00', location: '線上 Zoom', tags: ['online', 'talk'], excerpt: '了解如何使用 Flutter 開發跨平台應用程式，一次寫程式，到處執行。' },
-    { id: 3, title: 'Firebase 後端實作課程', date: '2025-05-20T18:30:00', location: 'E202 教室', tags: ['offline', 'workshop'], excerpt: '學習如何使用 Firebase 建立後端服務，快速開發應用程式。' },
-    { id: 4, title: 'Google I/O 2025 觀賞派對', date: '2025-05-25T18:00:00', location: '學生活動中心', tags: ['offline', 'talk'], excerpt: '一起觀看 Google I/O 2025 開發者大會，了解 Google 最新技術和產品。' },
-  ]
-
-  const fetchEvents = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      // 真實 API 範例： const res = await fetch(`/api/events?page=${page}&keyword=${keyword}&tags=${tags.join(',')}`)
-      // const { data, totalPages: tp } = await res.json()
-      // setEvents(data)
-      // setTotalPages(tp)
-
-      // 暫時用 Dummy
-      setTimeout(() => {
-        setEvents(dummyEvents.filter(e =>
-          (keyword === '' || e.title.toLowerCase().includes(keyword.toLowerCase())) &&
-          (tags.length === 0 || tags.some(t => e.tags.includes(t)))
-        ))
-        setTotalPages(1)
-        setLoading(false)
-      }, 500) // 模擬載入時間
-    } catch (e) {
-      setError('載入活動失敗')
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchEvents()
-  }, [page, keyword, tags])
 
   // Animation variants
   const container = {
@@ -77,6 +56,12 @@ export default function EventsPage() {
   const item = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
+  }
+
+  // 取得標籤的中文名稱函數
+  const getTagLabel = (tagValue) => {
+    const tag = availableTags.find(t => t.value === tagValue);
+    return tag ? tag.label : tagValue;
   }
 
   return (
@@ -134,7 +119,7 @@ export default function EventsPage() {
                   </button>
                 </div>
               </div>
-              <SearchBar onSearch={kw => { setKeyword(kw); setPage(1) }} />
+              <SearchBar onSearch={kw => { setKeyword(kw); setPage(1) }} placeholder="搜尋活動..." />
               <FilterPanel
                 filters={availableTags}
                 selected={tags}
@@ -225,7 +210,7 @@ export default function EventsPage() {
             transition={{ delay: 0.3 }}
             className="w-full lg:w-80 space-y-6"
           >
-            {/* 即將到來的活動 */}
+            {/* 即將到來的活動 - 動態顯示活動資料 */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
                 <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
@@ -233,26 +218,47 @@ export default function EventsPage() {
                 </svg>
                 即將到來的活動
               </h3>
-              <div className="space-y-3">
-                {dummyEvents
-                  .sort((a, b) => new Date(a.date) - new Date(b.date))
-                  .slice(0, 3)
-                  .map(ev => (
-                    <a key={ev.id} href={`/events/${ev.id}`} className="block p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
-                      <h4 className="font-medium text-blue-600">{ev.title}</h4>
-                      <p className="text-xs text-gray-500">{new Date(ev.date).toLocaleDateString()}</p>
-                      <div className="flex mt-1 gap-1">
-                        {ev.tags.map(tag => (
-                          <span key={tag} className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
-                            {availableTags.find(t => t.value === tag)?.label || tag}
-                          </span>
-                        ))}
-                      </div>
-                    </a>
-                  ))}
-              </div>
+
+              {loadingUpcoming ? (
+                <div className="flex justify-center p-3">
+                  <LoadingSpinner size={6} />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {upcomingEvents && upcomingEvents.length > 0 ? (
+                    upcomingEvents.map(ev => (
+                      <a
+                        key={ev.id}
+                        href={`/events/${ev.id}`}
+                        className="block p-3 bg-gray-50 rounded hover:bg-gray-100 transition"
+                      >
+                        <h4 className="font-medium text-blue-600">{ev.title}</h4>
+                        <p className="text-xs text-gray-500">
+                          {new Date(ev.date).toLocaleDateString()}
+                        </p>
+                        <div className="flex mt-1 gap-1">
+                          {ev.tags.map(tag => (
+                            <span key={tag} className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
+                              {getTagLabel(tag)}
+                            </span>
+                          ))}
+                        </div>
+                      </a>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 text-center py-2">
+                      近兩週內沒有活動
+                    </p>
+                  )}
+
+                  {/* <div className="mt-4 text-center">
+                    <a href="/events" className="text-blue-600 text-sm hover:underline">查看所有活動 →</a>
+                  </div> */}
+                </div>
+              )}
             </div>
 
+            {/* 其他側邊欄內容保持不變 */}
             {/* 活動地點 */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
