@@ -87,3 +87,13 @@
 
 ---
 
+## Added an announcement page. 04/25
+
+> 2025-04-25 21:50:31
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `f1c81f8a00d75ad27962d3907af6358aa2b28cbe`
+
+---
+

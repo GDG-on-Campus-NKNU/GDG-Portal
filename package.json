@@ -9,5 +9,8 @@
   "devDependencies": {
     "eslint": "^8.57.1"
   },
-  "eslintConfig": {}
+  "eslintConfig": {},
+  "dependencies": {
+    "framer-motion": "^12.9.1"
+  }
 }

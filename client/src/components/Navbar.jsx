@@ -1,3 +1,5 @@
+import { Navigate } from 'react-router-dom'
+
 export function Navbar() {
   return (
     <header className="bg-white shadow sticky top-0 z-50">
@@ -6,7 +8,7 @@ export function Navbar() {
           <img src="/assets/Long-Logo.png" alt="GDG Logo" className="h-10 w-30" />
         </div>
         <nav className="hidden md:flex space-x-6 text-sm font-medium">
-          <a href="#" className="text-gray-600 hover:text-blue-600">首頁</a>
+          <a href="/" className="text-gray-600 hover:text-blue-600">首頁</a>
 
           {/* 活動選單 */}
           <div className="relative group">
@@ -18,7 +20,7 @@ export function Navbar() {
             </div>
           </div>
 
-          <a href="#" className="text-gray-600 hover:text-blue-600">公告</a>
+          <a href="/announcements" className="text-gray-600 hover:text-blue-600">公告</a>
           <a href="#" className="text-gray-600 hover:text-blue-600">幹部</a>
           <a href="#" className="text-blue-600 hover:text-blue-700">登入</a>
           {/*<a href="http://localhost:5000/api/auth/google" className="text-blue-600 hover:text-blue-700">登入</a>*/}
