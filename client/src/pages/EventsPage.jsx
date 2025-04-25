@@ -214,12 +214,12 @@ export default function EventsPage() {
                         whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                       >
                         <EventCard
+                          id={ev.id} // 新增 id 參數
                           title={ev.title}
                           date={ev.date}
                           location={ev.location}
                           tags={ev.tags}
                           excerpt={ev.excerpt}
-                          onRegister={() => alert(`報名活動 ${ev.id}`)}
                         />
                       </motion.div>
                     ))}
