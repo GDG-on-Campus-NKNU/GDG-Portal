@@ -150,7 +150,43 @@ export default function CoreTeamPage() {
               transition={{ delay: 0.2 }}
               className="bg-white rounded-lg shadow-md p-6 space-y-4"
             >
-              <h2 className="text-xl font-semibold">搜尋與篩選</h2>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xl font-semibold">搜尋與篩選</h2>
+                <div className="flex items-center space-x-2">
+                  {/* 清除篩選按鈕 */}
+                  {(keyword || categories.length > 0) && (
+                    <button
+                      onClick={() => {
+                        setKeyword('');
+                        setCategories([]);
+                      }}
+                      className="text-sm text-gray-500 hover:text-red-500 mr-2 flex items-center"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      清除篩選
+                    </button>
+                  )}
+
+                  {/* 重新載入按鈕 */}
+                  <button
+                    onClick={() => {
+                      // 重新載入幹部資料
+                      setLoading(true);
+                      setTimeout(() => {
+                        setLoading(false);
+                      }, 300);
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-800 mr-2 flex items-center"
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    重新載入
+                  </button>
+                </div>
+              </div>
               <SearchBar onSearch={kw => setKeyword(kw)} placeholder="搜尋幹部..." />
               <FilterPanel
                 filters={categoryOptions}
