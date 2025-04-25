@@ -20,8 +20,12 @@ export function Navbar() {
 
           <a href="/announcements" className="text-gray-600 hover:text-blue-600">公告</a>
           <a href="/members" className="text-gray-600 hover:text-blue-600">幹部</a>
-          {/*<a href="#" className="text-blue-600 hover:text-blue-700">登入</a>*/}
-          <a href="http://localhost:5000/api/auth/google" className="text-blue-600 hover:text-blue-700">登入</a>
+          <div className="flex space-x-2">
+            <a href="/login" className="text-blue-600 hover:text-blue-700">登入</a>
+            <span className="text-gray-300">|</span>
+            <a href="/register" className="text-green-600 hover:text-green-700">註冊</a>
+          </div>
+          {/* <a href="http://localhost:5000/api/auth/google" className="text-blue-600 hover:text-blue-700">登入</a> */}
         </nav>
 
         {/* 手機版選單按鈕 */}
