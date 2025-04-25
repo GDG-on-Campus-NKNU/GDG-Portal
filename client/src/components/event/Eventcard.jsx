@@ -38,12 +38,11 @@ export default function EventCard({
           <p className="text-sm text-gray-700 mb-4 line-clamp-2">{excerpt}</p>
         )}
 
-        <button
-          onClick={handleViewDetail}
-          className="w-full py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
-        >
-          View details →
-        </button>
+        <div className="mt-4 flex justify-end">
+          <button onClick={handleViewDetail} className="text-blue-600 text-sm hover:text-blue-800 transition">
+            View details →
+          </button>
+        </div>
       </div>
     </article>
   )

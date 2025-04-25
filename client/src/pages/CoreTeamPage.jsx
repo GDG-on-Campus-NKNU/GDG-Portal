@@ -6,103 +6,26 @@ import MemberCard from '../components/file_management/MemberCard'
 import FilterPanel from '../components/general/FilterPanel'
 import LoadingSpinner from '../components/general/LoadingSpinner'
 import SearchBar from '../components/general/SearchBar'
+import { useCoreTeamData } from '../hooks/useCoreTeamData'
+import Pagination from '../components/general/Pagination'
 
 export default function CoreTeamPage() {
   const [keyword, setKeyword] = useState('')
   const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [page, setPage] = useState(1)
 
-  // Temp資料 - 未來可從 API 獲取
-  const members = [
-    {
-      id: 1,
-      name: '吳傢澂',
-      title: '社長',
-      photo: '',
-      department: '軟體工程與管理學系',
-      year: '大三',
-      categories: ['core'],
-      skills: ['Python', 'Web開發', 'Java'],
-      description: '負責社團整體運作與對外合作，擅長行動應用開發與專案管理。'
-    },
-    {
-      id: 2,
-      name: '顏榕嶙',
-      title: '技術教學',
-      photo: '',
-      department: '軟體工程與管理學系',
-      year: '大三',
-      categories: ['tech'],
-      skills: ['Web Development', 'React', 'Firebase'],
-      description: '協助社長處理社團事務，主要負責網頁前端開發與教學活動。'
-    },
-    {
-      id: 3,
-      name: '李准恩',
-      title: '技術教學',
-      photo: '',
-      department: '軟體工程與管理學系',
-      year: '大三',
-      categories: ['tech'],
-      skills: ['資訊安全'],
-      description: '負責課程規劃與技術研究，專長跨平台開發與雲端服務整合。'
-    },
-    {
-      id: 4,
-      name: '高宜嫻',
-      title: '公關行銷',
-      photo: '',
-      department: '軟體工程與管理學系',
-      year: '大三',
-      categories: ['pr'],
-      skills: ['Event Planning', 'Marketing', 'Design'],
-      description: '規劃與執行社團各項活動，擅長設計與社群媒體經營。'
-    },
-    {
-      id: 5,
-      name: '羅靜慧',
-      title: '美術設計',
-      photo: '',
-      department: '視覺設計學系',
-      year: '大二',
-      categories: ['design'],
-      skills: ['Illustrator', 'Photoshop', 'UI/UX'],
-      description: '負責社團視覺識別與活動海報設計，擅長使用者介面設計。'
-    },
-    {
-      id: 6,
-      name: '游炯騫',
-      title: '總務攝影',
-      photo: '',
-      department: '軟體工程與管理學系',
-      year: '大三',
-      categories: ['affairs'],
-      skills: ['Photography', 'Event Management'],
-      description: '負責社團活動的攝影與紀錄，擅長活動策劃與執行。'
-    }
-  ]
-
-  // 過濾分類選項
-  const categoryOptions = [
-    { label: '核心幹部', value: 'core' },
-    { label: '技術教學', value: 'tech' },
-    { label: '公關行銷', value: 'pr' },
-    { label: '文書美宣', value: 'design' },
-    { label: '總務攝影', value: 'affairs' },
-  ]
-
-  // 依照關鍵字與分類過濾幹部
-  const filteredMembers = members.filter(member => {
-    const matchKeyword = keyword === '' ||
-      member.name.includes(keyword) ||
-      member.title.includes(keyword) ||
-      member.description.includes(keyword)
-
-    const matchCategory = categories.length === 0 ||
-      categories.some(cat => member.categories.includes(cat))
-
-    return matchKeyword && matchCategory
+  // 使用 hook 獲取數據
+  const {
+    members: filteredMembers,
+    loading,
+    error,
+    totalPages,
+    categoryOptions
+  } = useCoreTeamData({
+    page,
+    keyword,
+    categories,
+    limit: 12
   })
 
   // 動畫設定
@@ -159,6 +82,7 @@ export default function CoreTeamPage() {
                       onClick={() => {
                         setKeyword('');
                         setCategories([]);
+                        setPage(1);
                       }}
                       className="text-sm text-gray-500 hover:text-red-500 mr-2 flex items-center"
                     >
@@ -172,11 +96,9 @@ export default function CoreTeamPage() {
                   {/* 重新載入按鈕 */}
                   <button
                     onClick={() => {
-                      // 重新載入幹部資料
-                      setLoading(true);
-                      setTimeout(() => {
-                        setLoading(false);
-                      }, 300);
+                      // 強制重新載入
+                      setPage(prev => 0);
+                      setTimeout(() => setPage(1), 10);
                     }}
                     className="text-sm text-blue-600 hover:text-blue-800 mr-2 flex items-center"
                   >
@@ -187,7 +109,10 @@ export default function CoreTeamPage() {
                   </button>
                 </div>
               </div>
-              <SearchBar onSearch={kw => setKeyword(kw)} placeholder="搜尋幹部..." />
+              <SearchBar
+                onSearch={kw => { setKeyword(kw); setPage(1); }}
+                placeholder="搜尋幹部..."
+              />
               <FilterPanel
                 filters={categoryOptions}
                 selected={categories}
@@ -197,49 +122,75 @@ export default function CoreTeamPage() {
                       ? prev.filter(c => c !== cat)
                       : [...prev, cat]
                   )
+                  setPage(1);
                 }}
               />
             </motion.div>
 
             {/* 顯示幹部 */}
+            {error && (
+              <div className="bg-red-50 p-4 rounded-md text-red-700 text-center">
+                {error}
+              </div>
+            )}
+
             {loading ? (
               <div className="flex justify-center p-12">
                 <LoadingSpinner size={16} />
               </div>
             ) : (
-              <motion.div
-                variants={container}
-                initial="hidden"
-                animate="show"
-                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-              >
-                {filteredMembers.map(member => (
+              <>
+                <motion.div
+                  variants={container}
+                  initial="hidden"
+                  animate="show"
+                  className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                >
+                  {filteredMembers && filteredMembers.length > 0 ? (
+                    filteredMembers.map(member => (
+                      <motion.div
+                        key={member.id}
+                        variants={item}
+                        whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                      >
+                        <MemberCard
+                          id={member.id}
+                          name={member.name}
+                          title={member.title}
+                          photo={member.photo || ''}
+                          department={member.department}
+                          year={member.year}
+                          skills={member.skills}
+                          description={member.description}
+                        />
+                      </motion.div>
+                    ))
+                  ) : (
+                    <motion.p
+                      variants={item}
+                      className="col-span-3 text-center py-12 bg-white rounded-lg shadow-md text-gray-500"
+                    >
+                      沒有符合條件的幹部
+                    </motion.p>
+                  )}
+                </motion.div>
+
+                {/* 添加分頁控制 */}
+                {totalPages > 1 && (
                   <motion.div
-                    key={member.id}
-                    variants={item}
-                    whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="py-6"
                   >
-                    <MemberCard
-                      name={member.name}
-                      title={member.title}
-                      photo={member.photo}
-                      department={member.department}
-                      year={member.year}
-                      skills={member.skills}
-                      description={member.description}
+                    <Pagination
+                      currentPage={page}
+                      totalPages={totalPages}
+                      onPageChange={p => setPage(p)}
                     />
                   </motion.div>
-                ))}
-
-                {filteredMembers.length === 0 && (
-                  <motion.p
-                    variants={item}
-                    className="col-span-3 text-center py-12 bg-white rounded-lg shadow-md text-gray-500"
-                  >
-                    沒有符合條件的幹部
-                  </motion.p>
                 )}
-              </motion.div>
+              </>
             )}
           </div>
 
@@ -250,7 +201,7 @@ export default function CoreTeamPage() {
             transition={{ delay: 0.3 }}
             className="w-full lg:w-80 space-y-6"
           >
-            {/* 關於幹部團隊 */}
+            {/* 保留原有的側邊欄內容 */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
                 <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
@@ -282,21 +233,20 @@ export default function CoreTeamPage() {
               </div>
             </div>
 
-            {/* 幹部招募 */}
+            {/* 其他側邊欄內容保持不變 */}
             <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-md p-6 text-white">
               <h3 className="text-lg font-bold mb-4">加入幹部團隊</h3>
               <p className="text-indigo-100 text-sm mb-4">
                 每學期初我們會開放幹部招募，歡迎對 Google 技術有熱情、想提升自我能力的同學加入我們！
               </p>
               <a
-                href="#"
+                href="/join-team"
                 className="inline-flex items-center justify-center w-full bg-white text-indigo-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-100 transition"
               >
                 了解招募資訊
               </a>
             </div>
 
-            {/* 幹部福利 */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4">幹部福利</h3>
               <ul className="space-y-3 text-sm">
