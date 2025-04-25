@@ -241,6 +241,50 @@ class EventModel {
         ],
         registrationUrl: 'https://gdg.community.dev/events/details/google-gdg-on-campus-national-chengchi-university-taipei-taiwan-presents-gdg-on-campus-nccu-build-with-ai-2025-1/',
         coverImage: '/assets/events/pwa-workshop.jpg'
+      },
+      {
+        id: 14,
+        title: 'Google Cloud 應用開發與部署實戰',
+        date: '2025-01-31T14:00:00',
+        location: '學生活動中心',
+        tags: ['offline', 'workshop'],
+        excerpt: '學習如何使用 Google Cloud 平台開發、測試和部署高可擴展性的應用程式。',
+        description: '這個實作工作坊將帶你深入了解 Google Cloud 平台的核心服務，並學習如何有效地利用它們來構建現代雲端應用。你將學習到 Google Cloud 的基礎架構、Compute Engine、App Engine、Cloud Functions、Cloud Run 等服務的使用方式，以及如何整合 Storage、Database 和 AI/ML 服務。工作坊中將通過實際案例演示，從應用開發到部署的完整流程，並提供最佳實踐建議。',
+        speakers: [
+          {
+            name: '林雲端',
+            role: 'Google Cloud 技術主管',
+            bio: '10 年雲端架構經驗，專精於大規模分佈式系統設計和雲端遷移策略。曾主導多家企業的雲端轉型項目。',
+            avatar: '/assets/speakers/speaker13.jpg'
+          },
+          {
+            name: '何容器',
+            role: 'DevOps 技術專家',
+            bio: '熟悉容器化技術和自動化部署流程，致力於推廣 Cloud Native 應用開發方法。',
+            avatar: '/assets/speakers/speaker14.jpg'
+          }
+        ],
+        registrationUrl: 'https://gdg.community.dev/events/details/google-gdg-on-campus-national-central-university-taoyuan-city-taiwan-presents-2025-zi-an-ti-yan-ying-cong-gong-fang-shi-zhan-dao-yun-duan-fang-xian/',
+        coverImage: '/assets/events/cloud-workshop.jpg'
+      },
+      {
+        id: 15,
+        title: 'Web3 開發入門：區塊鏈技術與去中心化應用',
+        date: '2025-06-28T19:00:00',
+        location: '線上 Zoom',
+        tags: ['online', 'talk'],
+        excerpt: '探索區塊鏈技術基礎與開發去中心化應用 (DApps) 的實際方法。',
+        description: '這場線上分享會將為開發者提供 Web3 和區塊鏈技術的全面介紹。內容從區塊鏈基礎概念開始，逐步深入智能合約開發、代幣標準、去中心化金融 (DeFi)、NFT 應用等主題。我們將討論當前主流區塊鏈平台的開發差異，以及如何將 Web2 技能轉化為 Web3 開發能力。講者還將分享成功案例和常見陷阱，以及未來技術趨勢展望。無論你是對區塊鏈開發感興趣的新手，還是尋找新方向的資深開發者，都能從中獲益。',
+        speakers: [
+          {
+            name: '陳鏈結',
+            role: 'Web3 開發者倡導者',
+            bio: '早期區塊鏈技術採用者，專注於去中心化應用架構和智能合約安全。經常在技術社群分享實用開發知識。',
+            avatar: '/assets/speakers/speaker15.jpg'
+          }
+        ],
+        registrationUrl: 'https://gdg.community.dev/events/details/google-gdg-on-campus-national-university-of-kaohsiung-kaohsiung-city-taiwan-presents-gdg-on-campus-nuk-build-with-ai-2025-april-ii/',
+        coverImage: '/assets/events/web3-talk.jpg'
       }
     ];
   }
@@ -278,14 +322,7 @@ class EventModel {
       }
     }
 
-    // 依照日期排序（sort參數控制升序或降序）
-    if (sort === 'desc') {
-      // 從新到舊
-      filteredEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
-    } else {
-      // 從舊到新
-      filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
-    }
+    filteredEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // 計算總頁數
     const totalEvents = filteredEvents.length;
