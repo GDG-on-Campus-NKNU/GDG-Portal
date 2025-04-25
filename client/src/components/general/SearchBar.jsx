@@ -42,7 +42,7 @@ export default function SearchBar({ onSearch, placeholder = "搜尋...", debounc
         value={value}
         onChange={handleInputChange}
         placeholder={placeholder}
-        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-200"
       />
       <button
         type="submit"

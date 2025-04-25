@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
@@ -16,14 +16,32 @@ export default function EventsPage() {
   const [tags, setTags] = useState([])
   const [page, setPage] = useState(1)
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'calendar'
+  const [selectedMonth, setSelectedMonth] = useState(new Date()) // 追蹤選擇的月份
 
-  // 使用 hook 獲取所有活動資料
+  // 使用 hook 獲取所有活動資料 - 針對網格視圖
   const { events, loading, error, totalPages } = useEventData({
     page,
     limit: 8,
     keyword,
-    tags
+    tags,
+    future: viewMode === 'grid' ? undefined : false // 網格視圖使用預設
   })
+
+  // 使用 hook 獲取所有月曆視圖的活動資料 - 不使用 future 過濾
+  const { events: calendarEvents, loading: loadingCalendar } = useEventData({
+    page: 1,
+    limit: 100, // 較大的限制，確保獲取所有活動
+    future: false, // 不過濾過去的活動
+    keyword, // 保持關鍵字搜尋
+    tags // 保持標籤篩選
+  })
+
+  // 當視圖模式改變時重置一些狀態
+  useEffect(() => {
+    if (viewMode === 'grid') {
+      setPage(1) // 重置到第一頁
+    }
+  }, [viewMode])
 
   // 使用 hook 獲取即將到來的活動 (不受搜尋和標籤篩選影響)
   const {
@@ -180,7 +198,12 @@ export default function EventsPage() {
                     animate={{ opacity: 1 }}
                     className="bg-white rounded-lg shadow-md p-6"
                   >
-                    <CalendarView events={events} onDayClick={day => console.log(day)} />
+                    <CalendarView
+                      events={calendarEvents}
+                      initialDate={selectedMonth}
+                      onMonthChange={(date) => setSelectedMonth(date)} // 添加月份變化追蹤
+                      onDayClick={day => console.log(day)}
+                    />
                   </motion.div>
                 )}
 

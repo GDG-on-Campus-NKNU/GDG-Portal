@@ -93,6 +93,14 @@ export function useEventData({
           },
           {
             id: 8,
+            title: 'Express.js 與 Node.js 實戰工作坊',
+            date: '2025-04-20T18:30:00',
+            location: 'E203 教室',
+            tags: ['offline', 'workshop'],
+            excerpt: '學習如何使用 Express.js 和 Node.js 開發 RESTful API，並與前端應用程式整合。'
+          },
+          {
+            id: 9,
             title: 'AI 開發實戰工作坊 - TensorFlow.js 入門',
             date: '2025-04-04T18:30:00',
             location: '線上 Zoom',
@@ -100,7 +108,7 @@ export function useEventData({
             excerpt: '使用 TensorFlow.js 在瀏覽器中實現機器學習模型，無需後端即可打造智慧型應用。'
           },
           {
-            id: 9,
+            id: 10,
             title: '網路安全與資料隱私專題講座',
             date: '2025-03-22T19:00:00',
             location: '學生活動中心',
@@ -108,7 +116,7 @@ export function useEventData({
             excerpt: '探討最新網路安全威脅與資料隱私保護策略，以及如何在應用開發中實踐安全原則。'
           },
           {
-            id: 10,
+            id: 11,
             title: 'DevOps 與 CI/CD 自動化實務',
             date: '2025-03-17T18:30:00',
             location: 'E101 教室',
@@ -116,7 +124,7 @@ export function useEventData({
             excerpt: '學習如何建置自動化部署流程，使用 GitHub Actions、Docker 和 Kubernetes 實現 CI/CD。'
           },
           {
-            id: 11,
+            id: 12,
             title: '網頁效能最佳化技巧分享',
             date: '2025-03-05T19:00:00',
             location: '線上 Zoom',
@@ -124,7 +132,7 @@ export function useEventData({
             excerpt: '分析並改善網頁載入速度的實用技巧，包括資源最佳化、延遲載入和快取策略。'
           },
           {
-            id: 12,
+            id: 13,
             title: 'PWA 實戰工作坊 - 打造離線可用的網頁應用',
             date: '2025-02-22T18:30:00',
             location: 'E202 教室',
