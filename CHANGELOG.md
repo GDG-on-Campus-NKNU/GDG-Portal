@@ -77,3 +77,13 @@
 
 ---
 
+## Temporary disabled login button, and added some more general components. 04/25
+
+> 2025-04-25 21:28:03
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `f7f0105f97667c52d7f6fd2e19fdd37047ea1885`
+
+---
+
