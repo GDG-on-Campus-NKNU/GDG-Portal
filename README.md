@@ -1,6 +1,10 @@
+# 注意：**目前 `master` 分支的穩定版本僅包含前端主頁面；如需查看最新變動，請切換至 `develop` 分支。
+
 # GDG on Campus NKNU 會員入口網站 🌐
 
 這是一個為 GDG on Campus NKNU 量身打造的網站系統，提供社員註冊、Profile 管理、公告通知、活動報名、技術資源共享等功能，強化社群互動與學習效率。
+
+---
 
 ## 🚀 專案目的
 打造一個統整 GDG on Campus 運作的全端式網站平台，讓社員能夠一站式管理資訊、學習資源、參與活動並展現自我技術成就。
@@ -63,6 +67,7 @@ npm install
 ```bash
 node dev-runner.mjs
 ```
+
 ---
 
 ## 📦 使用技術
@@ -95,17 +100,28 @@ node dev-runner.mjs
 
 ## 🤝 貢獻方式
 
-1. Fork 專案並建立新分支
-2. 開發功能並提 PR
-3. 依照開發規範命名分支：`feature/[功能名]`、`fix/[修正名]` 等
+1. Fork 專案並建立新分支  
+2. 開發功能並提 PR  
+3. 依照開發規範命名分支：`feature/[功能名]`、`fix/[修正名]`  
+
+---
+
+## 🛠 分工表及協作者
+
+| 使用者                               | 貢獻領域                 |
+|--------------------------------------|--------------------------|
+| @calculusfkyou                       | 共同前端開發             |
+| @CipherCapricorn                     | 後端路由與服務創建       |
+| @lin0813you                          | 使用者驗證以及資料庫管理 |
+| @unforgettableeternalproject         | 主要網頁架構開發         |
 
 ---
 
 ## 🧪 其他
 
-- 環境變數請參考 `.env.example`
-- 資料庫結構詳見 `docs/architecture.md` (尚在規劃中)
+- 環境變數請參考 `.env.example`  
+- 資料庫結構詳見 `docs/architecture.md` (尚在規劃中)  
 
 ---
 
-GDG on Campus Together, Let’s Build & Grow! 🚀
+## GDG on Campus Together, Let’s Build & Grow! 🚀
