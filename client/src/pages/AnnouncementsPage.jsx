@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion' // 用於動畫效果，不要管他
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import SearchBar from '../components/general/SearchBar'

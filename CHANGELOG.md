@@ -97,3 +97,13 @@
 
 ---
 
+## Added animations to the home page and some more components. 04/25
+
+> 2025-04-25 21:59:06
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `96642bbf2eb0b7f7683840c0452b8a8c7e0cc956`
+
+---
+
