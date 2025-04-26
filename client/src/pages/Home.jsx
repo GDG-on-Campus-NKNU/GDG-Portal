@@ -8,7 +8,7 @@ import { GoogleCalendar } from '../components/main/GoogleCalendar'
 import { Stats } from '../components/main/Stats'
 import { Partners } from '../components/main/Partners'
 import { RecentAnnouncements } from '../components/main/RecentAnnouncements'
-import { UpcomingEvents } from '../components/main/UpcomingEvents' // 引入新元件
+import { UpcomingEvents } from '../components/main/Events' // 引入新元件
 
 export default function HomePage() {
   // 動畫設定

@@ -9,6 +9,9 @@ import NotificationToast from '../components/general/NotificationToast'
 import Pagination from '../components/general/Pagination'
 import EventCard from '../components/event/EventCard'
 import CalendarView from '../components/event/CalendarView'
+import UpcomingEvents from '../components/event/UpcomingEvents'
+import EventLocations from '../components/event/EventLocations'
+import EventSubscription from '../components/event/EventSubscription'
 import { useEventData } from '../hooks/useEventData'
 
 export default function EventsPage() {
@@ -16,50 +19,47 @@ export default function EventsPage() {
   const [tags, setTags] = useState([])
   const [page, setPage] = useState(1)
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'calendar'
-  const [selectedMonth, setSelectedMonth] = useState(new Date()) // 追蹤選擇的月份
+  const [selectedMonth, setSelectedMonth] = useState(new Date())
 
-  // 當視圖模式改變時重置一些狀態
+  // Reset states when view mode changes
   useEffect(() => {
     if (viewMode === 'grid') {
-      setPage(1); // 重置到第一頁
-
-      // 可以考慮添加一個強制重新獲取資料的機制
-      // 或者保留當前篩選條件，因為用戶可能想在不同視圖下保持相同的篩選條件
+      setPage(1);
       console.log('切換到網格視圖，當前篩選條件:', { keyword, tags });
     } else {
       console.log('切換到月曆視圖，當前篩選條件:', { keyword, tags });
     }
   }, [viewMode]);
 
-  // 使用 hook 獲取所有活動資料 - 針對網格視圖
+  // Hook for grid view events
   const { events, loading, error, totalPages } = useEventData({
     page,
     limit: 8,
     keyword,
     tags,
-    sort: 'desc', // 添加排序參數，確保從新到舊排序
-    future: true // 對網格視圖不限制未來活動
+    sort: 'desc',
+    future: true
   });
 
-  // 使用 hook 獲取所有月曆視圖的活動資料 - 不使用 future 過濾
+  // Hook for calendar view events
   const { events: calendarEvents, loading: loadingCalendar } = useEventData({
     page: 1,
-    limit: 100, // 較大的限制，確保獲取所有活動
-    future: false, // 不過濾過去的活動
-    keyword, // 保持關鍵字搜尋
-    tags, // 保持標籤篩選
-    sort: 'asc' // 月曆視圖按日期升序排序
+    limit: 100,
+    future: false,
+    keyword,
+    tags,
+    sort: 'asc'
   });
 
-  // 使用 hook 獲取即將到來的活動 (不受搜尋和標籤篩選影響)
+  // Hook for upcoming events (sidebar)
   const {
     events: upcomingEvents,
     loading: loadingUpcoming
   } = useEventData({
     page: 1,
     limit: 3,
-    future: true, // 只顯示未來的活動
-    sort: 'asc' // 從最近到最遠排序
+    future: true,
+    sort: 'asc'
   })
 
   const availableTags = [
@@ -85,7 +85,7 @@ export default function EventsPage() {
     show: { opacity: 1, y: 0 }
   }
 
-  // 取得標籤的中文名稱函數
+  // Helper functions
   const getTagLabel = (tagValue) => {
     const tag = availableTags.find(t => t.value === tagValue);
     return tag ? tag.label : tagValue;
@@ -95,13 +95,11 @@ export default function EventsPage() {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    // 格式化日期
     const formattedDate = start.toLocaleDateString('zh-TW', {
       month: 'numeric',
       day: 'numeric'
     });
 
-    // 格式化時間
     const startTime = start.toLocaleTimeString('zh-TW', {
       hour: '2-digit',
       minute: '2-digit'
@@ -119,7 +117,7 @@ export default function EventsPage() {
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800">
       <Navbar />
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
-        {/* 頂部橫幅 */}
+        {/* Header Banner */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -135,14 +133,14 @@ export default function EventsPage() {
         </motion.div>
 
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* 主要內容區 */}
+          {/* Main Content Area */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
             className="flex-1 space-y-6"
           >
-            {/* 搜尋 + 篩選 */}
+            {/* Search & Filter */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -152,7 +150,7 @@ export default function EventsPage() {
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-xl font-semibold">搜尋與篩選</h2>
                 <div className="flex items-center space-x-2">
-                  {/* 清除篩選按鈕 */}
+                  {/* Clear filter button */}
                   {(keyword || tags.length > 0) && (
                     <button
                       onClick={() => {
@@ -169,12 +167,11 @@ export default function EventsPage() {
                     </button>
                   )}
 
-                  {/* 添加重新載入按鈕 */}
+                  {/* Reload button */}
                   <button
                     onClick={() => {
-                      // 強制重新載入
-                      setPage(prev => 0); // 先設為不可能的值
-                      setTimeout(() => setPage(1), 10); // 然後設回第一頁
+                      setPage(prev => 0);
+                      setTimeout(() => setPage(1), 10);
                     }}
                     className="text-sm text-blue-600 hover:text-blue-800 mr-2 flex items-center"
                   >
@@ -183,6 +180,8 @@ export default function EventsPage() {
                     </svg>
                     重新載入
                   </button>
+
+                  {/* View mode toggle */}
                   <button
                     onClick={() => setViewMode('grid')}
                     className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
@@ -216,7 +215,7 @@ export default function EventsPage() {
               />
             </motion.div>
 
-            {/* 錯誤或 Loading */}
+            {/* Error or Loading */}
             {error && <NotificationToast message={error} type="error" />}
             {loading ? (
               <div className="flex justify-center p-12">
@@ -238,7 +237,7 @@ export default function EventsPage() {
                         whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                       >
                         <EventCard
-                          id={ev.id} // 新增 id 參數
+                          id={ev.id}
                           title={ev.title}
                           date={ev.date}
                           endDate={ev.endDate}
@@ -266,13 +265,13 @@ export default function EventsPage() {
                     <CalendarView
                       events={calendarEvents}
                       initialDate={selectedMonth}
-                      onMonthChange={(date) => setSelectedMonth(date)} // 添加月份變化追蹤
+                      onMonthChange={(date) => setSelectedMonth(date)}
                       onDayClick={day => console.log(day)}
                     />
                   </motion.div>
                 )}
 
-                {/* 分頁 */}
+                {/* Pagination */}
                 {events.length > 0 && viewMode === 'grid' && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -291,104 +290,26 @@ export default function EventsPage() {
             )}
           </motion.div>
 
-          {/* 側邊欄 */}
+          {/* Sidebar */}
           <motion.aside
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
             className="w-full lg:w-80 space-y-6"
           >
-            {/* 即將到來的活動 - 動態顯示活動資料 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" />
-                </svg>
-                即將到來的活動
-              </h3>
+            {/* Upcoming Events - Using the new component */}
+            <UpcomingEvents
+              events={upcomingEvents}
+              loading={loadingUpcoming}
+              formatEventTimeRange={formatEventTimeRange}
+              getTagLabel={getTagLabel}
+            />
 
-              {loadingUpcoming ? (
-                <div className="flex justify-center p-3">
-                  <LoadingSpinner size={6} />
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {upcomingEvents && upcomingEvents.length > 0 ? (
-                    upcomingEvents.map(ev => (
-                      <a
-                        key={ev.id}
-                        href={`/events/${ev.id}`}
-                        className="block p-3 bg-gray-50 rounded hover:bg-gray-100 transition"
-                      >
-                        <h4 className="font-medium text-blue-600">{ev.title}</h4>
-                        <p className="text-xs text-gray-500">
-                          {ev.endDate ? formatEventTimeRange(ev.date, ev.endDate) : new Date(ev.date).toLocaleDateString()}
-                        </p>
-                        <div className="flex mt-1 gap-1">
-                          {ev.tags.map(tag => (
-                            <span key={tag} className="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full">
-                              {getTagLabel(tag)}
-                            </span>
-                          ))}
-                        </div>
-                      </a>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-500 text-center py-2">
-                      近兩週內沒有活動
-                    </p>
-                  )}
+            {/* Event Locations - Using the new component */}
+            <EventLocations />
 
-                  {/* <div className="mt-4 text-center">
-                    <a href="/events" className="text-blue-600 text-sm hover:underline">查看所有活動 →</a>
-                  </div> */}
-                </div>
-              )}
-            </div>
-
-            {/* 其他側邊欄內容保持不變 */}
-            {/* 活動地點 */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                <svg className="w-5 h-5 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                </svg>
-                活動地點
-              </h3>
-              <div className="bg-gray-50 rounded-lg p-4 aspect-video mb-2 flex items-center justify-center text-gray-500">
-                校園地圖預覽
-              </div>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-start">
-                  <span className="text-blue-600 mr-2">•</span>
-                  <span><strong>LI104 教室:</strong> 圖書館一樓電腦教室</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-blue-600 mr-2">•</span>
-                  <span><strong>LI106 教室:</strong> 圖書館一樓電腦教室</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-blue-600 mr-2">•</span>
-                  <span><strong>LI102 演講廳:</strong> 圖書館一樓演講廳</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* 訂閱活動 */}
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md p-6 text-white">
-              <h3 className="text-lg font-bold mb-4">訂閱活動通知</h3>
-              <p className="text-blue-100 text-sm mb-4">第一時間收到最新活動資訊，不錯過任何一場精彩活動！</p>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="你的電子信箱"
-                  className="flex-1 rounded-l-lg px-4 py-2 text-gray-800 text-sm focus:outline-none"
-                />
-                <button className="bg-white text-blue-600 rounded-r-lg px-4 py-2 text-sm font-medium hover:bg-gray-100 transition">
-                  訂閱
-                </button>
-              </div>
-            </div>
+            {/* Event Subscription - Using the new component */}
+            <EventSubscription />
           </motion.aside>
         </div>
       </main>

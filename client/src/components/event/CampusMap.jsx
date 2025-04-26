@@ -11,7 +11,7 @@ const CampusMap = () => {
       if (!mapRef.current._leaflet_id) {
         // Create map centered on the NKNU campus
         const map = L.map(mapRef.current, {
-          center: [22.652, 120.312], // Approximate coordinates for NKNU
+          center: [22.78727903510654, 120.4067639424875], // Approximate coordinates for NKNU
           zoom: 18,
           scrollWheelZoom: false
         });
@@ -33,7 +33,7 @@ const CampusMap = () => {
         });
 
         // Add only the library marker
-        const libraryMarker = L.marker([22.6524, 120.3121], { icon: greenIcon }).addTo(map);
+        const libraryMarker = L.marker([22.787007350133123, 120.40738855083502], { icon: greenIcon }).addTo(map);
         libraryMarker.bindPopup("<h4>圖書館</h4>").openPopup();
 
         // Add some buildings outlines (simplified from your original data)
