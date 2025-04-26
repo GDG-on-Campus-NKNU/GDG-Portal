@@ -147,3 +147,43 @@
 
 ---
 
+## Added more svgs, updated the second member, added a hook preventing bfcache. 04/26
+
+> 2025-04-26 14:28:15
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `034b7b8d4a90b4e758142d27055396bb47cee1cb`
+
+---
+
+## Changes some files' locations and is working on some experimental changes. 04/26
+
+> 2025-04-26 14:50:43
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `490647ed97c42fce601ab508b83991f941441edb`
+
+---
+
+## Added a real campus map. 04/26
+
+> 2025-04-26 15:01:10
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `463b23bd3821955df3cc86ebc2c3783df4a358a1`
+
+---
+
+## Made more components for each main pages, integrated many more stuff, and provided actual files for download. 04/26
+
+> 2025-04-26 17:01:42
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `3c22e92fc2e4a709d7df7991e625d76058495433`
+
+---
+
