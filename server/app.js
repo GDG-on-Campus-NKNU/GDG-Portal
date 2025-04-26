@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import path from 'path';
 dotenv.config()
 
 import authRoutes from "./routes/auth_routes.js";
@@ -36,11 +37,16 @@ const startServer = (port) => {
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
       console.log(`⚠️ Port ${port} is in use, trying port ${port + 1}...`);
-      startServer(port + 1);
+      startServer(parseInt(port) + 1);
     } else {
       console.error(`❌ Server error: ${err.message}`);
     }
   });
 };
+
+// Serve static files from the client/public directory
+const __dirname = path.resolve();
+app.use('/resources', express.static(path.join(__dirname, '../client/public/resources')));
+console.log('Serving static files from:', path.join(__dirname, '../client/public/resources'));
 
 startServer(PORT);
