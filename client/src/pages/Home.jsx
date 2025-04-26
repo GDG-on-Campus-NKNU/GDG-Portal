@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion'
-import { Navbar } from '../components/Navbar'
-import { Sidebar } from '../components/Sidebar'
+import { Navbar } from '../components/general/Navbar'
+import { Sidebar } from '../components/main/Sidebar'
 import { Footer } from '../components/Footer'
-import { Banner } from '../components/Banner'
-import { WelcomeBox } from '../components/WelcomeBox'
-import { GoogleCalendar } from '../components/GoogleCalendar'
-import { Stats } from '../components/Stats'
-import { Partners } from '../components/Partners'
-import { RecentAnnouncements } from '../components/RecentAnnouncements'
-import { UpcomingEvents } from '../components/UpcomingEvents' // 引入新元件
+import { Banner } from '../components/main/Banner'
+import { WelcomeBox } from '../components/main/WelcomeBox'
+import { GoogleCalendar } from '../components/main/GoogleCalendar'
+import { Stats } from '../components/main/Stats'
+import { Partners } from '../components/main/Partners'
+import { RecentAnnouncements } from '../components/main/RecentAnnouncements'
+import { UpcomingEvents } from '../components/main/UpcomingEvents' // 引入新元件
 
 export default function HomePage() {
   // 動畫設定

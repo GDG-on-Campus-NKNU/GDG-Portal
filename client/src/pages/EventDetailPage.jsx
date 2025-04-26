@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Navbar } from '../components/Navbar';
+import { Navbar } from '../components/general/Navbar';
 import { Footer } from '../components/Footer';
 import LoadingSpinner from '../components/general/LoadingSpinner';
 import NotificationToast from '../components/general/NotificationToast';

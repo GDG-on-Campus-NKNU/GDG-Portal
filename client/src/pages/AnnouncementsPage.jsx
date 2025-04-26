@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Navbar } from '../components/Navbar'
+import { Navbar } from '../components/general/Navbar'
 import { Footer } from '../components/Footer'
 import SearchBar from '../components/general/SearchBar'
 import FilterPanel from '../components/general/FilterPanel'
 import LoadingSpinner from '../components/general/LoadingSpinner'
 import NotificationToast from '../components/general/NotificationToast'
 import Pagination from '../components/general/Pagination'
-import { PostCard } from '../components/PostCard'
+import { PostCard } from '../components/general/Postcard'
 import { useAnnouncementData } from '../hooks/useAnnouncementData' // 引入 hook
 import { useEventData } from '../hooks/useEventData'
 

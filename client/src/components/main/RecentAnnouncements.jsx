@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
-import { useAnnouncementData } from '../hooks/useAnnouncementData'
-import { PostCard } from './PostCard'
-import LoadingSpinner from './general/LoadingSpinner'
+import { useAnnouncementData } from '../../hooks/useAnnouncementData'
+import { PostCard } from '../general/Postcard'
+import LoadingSpinner from '../general/LoadingSpinner'
 
 export function RecentAnnouncements({ limit = 2, showTitle = true }) {
   const { announcements, loading, error } = useAnnouncementData({

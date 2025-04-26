@@ -157,3 +157,13 @@
 
 ---
 
+## Changes some files' locations and is working on some experimental changes. 04/26
+
+> 2025-04-26 14:50:43
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `490647ed97c42fce601ab508b83991f941441edb`
+
+---
+

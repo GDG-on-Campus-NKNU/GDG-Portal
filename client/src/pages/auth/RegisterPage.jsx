@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Navbar } from '../../components/Navbar'
+import { Navbar } from '../../components/general/Navbar'
 import { Footer } from '../../components/Footer'
 import { Link } from 'react-router-dom'
 

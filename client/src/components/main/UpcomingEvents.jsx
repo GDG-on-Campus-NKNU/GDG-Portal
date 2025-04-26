@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
-import { useEventData } from '../hooks/useEventData'
-import LoadingSpinner from './general/LoadingSpinner'
+import { useEventData } from '../../hooks/useEventData'
+import LoadingSpinner from '../general/LoadingSpinner'
 import { Link } from 'react-router-dom'
 
 export function UpcomingEvents({ limit = 3, showTitle = true }) {

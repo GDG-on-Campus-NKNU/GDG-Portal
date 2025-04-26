@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Navbar } from '../components/Navbar'
+import { Navbar } from '../components/general/Navbar'
 import { Footer } from '../components/Footer'
 import SearchBar from '../components/general/SearchBar'
 import FilterPanel from '../components/general/FilterPanel'
@@ -361,15 +361,15 @@ export default function EventsPage() {
               <ul className="space-y-2 text-sm">
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">•</span>
-                  <span><strong>E101 教室:</strong> 工學院一樓，電梯出口右轉</span>
+                  <span><strong>LI104 教室:</strong> 圖書館一樓電腦教室</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">•</span>
-                  <span><strong>E202 教室:</strong> 工學院二樓，電梯出口左轉</span>
+                  <span><strong>LI106 教室:</strong> 圖書館一樓電腦教室</span>
                 </li>
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">•</span>
-                  <span><strong>學生活動中心:</strong> 圖書館旁，一樓演講廳</span>
+                  <span><strong>LI102 演講廳:</strong> 圖書館一樓演講廳</span>
                 </li>
               </ul>
             </div>

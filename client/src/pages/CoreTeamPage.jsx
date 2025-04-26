@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Navbar } from '../components/Navbar'
+import { Navbar } from '../components/general/Navbar'
 import { Footer } from '../components/Footer'
 import MemberCard from '../components/file_management/MemberCard'
 import FilterPanel from '../components/general/FilterPanel'
