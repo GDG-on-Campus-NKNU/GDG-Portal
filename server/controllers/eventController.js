@@ -56,3 +56,37 @@ export const getEventsByDateRange = (req, res) => {
     res.status(500).json({ message: '發生錯誤', error: error.message });
   }
 };
+
+// 獲取歷史活動
+export const getHistoricalEvents = (req, res) => {
+  try {
+    const { keyword, tags, page = 1, limit = 10 } = req.query;
+
+    // 處理標籤參數
+    const tagArray = tags ? tags.split(',') : [];
+
+    // 呼叫模型方法獲取歷史活動
+    const result = eventModel.getHistoricalEvents({
+      keyword,
+      tags: tagArray,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error in getHistoricalEvents:', error);
+    res.status(500).json({ message: '獲取歷史活動失敗', error: error.message });
+  }
+};
+
+// 獲取所有活動標籤
+export const getEventTags = (req, res) => {
+  try {
+    const tagOptions = eventModel.getEventTags();
+    res.status(200).json({ tags: tagOptions });
+  } catch (error) {
+    console.error('Error in getEventTags:', error);
+    res.status(500).json({ message: '獲取活動標籤失敗', error: error.message });
+  }
+};

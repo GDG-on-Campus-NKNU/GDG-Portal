@@ -6,6 +6,7 @@ class EventModel {
         id: 1,
         title: '全棧網頁應用實戰 5 - Full-Stack Web Development in Action',
         date: '2025-05-06T18:30:00',
+        endDate: '2025-05-06T21:30:00',
         location: 'E202 教室',
         tags: ['offline', 'workshop'],
         excerpt: '系列課程第五講，學習如何開發完整的全端網頁應用。',
@@ -25,6 +26,7 @@ class EventModel {
         id: 2,
         title: 'Google I/O 2025 觀賞派對',
         date: '2025-05-25T18:00:00',
+        endDate: '2025-05-25T22:00:00',
         location: '學生活動中心',
         tags: ['offline', 'talk'],
         excerpt: '一起觀看 Google I/O 2025 開發者大會，了解 Google 最新技術和產品。',
@@ -37,6 +39,7 @@ class EventModel {
         id: 3,
         title: 'Firebase 後端實作課程',
         date: '2025-05-20T18:30:00',
+        endDate: '2025-05-20T21:30:00',
         location: 'E202 教室',
         tags: ['offline', 'workshop'],
         excerpt: '學習如何使用 Firebase 建立後端服務，快速開發應用程式。',
@@ -56,6 +59,7 @@ class EventModel {
         id: 4,
         title: 'Flutter 跨平台分享會',
         date: '2025-05-15T18:30:00',
+        endDate: '2025-05-15T20:30:00',
         location: '線上 Zoom',
         tags: ['online', 'talk'],
         excerpt: '了解如何使用 Flutter 開發跨平台應用程式，一次寫程式，到處執行。',
@@ -75,6 +79,7 @@ class EventModel {
         id: 5,
         title: 'Android 開發入門工作坊',
         date: '2025-05-10T18:30:00',
+        endDate: '2025-05-10T21:30:00',
         location: 'E101 教室',
         tags: ['offline', 'workshop'],
         excerpt: '從零開始學習 Android 應用程式開發，適合初學者參加。',
@@ -94,6 +99,7 @@ class EventModel {
         id: 6,
         title: '深入淺出 Chrome 開發者工具 (DevTools)',
         date: '2025-04-29T18:30:00',
+        endDate: '2025-04-29T21:30:00',
         location: 'E101 教室',
         tags: ['offline', 'workshop'],
         excerpt: '學習如何使用 Chrome DevTools 進行網頁除錯與效能優化。',
@@ -112,7 +118,8 @@ class EventModel {
       {
         id: 7,
         title: 'React 進階開發技巧與狀態管理',
-        date: '2025-04-20T18:30:00',
+        date: '2025-04-27T18:30:00',
+        endDate: '2025-04-27T21:30:00',
         location: 'E203 教室',
         tags: ['offline', 'workshop'],
         excerpt: '探討 React 進階開發技巧，包括 Context API、自定義 Hooks 和多種狀態管理解決方案。',
@@ -131,7 +138,8 @@ class EventModel {
       {
         id: 8,
         title: 'Express.js 與 Node.js 實戰工作坊',
-        date: '2025-04-15T18:30:00',
+        date: '2025-04-26T18:30:00',
+        endDate: '2025-04-26T21:30:00',
         location: 'E203 教室',
         tags: ['offline', 'workshop'],
         excerpt: '學習如何使用 Express.js 和 Node.js 開發 RESTful API，並與前端應用程式整合。',
@@ -151,6 +159,7 @@ class EventModel {
         id: 9,
         title: 'AI 開發實戰工作坊 - TensorFlow.js 入門',
         date: '2025-04-04T18:30:00',
+        endDate: '2025-04-04T21:30:00',
         location: '線上 Zoom',
         tags: ['online', 'workshop'],
         excerpt: '使用 TensorFlow.js 在瀏覽器中實現機器學習模型，無需後端即可打造智慧型應用。',
@@ -170,6 +179,7 @@ class EventModel {
         id: 10,
         title: '網路安全與資料隱私專題講座',
         date: '2025-03-22T19:00:00',
+        endDate: '2025-03-22T21:00:00',
         location: '學生活動中心',
         tags: ['offline', 'talk'],
         excerpt: '探討最新網路安全威脅與資料隱私保護策略，以及如何在應用開發中實踐安全原則。',
@@ -189,6 +199,7 @@ class EventModel {
         id: 11,
         title: 'DevOps 與 CI/CD 自動化實務',
         date: '2025-03-17T18:30:00',
+        endDate: '2025-03-17T21:30:00',
         location: 'E101 教室',
         tags: ['offline', 'workshop'],
         excerpt: '學習如何建置自動化部署流程，使用 GitHub Actions、Docker 和 Kubernetes 實現 CI/CD。',
@@ -208,6 +219,7 @@ class EventModel {
         id: 12,
         title: '網頁效能最佳化技巧分享',
         date: '2025-03-05T19:00:00',
+        endDate: '2025-03-05T21:00:00',
         location: '線上 Zoom',
         tags: ['online', 'talk'],
         excerpt: '分析並改善網頁載入速度的實用技巧，包括資源最佳化、延遲載入和快取策略。',
@@ -227,6 +239,7 @@ class EventModel {
         id: 13,
         title: 'PWA 實戰工作坊 - 打造離線可用的網頁應用',
         date: '2025-02-22T18:30:00',
+        endDate: '2025-02-22T21:30:00',
         location: 'E202 教室',
         tags: ['offline', 'workshop'],
         excerpt: '學習如何將既有網頁轉換為漸進式網頁應用 (PWA)，實現離線使用、推送通知和安裝到主螢幕功能。',
@@ -246,6 +259,7 @@ class EventModel {
         id: 14,
         title: 'Google Cloud 應用開發與部署實戰',
         date: '2025-01-31T14:00:00',
+        endDate: '2025-01-31T18:00:00',
         location: '學生活動中心',
         tags: ['offline', 'workshop'],
         excerpt: '學習如何使用 Google Cloud 平台開發、測試和部署高可擴展性的應用程式。',
@@ -271,6 +285,7 @@ class EventModel {
         id: 15,
         title: 'Web3 開發入門：區塊鏈技術與去中心化應用',
         date: '2025-06-28T19:00:00',
+        endDate: '2025-06-28T22:00:00',
         location: '線上 Zoom',
         tags: ['online', 'talk'],
         excerpt: '探索區塊鏈技術基礎與開發去中心化應用 (DApps) 的實際方法。',
@@ -297,9 +312,20 @@ class EventModel {
     let filteredEvents = [...this.events];
 
     // 只顯示未來活動
-    if (future === 'true') {
+    if (future === 'true' || future === true) {
       const now = new Date();
-      filteredEvents = filteredEvents.filter(event => new Date(event.date) > now);
+      filteredEvents = filteredEvents.filter(event => {
+        // 結束時間必須在當前時間之後才算是未來活動
+        const endDate = new Date(event.endDate || event.date);
+        return endDate > now;
+      });
+    } else if (future === 'false' || future === false) {
+      // 顯示過去的活動
+      const now = new Date();
+      filteredEvents = filteredEvents.filter(event => {
+        const endDate = new Date(event.endDate || event.date);
+        return endDate < now;
+      });
     }
 
     // 關鍵字搜尋
@@ -351,6 +377,111 @@ class EventModel {
       const eventDate = new Date(event.date);
       return eventDate >= startDate && eventDate <= endDate;
     });
+  }
+
+  // 獲取歷史活動 (過去的活動)
+  // 修正歷史活動的篩選方法
+
+  getHistoricalEvents({ keyword = '', tags = [], page = 1, limit = 10 } = {}) {
+    const currentDate = new Date();
+
+    // 先過濾出所有已結束的活動 (使用 endDate 判斷)
+    let filteredEvents = this.events.filter(event => {
+      const endDate = new Date(event.endDate);
+      return endDate < currentDate;
+    });
+
+    // 根據關鍵字搜尋
+    if (keyword) {
+      const lowercasedKeyword = keyword.toLowerCase();
+      filteredEvents = filteredEvents.filter(event =>
+        event.title.toLowerCase().includes(lowercasedKeyword) ||
+        event.description.toLowerCase().includes(lowercasedKeyword) ||
+        event.location.toLowerCase().includes(lowercasedKeyword)
+      );
+    }
+
+    // 根據標籤過濾
+    if (tags && tags.length > 0) {
+      filteredEvents = filteredEvents.filter(event =>
+        tags.some(tag => event.tags.includes(tag))
+      );
+    }
+
+    // 根據結束日期排序 (最近結束的排前面)
+    filteredEvents.sort((a, b) => new Date(b.endDate) - new Date(a.endDate));
+
+    // 計算分頁資訊
+    const totalEvents = filteredEvents.length;
+    const totalPages = Math.ceil(totalEvents / limit) || 1;
+
+    // 套用分頁
+    const startIndex = (page - 1) * limit;
+    const pagedEvents = filteredEvents.slice(startIndex, startIndex + limit);
+
+    return {
+      events: pagedEvents,
+      page,
+      totalPages,
+      totalEvents
+    };
+  }
+
+  getEventTags() {
+    // 從所有活動中收集唯一的標籤
+    const allTags = new Set();
+    this.events.forEach(event => {
+      if (event.tags && Array.isArray(event.tags)) {
+        event.tags.forEach(tag => allTags.add(tag));
+      }
+    });
+
+    // 轉換為帶有 label 和 value 的格式
+    const tagList = Array.from(allTags).map(tag => ({
+      value: tag,
+      label: this.formatTagLabel(tag)
+    }));
+
+    // 定義標籤的優先順序
+    const tagPriority = {
+      'online': 1,    // 線上優先
+      'offline': 2,   // 實體次之
+      'workshop': 3,  // 工作坊
+      'talk': 4,      // 分享會
+      // 其他標籤...
+    };
+
+    // 根據優先順序排序
+    return tagList.sort((a, b) => {
+      // 如果兩個標籤都有優先順序，按優先順序排序
+      if (tagPriority[a.value] && tagPriority[b.value]) {
+        return tagPriority[a.value] - tagPriority[b.value];
+      }
+      // 如果只有 a 有優先順序，a 排前面
+      else if (tagPriority[a.value]) {
+        return -1;
+      }
+      // 如果只有 b 有優先順序，b 排前面
+      else if (tagPriority[b.value]) {
+        return 1;
+      }
+      // 如果都沒有優先順序，按名稱字母順序排序
+      else {
+        return a.label.localeCompare(b.label);
+      }
+    });
+  }
+
+  // 格式化標籤顯示名稱
+  formatTagLabel(tag) {
+    const labelMap = {
+      'online': "線上",
+      'offline': "實體",
+      'workshop': "工作坊",
+      'talk': "分享會",
+    };
+
+    return labelMap[tag] || tag.charAt(0).toUpperCase() + tag.slice(1);
   }
 }
 

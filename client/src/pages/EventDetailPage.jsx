@@ -22,24 +22,40 @@ export default function EventDetailPage() {
 
   // 處理返回按鈕點擊
   const handleBack = () => {
-    navigate('/events');
+    // 檢查活動是否已經結束，導向不同的列表頁面
+    if (isEventEnded(event)) {
+      // 如果是歷史活動，返回歷史活動列表頁面
+      navigate('/events/historical');
+    } else {
+      // 如果是未來活動，返回即將到來活動列表頁面
+      navigate('/events');
+    }
   };
 
-  // 格式化日期與時間
-  const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
-    const formattedDate = date.toLocaleDateString('zh-TW', {
+  // 格式化日期與時間範圍
+  const formatDateTimeRange = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // 格式化日期
+    const formattedDate = start.toLocaleDateString('zh-TW', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
 
-    const formattedTime = date.toLocaleTimeString('zh-TW', {
+    // 格式化時間範圍
+    const startTime = start.toLocaleTimeString('zh-TW', {
       hour: '2-digit',
       minute: '2-digit'
     });
 
-    return `${formattedDate} ${formattedTime}`;
+    const endTime = end.toLocaleTimeString('zh-TW', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return `${formattedDate} ${startTime} - ${endTime}`;
   };
 
   // 取得標籤的中文名稱
@@ -52,6 +68,29 @@ export default function EventDetailPage() {
     };
 
     return tagMap[tag] || tag;
+  };
+
+  // 判斷活動是否已結束
+  const isEventEnded = (event) => {
+    if (!event || !event.endDate) return false;
+    const now = new Date();
+    const endDate = new Date(event.endDate);
+    return endDate < now;
+  };
+
+  const handleHistoricalEvent = () => {
+    // 如果有外部連結資源就開啟外部連結
+    if (event && event.registrationUrl) {
+      window.open(event.registrationUrl, '_blank');
+    }
+    // 如果有活動資源則滾動到資源區域
+    else if (event && event.resources && event.resources.length > 0) {
+      document.getElementById('event-resources').scrollIntoView({ behavior: 'smooth' });
+    }
+    // 如果都沒有則滾動到活動詳情區域
+    else {
+      document.getElementById('event-details').scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -78,7 +117,7 @@ export default function EventDetailPage() {
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
               </svg>
-              返回活動列表
+              返回{isEventEnded(event) ? '歷史' : '即將到來的'}活動列表
             </button>
 
             {/* 活動封面照片 */}
@@ -118,7 +157,7 @@ export default function EventDetailPage() {
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span>{formatDateTime(event.date)}</span>
+                    <span>{event.endDate ? formatDateTimeRange(event.date, event.endDate) : formatDateTime(event.date)}</span>
                   </div>
 
                   <div className="flex items-center text-gray-600">
@@ -130,17 +169,29 @@ export default function EventDetailPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleRegister}
-                  disabled={registering}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition duration-200 transform hover:translate-y-px focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                >
-                  立即報名
-                </button>
+                <div className="flex gap-4">
+                  {/* 活動報名或查看詳情按鈕 */}
+                  {isEventEnded(event) ? (
+                    <button
+                      onClick={handleHistoricalEvent}
+                      className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow transition duration-200"
+                    >
+                      {event.registrationUrl ? "查看活動網站" : "查看活動回顧"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleRegister}
+                      disabled={registering}
+                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition duration-200"
+                    >
+                      立即報名
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* 活動描述 */}
-              <div className="prose max-w-none">
+              <div id="event-details" className="prose max-w-none">
                 <h2 className="text-xl font-semibold mb-3">活動詳情</h2>
                 <p className="whitespace-pre-line leading-relaxed">{event.description}</p>
               </div>
@@ -175,6 +226,29 @@ export default function EventDetailPage() {
                         <p className="text-sm text-gray-600 mt-1">{speaker.bio}</p>
                       </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 如果是已結束活動，可以顯示活動資源下載區 */}
+            {isEventEnded(event) && event.resources && (
+              <div id="event-resources" className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold mb-4">活動資源</h2>
+                <div className="flex flex-wrap gap-3">
+                  {event.resources.map((resource, index) => (
+                    <a
+                      key={index}
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition"
+                    >
+                      <svg className="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                      </svg>
+                      <span>{resource.title}</span>
+                    </a>
                   ))}
                 </div>
               </div>

@@ -38,7 +38,7 @@ export default function EventsPage() {
     keyword,
     tags,
     sort: 'desc', // 添加排序參數，確保從新到舊排序
-    future: undefined // 對網格視圖不限制未來活動
+    future: true // 對網格視圖不限制未來活動
   });
 
   // 使用 hook 獲取所有月曆視圖的活動資料 - 不使用 future 過濾
@@ -90,6 +90,30 @@ export default function EventsPage() {
     const tag = availableTags.find(t => t.value === tagValue);
     return tag ? tag.label : tagValue;
   }
+
+  const formatEventTimeRange = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // 格式化日期
+    const formattedDate = start.toLocaleDateString('zh-TW', {
+      month: 'numeric',
+      day: 'numeric'
+    });
+
+    // 格式化時間
+    const startTime = start.toLocaleTimeString('zh-TW', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const endTime = end.toLocaleTimeString('zh-TW', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return `${formattedDate} ${startTime} - ${endTime}`;
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800">
@@ -217,6 +241,7 @@ export default function EventsPage() {
                           id={ev.id} // 新增 id 參數
                           title={ev.title}
                           date={ev.date}
+                          endDate={ev.endDate}
                           location={ev.location}
                           tags={ev.tags}
                           excerpt={ev.excerpt}
@@ -297,7 +322,7 @@ export default function EventsPage() {
                       >
                         <h4 className="font-medium text-blue-600">{ev.title}</h4>
                         <p className="text-xs text-gray-500">
-                          {new Date(ev.date).toLocaleDateString()}
+                          {ev.endDate ? formatEventTimeRange(ev.date, ev.endDate) : new Date(ev.date).toLocaleDateString()}
                         </p>
                         <div className="flex mt-1 gap-1">
                           {ev.tags.map(tag => (
