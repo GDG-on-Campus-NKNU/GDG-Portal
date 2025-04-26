@@ -7,12 +7,16 @@ import FilterPanel from '../components/general/FilterPanel'
 import LoadingSpinner from '../components/general/LoadingSpinner'
 import NotificationToast from '../components/general/NotificationToast'
 import Pagination from '../components/general/Pagination'
+import PageBanner from '../components/general/PageBanner'
+import SearchFilterSection from '../components/general/SearchFilterSection'
+import SubscriptionBox from '../components/general/SubscriptionBox'
 import EventCard from '../components/event/EventCard'
 import CalendarView from '../components/event/CalendarView'
 import UpcomingEvents from '../components/event/UpcomingEvents'
 import EventLocations from '../components/event/EventLocations'
 import EventSubscription from '../components/event/EventSubscription'
 import { useEventData } from '../hooks/useEventData'
+import { formatEventTimeRange } from '../utils/dateUtils'
 
 export default function EventsPage() {
   const [keyword, setKeyword] = useState('')
@@ -91,26 +95,16 @@ export default function EventsPage() {
     return tag ? tag.label : tagValue;
   }
 
-  const formatEventTimeRange = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+  const handleClearFilters = () => {
+    setKeyword('');
+    setTags([]);
+    setPage(1);
+  };
 
-    const formattedDate = start.toLocaleDateString('zh-TW', {
-      month: 'numeric',
-      day: 'numeric'
-    });
-
-    const startTime = start.toLocaleTimeString('zh-TW', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    const endTime = end.toLocaleTimeString('zh-TW', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    return `${formattedDate} ${startTime} - ${endTime}`;
+  const handleReload = () => {
+    // 強制重新載入
+    setPage(0); // 先設為不可能的值
+    setTimeout(() => setPage(1), 10); // 然後設回第一頁
   };
 
   return (
@@ -118,19 +112,7 @@ export default function EventsPage() {
       <Navbar />
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
         {/* Header Banner */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl p-8 mb-8 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/4" />
-          <h1 className="text-3xl font-bold mb-2 relative z-10">GDG 活動中心</h1>
-          <p className="text-blue-100 max-w-2xl relative z-10">
-            探索 GDG on Campus NKNU 舉辦的各種精彩活動，從工作坊到技術分享會，豐富你的學習體驗。
-          </p>
-        </motion.div>
+        <PageBanner title="GDG 活動中心" description="探索 GDG on Campus NKNU 舉辦的各種精彩活動，從工作坊到技術分享會，豐富你的學習體驗。" style="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl p-8 mb-8 relative overflow-hidden"/>
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Main Content Area */}
@@ -141,79 +123,17 @@ export default function EventsPage() {
             className="flex-1 space-y-6"
           >
             {/* Search & Filter */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white rounded-lg shadow-md p-6 space-y-4"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-semibold">搜尋與篩選</h2>
-                <div className="flex items-center space-x-2">
-                  {/* Clear filter button */}
-                  {(keyword || tags.length > 0) && (
-                    <button
-                      onClick={() => {
-                        setKeyword('');
-                        setTags([]);
-                        setPage(1);
-                      }}
-                      className="text-sm text-gray-500 hover:text-red-500 mr-2 flex items-center"
-                    >
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      清除篩選
-                    </button>
-                  )}
-
-                  {/* Reload button */}
-                  <button
-                    onClick={() => {
-                      setPage(prev => 0);
-                      setTimeout(() => setPage(1), 10);
-                    }}
-                    className="text-sm text-blue-600 hover:text-blue-800 mr-2 flex items-center"
-                  >
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    重新載入
-                  </button>
-
-                  {/* View mode toggle */}
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setViewMode('calendar')}
-                    className={`p-2 rounded ${viewMode === 'calendar' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <SearchBar onSearch={kw => { setKeyword(kw); setPage(1) }} placeholder="搜尋活動..." />
-              <FilterPanel
-                filters={availableTags}
-                selected={tags}
-                onToggle={tag => {
-                  setTags(prev =>
-                    prev.includes(tag)
-                      ? prev.filter(t => t !== tag)
-                      : [...prev, tag]
-                  )
-                  setPage(1)
-                }}
-              />
-            </motion.div>
+            <SearchFilterSection
+              placeholder="搜尋活動..."
+              keyword={keyword}
+              setKeyword={setKeyword}
+              tags={tags}
+              setTags={setTags}
+              setPage={setPage}
+              availableTags={availableTags}
+              onClearFilters={handleClearFilters}
+              onReload={handleReload}
+            />
 
             {/* Error or Loading */}
             {error && <NotificationToast message={error} type="error" />}
@@ -305,11 +225,8 @@ export default function EventsPage() {
               getTagLabel={getTagLabel}
             />
 
-            {/* Event Locations - Using the new component */}
             <EventLocations />
-
-            {/* Event Subscription - Using the new component */}
-            <EventSubscription />
+            <SubscriptionBox title="訂閱活動通知" description="第一時間收到最新活動資訊，不錯過任何一場精彩活動！" />
           </motion.aside>
         </div>
       </main>

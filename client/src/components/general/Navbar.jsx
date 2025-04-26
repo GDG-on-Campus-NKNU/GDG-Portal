@@ -22,7 +22,7 @@ export function Navbar() {
             <div className="absolute left-0 mt-0 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-10">
               <a href="/events?future=true" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">即將舉行</a>
               <a href="/events/historical" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">歷史活動</a>
-              <a href="/events/photo" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">活動相簿</a>
+              <a href="/events/gallery" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">活動相簿</a>
             </div>
           </div>
 
@@ -93,7 +93,7 @@ export function Navbar() {
                     >
                       <a href="/events?future=true" className="block py-2 text-gray-600 hover:text-blue-600">即將舉行</a>
                       <a href="/events/historical" className="block py-2 text-gray-600 hover:text-blue-600">歷史活動</a>
-                      <a href="/events/photo" className="block py-2 text-gray-600 hover:text-blue-600">活動報名</a>
+                      <a href="/events/gallery" className="block py-2 text-gray-600 hover:text-blue-600">活動相簿</a>
                     </motion.div>
                   )}
                 </AnimatePresence>

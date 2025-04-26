@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { Navbar } from '../components/general/Navbar'
 import { Sidebar } from '../components/main/Sidebar'
 import { Footer } from '../components/Footer'
-import { Banner } from '../components/main/Banner'
+import { MainBanner } from '../components/main/MainBanner'
 import { WelcomeBox } from '../components/main/WelcomeBox'
 import { GoogleCalendar } from '../components/main/GoogleCalendar'
 import { Stats } from '../components/main/Stats'
@@ -37,7 +37,7 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Banner />
+          <MainBanner />
         </motion.div>
 
         {/* 歡迎信息區塊 */}

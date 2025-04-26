@@ -177,3 +177,13 @@
 
 ---
 
+## Made more components for each main pages, integrated many more stuff, and provided actual files for download. 04/26
+
+> 2025-04-26 17:01:42
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `3c22e92fc2e4a709d7df7991e625d76058495433`
+
+---
+
