@@ -11,7 +11,7 @@ export function Sidebar() {
       <section className="bg-white shadow rounded-lg p-4">
         <h3 className="text-sm font-bold text-gray-700 mb-2">快速連結</h3>
         <ul className="text-sm text-blue-600 space-y-1">
-          <li><a href="#">官方網站</a></li>
+          <li><a href="https://gdg.community.dev/gdg-on-campus-national-kaohsiung-normal-university-kaohsiung-city-taiwan/">GDG官方網站</a></li>
           <li><a href="#">活動報名</a></li>
           <li><a href="#">課程投影片</a></li>
         </ul>

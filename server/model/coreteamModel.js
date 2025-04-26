@@ -37,13 +37,12 @@ class CoreTeamModel {
         id: 2,
         name: '顏榕嶙',
         title: '技術教學',
-        photo: '/assets/members/member2.jpg',
+        photo: '/assets/members/member2.png',
         department: '軟體工程與管理學系',
         year: '大三',
         categories: ['tech'],
-        skills: ['Web Development', 'React', 'Firebase'],
+        skills: ['Web Development', 'React', 'Multi-Modal AI Development', 'Full-Stack'],
         description: '協助社長處理社團事務，主要負責網頁前端開發與教學活動。',
-        // 擴充資料
         fullBio: `顏榕嶙在團隊中擔任技術教學的角色，主要負責規劃與執行各類技術工作坊和培訓課程。作為前端開發專家，他已經為社團舉辦了多場 React 和 Firebase 工作坊，幫助許多學生踏入網頁開發的領域。
 
 他的教學風格深入淺出，善於將複雜的技術概念轉化為容易理解的內容，獲得了參加者的一致好評。除了教學外，他還主導設計和開發了社團的官方網站，並持續進行維護和功能擴充。
@@ -51,14 +50,15 @@ class CoreTeamModel {
 在學業方面，顏榕嶙保持優異成績，同時積極參與校外的技術社群活動，不斷汲取新知識並分享給社團成員。`,
         achievements: [
           '主導開發社團官方網站，提升用戶體驗與功能性',
-          '策劃並主講「從零開始的 React 開發」系列工作坊',
+          '策劃並主講「全棧網頁應用實戰」系列工作坊',
           '參與 2023 年 HackNTU 黑客松，獲得優選獎項'
         ],
-        contactEmail: 'yan.ronglin@example.com',
+        contactEmail: 'ptyc4076@gmail.com',
         socialLinks: {
-          github: 'https://github.com/ronglinyan',
-          linkedin: 'https://linkedin.com/in/ronglinyan',
-          portfolio: 'https://ronglin-portfolio.example.com'
+          github: 'https://github.com/Unforgettableeternalproject',
+          linkedin: 'https://www.linkedin.com/in/bernie-yen-8325122b4/',
+          facebook: 'https://www.facebook.com/TheOverlordOfTheImagintion47/',
+          youtube: 'https://www.youtube.com/@u.e.p_bernie',
         },
         additionalPhotos: [
           '/assets/members/member2-workshop.jpg',
@@ -69,7 +69,7 @@ class CoreTeamModel {
         id: 3,
         name: '李准恩',
         title: '技術教學',
-        photo: '/assets/members/member3.jpg',
+        photo: '/assets/members/member3.png',
         department: '軟體工程與管理學系',
         year: '大三',
         categories: ['tech'],
@@ -101,7 +101,7 @@ class CoreTeamModel {
         id: 4,
         name: '高宜嫻',
         title: '公關行銷',
-        photo: '/assets/members/member4.jpg',
+        photo: '/assets/members/member4.png',
         department: '軟體工程與管理學系',
         year: '大三',
         categories: ['pr'],
@@ -133,7 +133,7 @@ class CoreTeamModel {
         id: 5,
         name: '羅靜慧',
         title: '美術設計',
-        photo: '/assets/members/member5.jpg',
+        photo: '/assets/members/member5.png',
         department: '視覺設計學系',
         year: '大二',
         categories: ['design'],
@@ -165,7 +165,7 @@ class CoreTeamModel {
         id: 6,
         name: '游炯騫',
         title: '總務攝影',
-        photo: '/assets/members/member6.jpg',
+        photo: '/assets/members/member6.png',
         department: '軟體工程與管理學系',
         year: '大三',
         categories: ['affairs'],
@@ -182,7 +182,7 @@ class CoreTeamModel {
           '記錄並製作「GDG青春紀實」系列攝影作品，展現社團風采',
           '優化社團經費使用流程，節省超過 20% 的營運成本'
         ],
-        contactEmail: 'yu.chiungchien@example.com',
+        contactEmail: 'abcdc005@gmail.com',
         socialLinks: {
           instagram: 'https://instagram.com/cc.yu.photo',
           facebook: 'https://facebook.com/chiungchienyu',

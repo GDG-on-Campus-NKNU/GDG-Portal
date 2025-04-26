@@ -6,11 +6,17 @@ import EventsPage from './pages/EventsPage'
 import HistoricalEventsPage from './pages/HistoricalEventsPage'
 import EventDetailPage from './pages/EventDetailPage'
 import CoreTeamPage from './pages/CoreTeamPage'
-import CoreTeamDetailPage from './pages/CoreTeamDetailPage';
+import CoreTeamDetailPage from './pages/CoreTeamDetailPage'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
+import { usePageShow } from './hooks/usePageShow'
 
 function App() {
+
+  usePageShow(() => {
+    window.location.reload()
+  });
+
   return (
     <BrowserRouter>
       <div className="App">

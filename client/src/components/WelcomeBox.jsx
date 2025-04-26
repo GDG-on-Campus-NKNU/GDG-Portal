@@ -8,10 +8,10 @@ export function WelcomeBox() {
             我們是一個致力於推廣 Google 開發技術的學生社群。無論你是程式新手或進階開發者，我們都歡迎你的加入！
           </p>
           <div className="flex flex-wrap gap-3">
-            <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm">Android 開發</span>
+            <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm">前端技術教學</span>
             <span className="px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm">Web 開發</span>
             <span className="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm">AI/ML</span>
-            <span className="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-sm">雲端技術</span>
+            <span className="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-sm">開發者工具使用</span>
           </div>
         </div>
         <div className="w-full md:w-1/3">
