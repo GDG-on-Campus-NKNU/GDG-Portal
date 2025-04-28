@@ -9,6 +9,7 @@ import eventRoutes from "./routes/eventRoutes.js"; // 引入活動路由
 import announcementRoutes from "./routes/announcementRoutes.js"; // 引入公告路由
 import coreteamRoutes from "./routes/coreteamRoutes.js"; // 引入幹部路由
 import "./config/passport.js";
+import { authenticateJWT } from './middlewares/auth.js';
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -27,6 +28,14 @@ app.get('/', (req, res) => {
 
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from GDG Backend! We\'ll go from here now.' })
+})
+
+// 這邊暫時用來測試 JWT 的 middleware 之後可刪 (postman 測過了可行 04/28 4:14)
+app.get('/api/test', authenticateJWT, (req, res) =>{
+  res.json({
+    message: "已經通過JWT身份驗證",
+    user: req.user
+  });
 })
 
 const startServer = (port) => {

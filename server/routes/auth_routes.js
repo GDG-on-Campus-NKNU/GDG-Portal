@@ -1,5 +1,6 @@
 import passport from "passport";
 import express from "express";
+import { generateToken } from "../utils/jwt.js";
 
 const router = express.Router();
 export default router;
@@ -18,9 +19,11 @@ router.get(
 
 router.get(
   "/google/redirect",
-  passport.authenticate("google", { failureRedirect: "/" }),
+  passport.authenticate("google", {session: false, failureRedirect: "/" }),
   (req, res) => {
-    return res.redirect("http://localhost:5173");
+    const token = generateToken(req.user);
+    // 用 query string 回傳
+    res.redirect(`http://localhost:5173?token=${token}`);
   }
 );
 
