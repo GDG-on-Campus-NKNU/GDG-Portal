@@ -10,9 +10,18 @@ import announcementRoutes from "./routes/announcementRoutes.js"; // 引入公告
 import coreteamRoutes from "./routes/coreteamRoutes.js"; // 引入幹部路由
 import "./config/passport.js";
 import { authenticateJWT } from './middlewares/auth.js';
+import sequelize from './config/database.js';
 
 const app = express()
 const PORT = process.env.PORT || 5000
+
+// 嘗試連線資料庫
+try {
+  await sequelize.authenticate();
+  console.log('✅ Database connection has been established successfully.');
+} catch (error) {
+  console.error('❌ Unable to connect to the database:', error);
+}
 
 app.use(cors())
 app.use(express.json())
@@ -38,24 +47,9 @@ app.get('/api/test', authenticateJWT, (req, res) =>{
   });
 })
 
-const startServer = (port) => {
-  const server = app.listen(port, () => {
-    console.log(`✅ Server running on http://localhost:${port}`);
-  });
-
-  server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.log(`⚠️ Port ${port} is in use, trying port ${port + 1}...`);
-      startServer(parseInt(port) + 1);
-    } else {
-      console.error(`❌ Server error: ${err.message}`);
-    }
-  });
-};
 
 // Serve static files from the client/public directory
 const __dirname = path.resolve();
 app.use('/resources', express.static(path.join(__dirname, '../client/public/resources')));
 console.log('Serving static files from:', path.join(__dirname, '../client/public/resources'));
 
-startServer(PORT);
