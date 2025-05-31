@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import cookieParser from 'cookie-parser'
 import path from 'path';
 dotenv.config()
 
@@ -27,6 +28,9 @@ app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173', // 允許的來源
   credentials: true, // 允許攜帶 Cookie
 }));
+
+// 重要：cookie-parser 必須在路由之前設定
+app.use(cookieParser());
 app.use(express.static('public'));
 app.use(express.json())
 

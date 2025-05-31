@@ -3,7 +3,8 @@ import { motion } from 'framer-motion'
 import { Navbar } from '../../components/general/Navbar'
 import { Footer } from '../../components/Footer'
 import { BackgroundEffects } from '../../components/general/BackgroundEffects'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -16,16 +17,54 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  
+  const { register } = useAuth()
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const validatePassword = (password) => {
+    const minLength = 8
+    const hasUpperCase = /[A-Z]/.test(password)
+    const hasLowerCase = /[a-z]/.test(password)
+    const hasNumbers = /\d/.test(password)
+    
+    if (password.length < minLength) {
+      return '密碼至少需要 8 個字元'
+    }
+    if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
+      return '密碼必須包含大寫字母、小寫字母和數字'
+    }
+    return null
+  }
+
   const handleRegister = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    // 驗證表單
+    if (!formData.name.trim()) {
+      setError('請輸入姓名')
+      setLoading(false)
+      return
+    }
+
+    if (!formData.email.trim()) {
+      setError('請輸入電子郵件')
+      setLoading(false)
+      return
+    }
+
+    const passwordError = validatePassword(formData.password)
+    if (passwordError) {
+      setError(passwordError)
+      setLoading(false)
+      return
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError('密碼與確認密碼不相符')
@@ -34,11 +73,16 @@ export default function RegisterPage() {
     }
 
     try {
-      // 這裡會實作註冊邏輯
-      console.log('註冊:', formData)
-      // 註冊成功後導向登入頁或首頁
-      // window.location.href = '/login'
+      const result = await register(formData.name, formData.email, formData.password)
+      
+      if (result.success) {
+        // 註冊成功，導向首頁或儀表板
+        navigate('/')
+      } else {
+        setError(result.message)
+      }
     } catch (error) {
+      console.error('註冊失敗:', error)
       setError('註冊失敗，請稍後再試')
     } finally {
       setLoading(false)
