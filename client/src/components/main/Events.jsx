@@ -33,19 +33,51 @@ export function UpcomingEvents({ limit = 3, showTitle = true }) {
 
   if (loading) {
     return (
-      <div className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl p-8 mb-8 shadow-xl">
-        <div className="flex justify-center p-6">
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl p-8 mb-8 shadow-xl overflow-hidden"
+      >
+        {showTitle && (
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent mb-6 tracking-tight">
+            即將到來的活動
+          </h2>
+        )}
+        <div className="flex flex-col items-center justify-center py-12">
           <LoadingSpinner size={12} />
+          <p className="text-slate-500 mt-4 text-sm">載入中...</p>
         </div>
-      </div>
+        {/* 背景裝飾 */}
+        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/10 to-transparent rounded-full blur-xl"></div>
+      </motion.section>
     )
   }
 
   if (error && events.length === 0) {
     return (
-      <div className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl p-8 mb-8 shadow-xl">
-        <p className="text-center text-red-500">載入活動失敗</p>
-      </div>
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl p-8 mb-8 shadow-xl overflow-hidden"
+      >
+        {showTitle && (
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent mb-6 tracking-tight">
+            即將到來的活動
+          </h2>
+        )}
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-100/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 18.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-slate-700 mb-2">載入活動時發生錯誤</h3>
+          <p className="text-slate-500 text-sm text-center">請稍後再試或聯繫管理員</p>
+        </div>
+        {/* 背景裝飾 */}
+        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-400/10 to-transparent rounded-full blur-xl"></div>
+      </motion.section>
     )
   }
 

@@ -8,6 +8,7 @@ import { ScrollEffects } from '../components/general/ScrollEffects';
 import LoadingSpinner from '../components/general/LoadingSpinner';
 import NotificationToast from '../components/general/NotificationToast';
 import { useEventDetail } from '../hooks/useEventData';
+import { EventTimeInfo, EventLocationInfo, EventDescriptionInfo } from '../components/event/EventDetailInfo';
 
 export default function EventDetailPage() {
   const { id } = useParams();
@@ -142,7 +143,7 @@ export default function EventDetailPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="relative h-[70vh] min-h-[500px] overflow-hidden"
+                className="relative h-[50vh] min-h-[400px] overflow-hidden"
               >
                 {/* 封面圖片 */}
                 <div className="absolute inset-0">
@@ -158,17 +159,17 @@ export default function EventDetailPage() {
                   <div className="absolute inset-0 bg-black/40" />
                 </div>
 
-                {/* 內容覆蓋層 */}
-                <div className="relative z-10 h-full flex flex-col justify-end">
-                  <div className="max-w-7xl mx-auto px-4 pb-16 pt-8">
+                {/* 內容覆蓋層 - 改為上下置中 */}
+                <div className="relative z-10 h-full flex flex-col justify-center items-center text-center">
+                  <div className="max-w-4xl mx-auto px-4">
                     {/* 返回按鈕 */}
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleBack}
-                      className="mb-8 flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md 
+                      className="mb-6 flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md 
                                border border-white/30 rounded-full text-white hover:bg-white/30 
-                               transition-all duration-300"
+                               transition-all duration-300 mx-auto"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
@@ -177,13 +178,13 @@ export default function EventDetailPage() {
                     </motion.button>
 
                     {/* 活動標題和基本資訊 */}
-                    <div className="max-w-4xl">
+                    <div className="space-y-6">
                       {/* 標籤 */}
                       <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.4 }}
-                        className="flex flex-wrap gap-2 mb-4"
+                        className="flex flex-wrap justify-center gap-2"
                       >
                         {event.tags.map((tag, index) => (
                           <motion.span
@@ -204,47 +205,35 @@ export default function EventDetailPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.3 }}
-                        className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
+                        className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight"
                       >
                         {event.title}
                       </motion.h1>
 
-                      {/* 基本資訊卡片 */}
+                      {/* 基本資訊卡片 - 簡化版本 */}
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.5 }}
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
+                        className="flex flex-wrap justify-center gap-4 mb-6"
                       >
-                        <div className="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md 
-                                      border border-white/20 rounded-xl text-white">
-                          <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <div className="text-sm text-white/80">活動時間</div>
-                            <div className="font-medium">
-                              {event.endDate ? formatDateTimeRange(event.date, event.endDate) : formatDateTime(event.date)}
-                            </div>
-                          </div>
+                        <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-md 
+                                      border border-white/20 rounded-full text-white text-sm">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {event.endDate ? formatDateTimeRange(event.date, event.endDate) : formatDateTime(event.date)}
                         </div>
 
-                        <div className="flex items-center gap-3 px-4 py-3 bg-white/10 backdrop-blur-md 
-                                      border border-white/20 rounded-xl text-white">
-                          <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <div className="text-sm text-white/80">活動地點</div>
-                            <div className="font-medium">{event.location}</div>
-                          </div>
+                        <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-md 
+                                      border border-white/20 rounded-full text-white text-sm">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          {event.location}
                         </div>
                       </motion.div>
 
@@ -296,29 +285,18 @@ export default function EventDetailPage() {
 
               {/* 活動詳情內容區 */}
               <div className="max-w-7xl mx-auto px-4 py-16 space-y-8">
-                {/* 活動描述 */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
-                  id="event-details"
-                  className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-xl"
-                >
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 
-                                  rounded-xl flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-800">活動詳情</h2>
-                  </div>
-                  <div className="prose prose-lg max-w-none text-gray-700">
-                    <p className="whitespace-pre-line leading-relaxed">{event.description}</p>
-                  </div>
-                </motion.div>
+                {/* 活動時間資訊 */}
+                <EventTimeInfo 
+                  event={event} 
+                  formatDateTimeRange={formatDateTimeRange} 
+                  formatDateTime={formatDateTime} 
+                />
+
+                {/* 活動地點資訊 */}
+                <EventLocationInfo event={event} />
+
+                {/* 活動詳情 */}
+                <EventDescriptionInfo event={event} />
 
                 {/* 講者資訊 */}
                 {event.speakers && event.speakers.length > 0 && (
@@ -326,7 +304,7 @@ export default function EventDetailPage() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.8 }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
                     className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-xl"
                   >
                     <div className="flex items-center gap-3 mb-6">
@@ -382,7 +360,7 @@ export default function EventDetailPage() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.8 }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
                     id="event-resources"
                     className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 shadow-xl"
                   >
