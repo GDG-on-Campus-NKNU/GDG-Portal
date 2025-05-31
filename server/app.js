@@ -67,3 +67,4 @@ const __dirname = path.resolve();
 app.use('/resources', express.static(path.join(__dirname, '../client/public/resources')));
 console.log('Serving static files from:', path.join(__dirname, '../client/public/resources'));
 
+startServer(PORT);

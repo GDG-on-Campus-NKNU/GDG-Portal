@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Navbar } from '../components/general/Navbar';
 import { Footer } from '../components/Footer';
+import { BackgroundEffects } from '../components/general/BackgroundEffects';
+import { ScrollEffects } from '../components/general/ScrollEffects';
 import { useAnnouncementData } from '../hooks/useAnnouncementData';
 import { useEventData } from '../hooks/useEventData';
 import { formatEventTimeRange } from '../utils/dateUtils';
@@ -17,14 +19,14 @@ import LoadingSpinner from '../components/general/LoadingSpinner';
 import Pagination from '../components/general/Pagination';
 
 export default function AnnouncementsPage() {
-  const [keyword, setKeyword] = useState('');
-  const [tags, setTags] = useState([]);
-  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState('')
+  const [tags, setTags] = useState([])
+  const [page, setPage] = useState(1)
 
   // 使用 hook 獲取所有公告資料
   const { announcements, loading, error, totalPages } = useAnnouncementData({
     page,
-    limit: 5,
+    limit: 3,
     keyword,
     tags
   });
@@ -36,7 +38,7 @@ export default function AnnouncementsPage() {
     isPinned: true  // 只獲取置頂公告
   });
 
-  // 新增：使用 hook 獲取即將到來的活動
+  // 使用 hook 獲取即將到來的活動
   const { events: upcomingEvents, loading: loadingUpcoming } = useEventData({
     page: 1,
     limit: 3,
@@ -51,6 +53,32 @@ export default function AnnouncementsPage() {
     { label: '實習', value: 'internship' },
   ];
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 10
+      }
+    }
+  }
+
+  // Helper functions
   const getTagLabel = (tagValue) => {
     const eventTags = [
       { label: '線上', value: 'online' },
@@ -76,59 +104,91 @@ export default function AnnouncementsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 text-slate-800 relative overflow-hidden">
+      {/* 動態背景效果 */}
+      <BackgroundEffects />
+      
+      {/* 滾動效果 */}
+      <ScrollEffects />
+
       <Navbar />
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
-        <PageBanner title="GDG 公告中心" description="在這裡查看所有關於 GDG on Campus NKNU 的最新公告、活動資訊和重要通知。" style="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl p-8 mb-8 relative overflow-hidden"/>
+      
+      <motion.main
+        initial="hidden"
+        animate="show"
+        variants={containerVariants}
+        className="flex-1 w-full max-w-[1400px] mx-auto px-6 lg:px-8 xl:px-12 py-8 relative z-10"
+      >
+        {/* Header Banner */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <PageBanner
+            title="GDG 公告中心"
+            description="在這裡查看所有關於 GDG on Campus NKNU 的最新公告、活動資訊和重要通知。"
+            style="relative bg-gradient-to-br from-blue-600/90 via-purple-600/80 to-indigo-700/90 backdrop-blur-sm rounded-2xl p-6 lg:p-8 text-white shadow-2xl overflow-hidden"
+          />
+        </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* 主要內容區 */}
-          <div className="flex-1 space-y-6">
-            <SearchFilterSection
-              placeholder="搜尋公告..."
-              keyword={keyword}
-              setKeyword={setKeyword}
-              tags={tags}
-              setTags={setTags}
-              setPage={setPage}
-              availableTags={availableTags}
-              onClearFilters={handleClearFilters}
-              onReload={handleReload}
-            />
+        <div className="flex flex-col xl:flex-row gap-8 xl:gap-10">
+          {/* Main Content Area */}
+          <motion.div
+            variants={itemVariants}
+            className="flex-1 xl:flex-grow space-y-8"
+          >
+            {/* Search & Filter */}
+            <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20">
+              <SearchFilterSection
+                placeholder="搜尋公告..."
+                keyword={keyword}
+                setKeyword={setKeyword}
+                tags={tags}
+                setTags={setTags}
+                setPage={setPage}
+                availableTags={availableTags}
+                onClearFilters={handleClearFilters}
+                onReload={handleReload}
+              />
+            </div>
 
-            {/* 錯誤或 Loading */}
+            {/* Error or Loading */}
             {error && <NotificationToast message={error} type="error" />}
             {loading ? (
-              <div className="flex justify-center p-12">
+              <div className="flex justify-center p-20">
                 <LoadingSpinner size={16} />
               </div>
             ) : (
               <>
-                <AnnouncementsList announcements={announcements} />
-
-                {/* 分頁 */}
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="py-6"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
+                  className="space-y-6"
                 >
-                  <Pagination
-                    currentPage={page}
-                    totalPages={totalPages || 1}
-                    onPageChange={p => setPage(p)}
-                  />
+                  <AnnouncementsList announcements={announcements} />
                 </motion.div>
+
+                {/* Pagination */}
+                {announcements.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="py-8"
+                  >
+                    <Pagination
+                      currentPage={page}
+                      totalPages={totalPages || 1}
+                      onPageChange={p => setPage(p)}
+                    />
+                  </motion.div>
+                )}
               </>
             )}
-          </div>
+          </motion.div>
 
-          {/* 側邊欄 */}
+          {/* Sidebar */}
           <motion.aside
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="w-full lg:w-80 space-y-6"
+            variants={itemVariants}
+            className="w-full xl:w-80 space-y-8"
           >
             <PinnedAnnouncements
               pinnedAnnouncements={pinnedAnnouncements}
@@ -142,10 +202,14 @@ export default function AnnouncementsPage() {
               getTagLabel={getTagLabel}
             />
 
-            <SubscriptionBox title="訂閱公告通知" description="訂閱我們的最新公告，直接發送到你的信箱!"/>
+            <SubscriptionBox 
+              title="訂閱公告通知" 
+              description="訂閱我們的最新公告，直接發送到你的信箱!"
+            />
           </motion.aside>
         </div>
-      </main>
+      </motion.main>
+      
       <Footer />
     </div>
   );
