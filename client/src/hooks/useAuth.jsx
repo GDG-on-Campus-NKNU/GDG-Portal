@@ -3,6 +3,27 @@ import { useState, useEffect, useContext, createContext } from 'react';
 // 創建認證上下文
 const AuthContext = createContext();
 
+// 使用認證 Hook
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth 必須在 AuthProvider 內使用');
+  }
+  return context;
+}
+
+// 權限 Hook
+export function usePermission(permission) {
+  const { hasPermission } = useAuth();
+  return hasPermission(permission);
+}
+
+// 角色 Hook
+export function useRole(role) {
+  const { hasRole } = useAuth();
+  return hasRole(role);
+}
+
 // 認證 Provider 組件
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -239,23 +260,4 @@ export function AuthProvider({ children }) {
   );
 }
 
-// 使用認證 Hook
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth 必須在 AuthProvider 內使用');
-  }
-  return context;
-}
-
-// 權限 Hook
-export function usePermission(permission) {
-  const { hasPermission } = useAuth();
-  return hasPermission(permission);
-}
-
-// 角色 Hook
-export function useRole(role) {
-  const { hasRole } = useAuth();
-  return hasRole(role);
-}
+export { AuthContext };
