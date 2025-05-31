@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -10,6 +10,7 @@ export function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   
   const { user, isAuthenticated, logout } = useAuth()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +25,11 @@ export function Navbar() {
   const handleLogout = async () => {
     await logout()
     setUserMenuOpen(false)
+    // 導航到首頁並強制刷新
+    navigate('/')
+    // 短暫延遲後重新加載頁面以清除快取
+    window.location.reload()
+
   }
 
   return (

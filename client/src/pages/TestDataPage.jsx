@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
-import { Navbar } from '../../components/general/Navbar';
-import { Footer } from '../../components/Footer';
-import { BackgroundEffects } from '../../components/general/BackgroundEffects';
-import { useAuth } from '../../hooks/useAuth';
-import { mockUsers, mockEvents, mockAnnouncements, mockStats } from '../../data/mockData';
+import { Navbar } from '../components/general/Navbar';
+import { Footer } from '../components/Footer';
+import { BackgroundEffects } from '../components/general/BackgroundEffects';
+import { useAuth } from '../hooks/useAuth';
+import { mockUsers, mockEvents, mockAnnouncements, mockStats } from '../data/mockData';
 
 export default function TestDataPage() {
   const { 
