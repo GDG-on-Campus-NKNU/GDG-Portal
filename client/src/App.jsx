@@ -11,11 +11,13 @@ import CoreTeamDetailPage from './pages/CoreTeamDetailPage'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
+import TestDataPage from './pages/TestDataPage'
 import ProtectedRoute from './pages/ProtectedRoute'
 import { AuthProvider } from './hooks/useAuth'
 import { ScrollEffects, CursorEffect, PageTransition } from './components/general/ScrollEffects'
 import { usePageShow } from './hooks/usePageShow'
 import EventGalleryPage from './pages/EventGalleryPage'
+import DevQuickLogin from './components/DevQuickLogin'
 
 function App() {
   usePageShow(() => {
@@ -92,6 +94,11 @@ function App() {
                     </PageTransition>
                   </ProtectedRoute>
                 } />
+                <Route path="/test-data" element={
+                  <PageTransition>
+                    <TestDataPage />
+                  </PageTransition>
+                } />
                 <Route path="*" element={
                   <PageTransition>
                     <div className="min-h-screen flex items-center justify-center">
@@ -111,6 +118,9 @@ function App() {
                 } />
               </Routes>
             </AnimatePresence>
+            
+            {/* 開發模式快速登入工具 */}
+            <DevQuickLogin />
           </div>
         </ScrollEffects>
       </BrowserRouter>

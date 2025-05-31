@@ -1,4 +1,17 @@
 import { useState, useEffect, useContext, createContext } from 'react';
+import { 
+  mockUsers, 
+  mockRoles, 
+  getCurrentUser, 
+  setCurrentUser, 
+  validateCredentials, 
+  hasPermission, 
+  hasRole, 
+  simulateApiDelay 
+} from '../data/mockData';
+
+// 是否使用假資料模式 (開發時設為 true)
+const USE_MOCK_DATA = true;
 
 // 創建認證上下文
 const AuthContext = createContext();
@@ -38,15 +51,26 @@ export function AuthProvider({ children }) {
   // 檢查認證狀態
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch('/api/auth/status', {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.isAuthenticated && data.user) {
-          setUser(data.user);
+      if (USE_MOCK_DATA) {
+        // 使用假資料模式
+        await simulateApiDelay(300);
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
           setIsAuthenticated(true);
+        }
+      } else {
+        // 真實 API 模式
+        const response = await fetch('/api/auth/status', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.isAuthenticated && data.user) {
+            setUser(data.user);
+            setIsAuthenticated(true);
+          }
         }
       }
     } catch (error) {
@@ -59,23 +83,43 @@ export function AuthProvider({ children }) {
   // 登入
   const login = async (email, password) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
-        setIsAuthenticated(true);
-        return { success: true, message: data.message };
+      if (USE_MOCK_DATA) {
+        // 使用假資料模式
+        await simulateApiDelay(800);
+        
+        const validUser = validateCredentials(email, password);
+        if (validUser) {
+          const userWithLastLogin = {
+            ...validUser,
+            lastLogin: new Date().toISOString()
+          };
+          setCurrentUser(userWithLastLogin);
+          setUser(userWithLastLogin);
+          setIsAuthenticated(true);
+          return { success: true, message: '登入成功！' };
+        } else {
+          return { success: false, message: '電子郵件或密碼錯誤' };
+        }
       } else {
-        return { success: false, message: data.message || '登入失敗' };
+        // 真實 API 模式
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setUser(data.user);
+          setIsAuthenticated(true);
+          return { success: true, message: data.message };
+        } else {
+          return { success: false, message: data.message || '登入失敗' };
+        }
       }
     } catch (error) {
       console.error('登入錯誤:', error);
@@ -86,23 +130,61 @@ export function AuthProvider({ children }) {
   // 註冊
   const register = async (name, email, password) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
+      if (USE_MOCK_DATA) {
+        // 使用假資料模式
+        await simulateApiDelay(1000);
+        
+        // 檢查電子郵件是否已存在
+        const existingUser = Object.values(mockUsers).find(u => u.email === email);
+        if (existingUser) {
+          return { success: false, message: '此電子郵件已被註冊' };
+        }
+        
+        // 創建新使用者
+        const newUser = {
+          id: `user_${Date.now()}`,
+          name,
+          email,
+          password, // 實際應用中不應儲存明文密碼
+          role: 'member',
+          permissions: ['read', 'comment', 'join_events'],
+          avatar: null,
+          joinDate: new Date().toISOString(),
+          isActive: true,
+          profile: {
+            title: '',
+            department: '',
+            bio: '',
+            skills: [],
+            social: {}
+          },
+          lastLogin: new Date().toISOString()
+        };
+        
+        setCurrentUser(newUser);
+        setUser(newUser);
         setIsAuthenticated(true);
-        return { success: true, message: data.message };
+        return { success: true, message: '註冊成功！歡迎加入 GDG Portal' };
       } else {
-        return { success: false, message: data.message || '註冊失敗' };
+        // 真實 API 模式
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setUser(data.user);
+          setIsAuthenticated(true);
+          return { success: true, message: data.message };
+        } else {
+          return { success: false, message: data.message || '註冊失敗' };
+        }
       }
     } catch (error) {
       console.error('註冊錯誤:', error);
@@ -113,10 +195,17 @@ export function AuthProvider({ children }) {
   // 登出
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      if (USE_MOCK_DATA) {
+        // 使用假資料模式
+        await simulateApiDelay(300);
+        setCurrentUser(null);
+      } else {
+        // 真實 API 模式
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
+      }
     } catch (error) {
       console.error('登出錯誤:', error);
     } finally {
@@ -128,22 +217,45 @@ export function AuthProvider({ children }) {
   // 更新使用者資料
   const updateProfile = async (profileData) => {
     try {
-      const response = await fetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(profileData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
-        return { success: true, message: data.message };
+      if (USE_MOCK_DATA) {
+        // 使用假資料模式
+        await simulateApiDelay(600);
+        
+        if (!user) {
+          return { success: false, message: '使用者未登入' };
+        }
+        
+        const updatedUser = {
+          ...user,
+          ...profileData,
+          profile: {
+            ...user.profile,
+            ...profileData.profile
+          }
+        };
+        
+        setCurrentUser(updatedUser);
+        setUser(updatedUser);
+        return { success: true, message: '個人資料更新成功' };
       } else {
-        return { success: false, message: data.message || '更新失敗' };
+        // 真實 API 模式
+        const response = await fetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(profileData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setUser(data.user);
+          return { success: true, message: data.message };
+        } else {
+          return { success: false, message: data.message || '更新失敗' };
+        }
       }
     } catch (error) {
       console.error('更新資料錯誤:', error);
@@ -203,19 +315,36 @@ export function AuthProvider({ children }) {
   };
 
   // 檢查權限
-  const hasRole = (requiredRole) => {
-    if (!user) return false;
-    
-    const roleHierarchy = {
-      guest: 0,
-      member: 1,
-      admin: 2
-    };
+  const hasUserRole = (requiredRole) => {
+    if (USE_MOCK_DATA) {
+      return hasRole(user, requiredRole);
+    } else {
+      // 原本的角色層級檢查邏輯
+      if (!user) return false;
+      
+      const roleHierarchy = {
+        guest: 0,
+        member: 1,
+        core_team: 2,
+        admin: 3
+      };
 
-    const userRoleLevel = roleHierarchy[user.role] || 0;
-    const requiredRoleLevel = roleHierarchy[requiredRole] || 0;
+      const userRoleLevel = roleHierarchy[user.role] || 0;
+      const requiredRoleLevel = roleHierarchy[requiredRole] || 0;
 
-    return userRoleLevel >= requiredRoleLevel;
+      return userRoleLevel >= requiredRoleLevel;
+    }
+  };
+
+  // 檢查權限
+  const hasUserPermission = (permission) => {
+    if (USE_MOCK_DATA) {
+      return hasPermission(user, permission);
+    } else {
+      // 原本的權限檢查邏輯
+      if (!user || !user.permissions) return false;
+      return user.permissions.includes(permission);
+    }
   };
 
   const hasPermission = (permission) => {
@@ -248,8 +377,21 @@ export function AuthProvider({ children }) {
     refreshToken,
     checkAuthStatus,
     
-    // 權限檢查
-    hasRole,
+    // 權限檢查 (使用新的函數名稱避免衝突)
+    hasRole: hasUserRole,
+    hasPermission: hasUserPermission,
+    
+    // 額外的便利方法
+    isAdmin: () => hasUserRole('admin'),
+    isCoreTeam: () => hasUserRole('core_team') || hasUserRole('admin'),
+    isMember: () => hasUserRole('member') || hasUserRole('core_team') || hasUserRole('admin'),
+    
+    // 快速權限檢查
+    canManageUsers: () => hasUserPermission('manage_users'),
+    canManageEvents: () => hasUserPermission('manage_events'),
+    canManageAnnouncements: () => hasUserPermission('manage_announcements'),
+    canWrite: () => hasUserPermission('write'),
+    canDelete: () => hasUserPermission('delete'),
     hasPermission
   };
 

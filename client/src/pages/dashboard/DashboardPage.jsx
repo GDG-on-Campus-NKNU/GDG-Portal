@@ -5,6 +5,7 @@ import { Footer } from '../../components/Footer'
 import { BackgroundEffects } from '../../components/general/BackgroundEffects'
 import { useAuth } from '../../hooks/useAuth'
 import { Link } from 'react-router-dom'
+import { mockStats, mockEvents, mockAnnouncements } from '../../data/mockData'
 
 export default function DashboardPage() {
   const { user, updateProfile, changePassword } = useAuth()
@@ -36,10 +37,10 @@ export default function DashboardPage() {
       setProfileData({
         name: user.name || '',
         email: user.email || '',
-        bio: user.bio || '',
-        location: user.location || '',
-        company: user.company || '',
-        website: user.website || ''
+        bio: user.profile?.bio || user.bio || '',
+        location: user.profile?.location || user.location || '',
+        company: user.profile?.department || user.company || '',
+        website: user.profile?.social?.website || user.website || ''
       })
     }
   }, [user])
