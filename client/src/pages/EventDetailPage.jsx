@@ -242,6 +242,7 @@ export default function EventDetailPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.6 }}
+                        className="flex justify-center"
                       >
                         {isEventEnded(event) ? (
                           <motion.button
