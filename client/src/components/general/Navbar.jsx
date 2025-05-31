@@ -23,7 +23,8 @@ export function Navbar() {
         : 'bg-white/70 backdrop-blur-md shadow-sm'
     }`}>
       <div className="max-w-[1600px] mx-auto px-6 lg:px-8 xl:px-12 py-4 flex justify-between items-center">
-        <motion.div 
+        <motion.a
+          href="/"
           className="flex items-center space-x-2"
           whileHover={{ scale: 1.05 }}
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -32,11 +33,11 @@ export function Navbar() {
             <img 
               src="/assets/Long-Logo.png" 
               alt="GDG Logo" 
-              className="h-10 w-30 rounded-xl shadow-sm hover:shadow-md transition-shadow" 
+              className="h-10 w-30 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer" 
             />
             <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 hover:opacity-100 transition-opacity"></div>
           </div>
-        </motion.div>
+        </motion.a>
 
         {/* 右側導航區域 */}
         <div className="hidden md:flex items-center space-x-8">

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Navbar } from '../components/general/Navbar'
 import { Footer } from '../components/Footer'
@@ -29,6 +29,11 @@ export default function CoreTeamPage() {
     categories,
     limit: 12
   })
+
+  // 頁面載入時滾動到頂部
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   // 動畫設定
   const containerVariants = {

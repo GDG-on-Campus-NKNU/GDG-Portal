@@ -14,6 +14,11 @@ export default function CoreTeamDetailPage() {
   const { member, loading, error } = useMemberDetail(id);
   const [selectedPhoto, setSelectedPhoto] = useState('');
 
+  // 頁面載入時滾動到頂部
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   // 設定主要照片
   useEffect(() => {
     if (member && member.photo) {

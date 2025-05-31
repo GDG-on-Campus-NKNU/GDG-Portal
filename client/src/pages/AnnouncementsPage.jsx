@@ -26,7 +26,7 @@ export default function AnnouncementsPage() {
   // 使用 hook 獲取所有公告資料
   const { announcements, loading, error, totalPages } = useAnnouncementData({
     page,
-    limit: 8,
+    limit: 3,
     keyword,
     tags
   });
