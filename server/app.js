@@ -47,6 +47,20 @@ app.get('/api/test', authenticateJWT, (req, res) =>{
   });
 })
 
+const startServer = (port) => {
+  const server = app.listen(port, () => {
+    console.log(`✅ Server running on http://localhost:${port}`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`⚠️ Port ${port} is in use, trying port ${port + 1}...`);
+      startServer(parseInt(port) + 1);
+    } else {
+      console.error(`❌ Server error: ${err.message}`);
+    }
+  });
+};
 
 // Serve static files from the client/public directory
 const __dirname = path.resolve();
