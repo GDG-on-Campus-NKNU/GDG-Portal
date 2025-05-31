@@ -13,7 +13,7 @@
     "axios": "^1.8.4",
     "client": "file:",
     "date-fns": "^4.1.0",
-    "framer-motion": "^12.9.2",
+    "framer-motion": "^12.15.0",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "react": "^19.0.0",
