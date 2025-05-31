@@ -78,3 +78,5 @@ const startServer = (port) => {
     }
   });
 };
+
+startServer(PORT);
