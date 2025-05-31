@@ -23,7 +23,11 @@ try {
   console.error('❌ Unable to connect to the database:', error);
 }
 
-app.use(cors())
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173', // 允許的來源
+  credentials: true, // 允許攜帶 Cookie
+}));
+app.use(express.static('public'));
 app.use(express.json())
 
 app.use("/api/auth", authRoutes);
@@ -47,6 +51,15 @@ app.get('/api/test', authenticateJWT, (req, res) =>{
   });
 })
 
+app.get('*', (req, res) => {
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('前端檔案不存在，請確認 public/index.html 是否存在');
+  }
+});
+
 const startServer = (port) => {
   const server = app.listen(port, () => {
     console.log(`✅ Server running on http://localhost:${port}`);
@@ -61,9 +74,3 @@ const startServer = (port) => {
     }
   });
 };
-
-// Serve static files from the client/public directory
-const __dirname = path.resolve();
-app.use('/resources', express.static(path.join(__dirname, '../client/public/resources')));
-console.log('Serving static files from:', path.join(__dirname, '../client/public/resources'));
-

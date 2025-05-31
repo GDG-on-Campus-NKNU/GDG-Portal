@@ -31,3 +31,5 @@ Thumbs.db
 
 # coverage / test
 coverage/
+
+server/public/*
