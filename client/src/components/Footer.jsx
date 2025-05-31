@@ -77,7 +77,7 @@ export function Footer() {
       </div>
 
       <motion.div 
-        className="max-w-7xl mx-auto px-6 relative z-10"
+        className="max-w-[1600px] mx-auto px-6 lg:px-8 xl:px-12 relative z-10"
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-100px" }}

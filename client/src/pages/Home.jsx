@@ -61,7 +61,7 @@ export default function HomePage() {
         initial="hidden"
         animate="show"
         variants={containerVariants}
-        className="flex flex-col w-full max-w-7xl mx-auto px-6 py-8 space-y-12 relative z-10"
+        className="flex flex-col w-full max-w-[1600px] mx-auto px-6 lg:px-8 xl:px-12 py-8 space-y-12 relative z-10"
       >
         {/* Banner 區塊 */}
         <motion.div variants={itemVariants}>
@@ -79,10 +79,10 @@ export default function HomePage() {
         </motion.div>
 
         {/* 主要內容區域 */}
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col xl:flex-row gap-8 xl:gap-12">
           {/* 左側主內容區塊 */}
           <motion.div 
-            className="flex-1 space-y-8"
+            className="flex-1 space-y-8 xl:max-w-4xl"
             variants={itemVariants}
           >
             {/* 最新公告 */}
@@ -92,9 +92,9 @@ export default function HomePage() {
             <UpcomingEvents limit={3} />
           </motion.div>
 
-          {/* 右側側邊欄 */}
+          {/* 右側側邊欄 - 擴大寬度以容納行事曆 */}
           <motion.aside
-            className="w-full lg:w-80 space-y-8"
+            className="w-full xl:w-[32rem] xl:min-w-[32rem] space-y-8"
             variants={slideInVariants}
           >
             <Sidebar />

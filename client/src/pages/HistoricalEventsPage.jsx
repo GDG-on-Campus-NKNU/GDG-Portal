@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Navbar } from '../components/general/Navbar';
 import { Footer } from '../components/Footer';
+import { BackgroundEffects } from '../components/general/BackgroundEffects';
+import { ScrollEffects } from '../components/general/ScrollEffects';
+import PageBanner from '../components/general/PageBanner';
 import EventCard from '../components/event/EventCard';
+import HEventSidebar from '../components/event/HEventSidebar';
 import Pagination from '../components/general/Pagination';
 import LoadingSpinner from '../components/general/LoadingSpinner';
 import NotificationToast from '../components/general/NotificationToast';
-import PageBanner from '../components/general/PageBanner';
 import SearchFilterSection from '../components/general/SearchFilterSection';
-import { EventTypeInfo, EventGalleryPreview, EventResourceDownload } from '../components/event/EventInfo';
 import { useHistoricalEvents, useEventTags } from '../hooks/useEventData';
 
 export default function HistoricalEventsPage() {
@@ -34,15 +36,29 @@ export default function HistoricalEventsPage() {
     { label: '實體', value: 'offline' },
     { label: '工作坊', value: 'workshop' },
     { label: '分享會', value: 'talk' },
-  ]
+  ];
 
   // 動畫設定
-  const container = {
+  const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 10
       }
     }
   };
@@ -59,40 +75,58 @@ export default function HistoricalEventsPage() {
     setTimeout(() => setPage(1), 10); // 然後設回第一頁
   };
 
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
-
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Navbar />
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
-        {/* 頂部橫幅 */}
-        <PageBanner title="歷史活動回顧" description="探索 GDG on Campus NKNU 過去舉辦的精彩活動，了解我們如何透過各種工作坊、講座和社交活動，推廣 Google 技術並建立校園技術社群。" style="bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl p-8 mb-8 relative overflow-hidden" />
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-gray-50/30 to-slate-100/50 text-slate-800 relative overflow-hidden">
+      {/* 動態背景效果 */}
+      <BackgroundEffects />
+      
+      {/* 滾動效果 */}
+      <ScrollEffects />
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* 主要內容區 */}
-          <div className="flex-1 space-y-6">
+      <Navbar />
+      
+      <motion.main
+        initial="hidden"
+        animate="show"
+        variants={containerVariants}
+        className="flex-1 w-full max-w-[1400px] mx-auto px-6 lg:px-8 xl:px-12 py-8 relative z-10"
+      >
+        {/* Header Banner */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <PageBanner
+            title="歷史活動回顧"
+            description="探索 GDG on Campus NKNU 過去舉辦的精彩活動，了解我們如何透過各種工作坊、講座和社交活動，推廣 Google 技術並建立校園技術社群。"
+            style="relative bg-gradient-to-br from-slate-700/90 via-gray-600/80 to-slate-800/90 backdrop-blur-sm rounded-2xl p-6 lg:p-8 text-white shadow-2xl overflow-hidden"
+          />
+        </motion.div>
+
+        <div className="flex flex-col xl:flex-row gap-8 xl:gap-10">
+          {/* Main Content Area */}
+          <motion.div
+            variants={itemVariants}
+            className="flex-1 xl:flex-grow space-y-8"
+          >
             {/* 搜尋與篩選面板 */}
-            <SearchFilterSection
-              placeholder="搜尋歷史活動..."
-              keyword={keyword}
-              setKeyword={setKeyword}
-              tags={tags}
-              setTags={setTags}
-              setPage={setPage}
-              availableTags={availableTags}
-              onClearFilters={handleClearFilters}
-              onReload={handleReload}
-            />
+            <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20">
+              <SearchFilterSection
+                placeholder="搜尋歷史活動..."
+                keyword={keyword}
+                setKeyword={setKeyword}
+                tags={tags}
+                setTags={setTags}
+                setPage={setPage}
+                availableTags={availableTags}
+                onClearFilters={handleClearFilters}
+                onReload={handleReload}
+              />
+            </div>
 
             {/* 顯示錯誤訊息 */}
             {error && <NotificationToast message={error} type="error" />}
 
             {/* 載入中狀態 */}
             {loading ? (
-              <div className="flex justify-center p-12">
+              <div className="flex justify-center p-20">
                 <LoadingSpinner size={16} />
               </div>
             ) : (
@@ -100,17 +134,26 @@ export default function HistoricalEventsPage() {
                 {/* 活動列表 */}
                 {events.length > 0 ? (
                   <motion.div
-                    variants={container}
+                    variants={containerVariants}
                     initial="hidden"
                     animate="show"
                     className={
                       viewMode === 'grid'
-                        ? 'grid sm:grid-cols-2 lg:grid-cols-3 gap-6'
+                        ? 'grid md:grid-cols-2 xl:grid-cols-3 gap-6'
                         : 'space-y-6'
                     }
                   >
                     {events.map(event => (
-                      <motion.div key={event.id} variants={item}>
+                      <motion.div 
+                        key={event.id} 
+                        variants={itemVariants}
+                        whileHover={{ 
+                          scale: 1.02, 
+                          y: -5,
+                          transition: { duration: 0.3, ease: "easeOut" } 
+                        }}
+                        className="h-full"
+                      >
                         <EventCard
                           id={event.id}
                           title={event.title}
@@ -126,21 +169,26 @@ export default function HistoricalEventsPage() {
                     ))}
                   </motion.div>
                 ) : (
-                  <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                    <svg className="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <h3 className="mt-4 text-lg font-medium text-gray-900">沒有找到歷史活動</h3>
-                    <p className="mt-2 text-gray-500">
+                  <motion.div
+                    variants={itemVariants}
+                    className="text-center py-20 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20"
+                  >
+                    <div className="text-6xl mb-4">📅</div>
+                    <h3 className="text-xl text-slate-600 font-medium mb-2">
+                      沒有找到歷史活動
+                    </h3>
+                    <p className="text-slate-500 mb-4">
                       目前沒有符合您搜尋條件的歷史活動，請嘗試調整過濾條件或關鍵字。
                     </p>
-                    <button
+                    <motion.button
                       onClick={() => { setKeyword(''); setTags([]); setPage(1); }}
-                      className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                      className="px-6 py-3 bg-gradient-to-r from-slate-600 to-gray-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       清除所有過濾條件
-                    </button>
-                  </div>
+                    </motion.button>
+                  </motion.div>
                 )}
 
                 {/* 分頁控制 */}
@@ -149,7 +197,7 @@ export default function HistoricalEventsPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="mt-6 flex justify-center"
+                    className="py-8"
                   >
                     <Pagination
                       currentPage={page}
@@ -160,27 +208,13 @@ export default function HistoricalEventsPage() {
                 )}
               </>
             )}
-          </div>
+          </motion.div>
 
-          {/* 側邊欄 */}
-          <motion.aside
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="w-full lg:w-80 space-y-6"
-          >
-            {/* 關於歷史活動 */}
-            <EventTypeInfo />
-
-            {/* 活動成果展示 */}
-            <EventGalleryPreview />
-
-            {/* 資源下載 */}
-            <EventResourceDownload />
-
-          </motion.aside>
+          {/* Sidebar */}
+          <HEventSidebar />
         </div>
-      </main>
+      </motion.main>
+      
       <Footer />
     </div>
   );

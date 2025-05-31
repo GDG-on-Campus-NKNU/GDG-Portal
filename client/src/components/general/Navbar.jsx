@@ -22,7 +22,7 @@ export function Navbar() {
         ? 'bg-white/90 backdrop-blur-xl shadow-lg shadow-blue-500/10 border-b border-white/20' 
         : 'bg-white/70 backdrop-blur-md shadow-sm'
     }`}>
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="max-w-[1600px] mx-auto px-6 lg:px-8 xl:px-12 py-4 flex justify-between items-center">
         <motion.div 
           className="flex items-center space-x-2"
           whileHover={{ scale: 1.05 }}

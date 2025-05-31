@@ -12,6 +12,7 @@ import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import { ScrollEffects, CursorEffect, PageTransition } from './components/general/ScrollEffects'
 import { usePageShow } from './hooks/usePageShow'
+import EventGalleryPage from './pages/EventGalleryPage'
 
 function App() {
   usePageShow(() => {
@@ -48,6 +49,11 @@ function App() {
               <Route path="/events/historical" element={
                 <PageTransition>
                   <HistoricalEventsPage />
+                </PageTransition>
+              } />
+              <Route path="/events/gallery" element={
+                <PageTransition>
+                  <EventGalleryPage />
                 </PageTransition>
               } />
               <Route path="/events/:id" element={
