@@ -10,12 +10,10 @@ import GalleryGrid from '../components/event/GalleryGrid';
 import GallerySidebar from '../components/event/GallerySidebar';
 import GalleryModal from '../components/event/GalleryModal';
 import LoadingSpinner from '../components/general/LoadingSpinner';
+import { useGalleryData, useGalleryStats } from '../hooks/useGalleryData';
 import galleryData from '../data/gallery.json';
 
 export default function EventGalleryPage() {
-  const [galleries, setGalleries] = useState([]);
-  const [filteredGalleries, setFilteredGalleries] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentGallery, setCurrentGallery] = useState(null);
   const [filters, setFilters] = useState({
@@ -25,53 +23,29 @@ export default function EventGalleryPage() {
     tags: []
   });
 
-  // 模擬載入數據
-  useEffect(() => {
-    const loadGalleries = async () => {
-      setLoading(true);
-      // 模擬 API 呼叫延遲
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setGalleries(galleryData.galleries);
-      setFilteredGalleries(galleryData.galleries);
-      setLoading(false);
-    };
+  // 使用 hook 獲取相簿資料
+  const {
+    galleries,
+    loading,
+    error,
+    totalPages,
+    totalImages
+  } = useGalleryData({
+    page: 1,
+    limit: 50, // 一次載入較多資料，避免分頁問題
+    keyword: filters.keyword,
+    eventType: filters.eventType,
+    year: filters.year,
+    tags: filters.tags
+  });
 
-    loadGalleries();
+  // 使用 hook 獲取統計資料
+  const { stats, loading: statsLoading } = useGalleryStats();
+
+  // 頁面載入時滾動到頂部
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
-
-  // 篩選邏輯
-  useEffect(() => {
-    let filtered = galleries;
-
-    if (filters.keyword) {
-      filtered = filtered.filter(gallery =>
-        gallery.title.toLowerCase().includes(filters.keyword.toLowerCase()) ||
-        gallery.description.toLowerCase().includes(filters.keyword.toLowerCase())
-      );
-    }
-
-    if (filters.eventType) {
-      filtered = filtered.filter(gallery => gallery.eventType === filters.eventType);
-    }
-
-    if (filters.year) {
-      filtered = filtered.filter(gallery => 
-        new Date(gallery.date).getFullYear().toString() === filters.year
-      );
-    }
-
-    if (filters.tags.length > 0) {
-      filtered = filtered.filter(gallery =>
-        filters.tags.every(tag => 
-          gallery.tags.some(galleryTag => 
-            galleryTag.toLowerCase().includes(tag.toLowerCase())
-          )
-        )
-      );
-    }
-
-    setFilteredGalleries(filtered);
-  }, [filters, galleries]);
 
   // 動畫設定
   const containerVariants = {
@@ -130,6 +104,11 @@ export default function EventGalleryPage() {
     }));
   };
 
+  // 使用統計資料或 fallback 到 JSON 資料
+  const eventTypes = stats.eventTypes?.length > 0 ? stats.eventTypes : galleryData.eventTypes;
+  const years = stats.years?.length > 0 ? stats.years : galleryData.years;
+  const displayTotalImages = totalImages > 0 ? totalImages : galleryData.galleries?.reduce((sum, gallery) => sum + gallery.imageCount, 0) || 0;
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/50 text-slate-800 relative overflow-hidden">
       {/* 動態背景效果 */}
@@ -167,10 +146,18 @@ export default function EventGalleryPage() {
                 filters={filters}
                 onFiltersChange={handleFiltersChange}
                 onClearFilters={handleClearFilters}
-                eventTypes={galleryData.eventTypes}
-                years={galleryData.years}
+                eventTypes={eventTypes}
+                years={years}
               />
             </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
+                <div className="text-red-600 font-medium mb-2">載入失敗</div>
+                <div className="text-red-500 text-sm">{error}</div>
+              </div>
+            )}
 
             {/* Gallery Grid */}
             {loading ? (
@@ -179,7 +166,7 @@ export default function EventGalleryPage() {
               </div>
             ) : (
               <GalleryGrid
-                galleries={filteredGalleries}
+                galleries={galleries}
                 onImageClick={handleImageClick}
                 containerVariants={containerVariants}
                 itemVariants={itemVariants}
@@ -190,9 +177,10 @@ export default function EventGalleryPage() {
           {/* Sidebar */}
           <GallerySidebar 
             galleries={galleries}
-            eventTypes={galleryData.eventTypes}
-            totalImages={galleries.reduce((sum, gallery) => sum + gallery.imageCount, 0)}
+            eventTypes={eventTypes}
+            totalImages={displayTotalImages}
             onTagClick={handleTagClick}
+            loading={statsLoading}
           />
         </div>
       </motion.main>
