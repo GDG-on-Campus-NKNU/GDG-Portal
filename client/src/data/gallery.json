@@ -1,0 +1,173 @@
+{
+  "galleries": [
+    {
+      "id": "gallery-001",
+      "title": "Firebase 工作坊實作營",
+      "date": "2024-12-15",
+      "eventType": "workshop",
+      "tags": ["Firebase", "實作", "工作坊"],
+      "imageCount": 24,
+      "coverImage": "https://picsum.photos/400/300?random=1",
+      "description": "學員們透過實際操作學習 Firebase 的各項功能，包含資料庫操作、身份驗證等核心技術。",
+      "images": [
+        {
+          "id": "img-001",
+          "url": "https://picsum.photos/400/300?random=1",
+          "caption": "講師介紹 Firebase 基礎概念",
+          "tags": ["講解", "Firebase"]
+        },
+        {
+          "id": "img-002", 
+          "url": "https://picsum.photos/400/600?random=2",
+          "caption": "學員專注於程式碼實作",
+          "tags": ["實作", "學習"]
+        },
+        {
+          "id": "img-003",
+          "url": "https://picsum.photos/600/400?random=3", 
+          "caption": "小組討論與協作",
+          "tags": ["協作", "討論"]
+        },
+        {
+          "id": "img-004",
+          "url": "https://picsum.photos/300/400?random=4",
+          "caption": "展示實作成果",
+          "tags": ["成果", "展示"]
+        }
+      ]
+    },
+    {
+      "id": "gallery-002",
+      "title": "Google Cloud 技術分享會",
+      "date": "2024-11-28",
+      "eventType": "talk",
+      "tags": ["Google Cloud", "分享會", "雲端"],
+      "imageCount": 18,
+      "coverImage": "https://picsum.photos/400/300?random=5",
+      "description": "業界專家分享 Google Cloud 在企業應用的實際案例與最佳實踐。",
+      "images": [
+        {
+          "id": "img-005",
+          "url": "https://picsum.photos/500/300?random=5",
+          "caption": "講師分享雲端架構設計",
+          "tags": ["架構", "雲端"]
+        },
+        {
+          "id": "img-006",
+          "url": "https://picsum.photos/400/500?random=6", 
+          "caption": "學員積極參與問答",
+          "tags": ["互動", "問答"]
+        }
+      ]
+    },
+    {
+      "id": "gallery-003",
+      "title": "Android 開發工作坊",
+      "date": "2024-10-20",
+      "eventType": "workshop", 
+      "tags": ["Android", "行動開發", "工作坊"],
+      "imageCount": 32,
+      "coverImage": "https://picsum.photos/400/300?random=7",
+      "description": "從零開始學習 Android 應用程式開發，涵蓋 UI 設計到功能實作。",
+      "images": [
+        {
+          "id": "img-007",
+          "url": "https://picsum.photos/400/300?random=7",
+          "caption": "Android Studio 環境設置",
+          "tags": ["開發環境", "Android"]
+        },
+        {
+          "id": "img-008",
+          "url": "https://picsum.photos/300/500?random=8",
+          "caption": "UI 介面設計教學",
+          "tags": ["UI", "設計"]
+        }
+      ]
+    },
+    {
+      "id": "gallery-004",
+      "title": "社群聚會 - 技術交流夜",
+      "date": "2024-09-15",
+      "eventType": "social",
+      "tags": ["社群", "交流", "聚會"],
+      "imageCount": 45,
+      "coverImage": "https://picsum.photos/400/300?random=9",
+      "description": "技術愛好者齊聚一堂，分享學習心得與交流開發經驗。",
+      "images": [
+        {
+          "id": "img-009",
+          "url": "https://picsum.photos/600/400?random=9",
+          "caption": "社群成員熱烈交流",
+          "tags": ["交流", "社群"]
+        },
+        {
+          "id": "img-010",
+          "url": "https://picsum.photos/400/400?random=10",
+          "caption": "技術討論時光",
+          "tags": ["討論", "技術"]
+        }
+      ]
+    },
+    {
+      "id": "gallery-005",
+      "title": "Web 前端開發講座",
+      "date": "2024-08-10",
+      "eventType": "talk",
+      "tags": ["前端", "Web", "講座"],
+      "imageCount": 21,
+      "coverImage": "https://picsum.photos/400/300?random=11",
+      "description": "深入探討現代前端開發技術，包含 React、Vue 等主流框架。",
+      "images": [
+        {
+          "id": "img-011", 
+          "url": "https://picsum.photos/500/400?random=11",
+          "caption": "前端框架比較分析",
+          "tags": ["前端", "框架"]
+        },
+        {
+          "id": "img-012",
+          "url": "https://picsum.photos/400/300?random=12",
+          "caption": "實際程式碼展示",
+          "tags": ["程式碼", "展示"]
+        }
+      ]
+    },
+    {
+      "id": "gallery-006",
+      "title": "黑客松競賽 2024",
+      "date": "2024-07-22",
+      "eventType": "hackathon",
+      "tags": ["黑客松", "競賽", "創新"],
+      "imageCount": 67,
+      "coverImage": "https://picsum.photos/400/300?random=13",
+      "description": "48小時不間斷的創意馬拉松，參賽者們展現驚人的創造力與技術實力。",
+      "images": [
+        {
+          "id": "img-013",
+          "url": "https://picsum.photos/400/300?random=13",
+          "caption": "開幕式與規則說明",
+          "tags": ["開幕", "說明"]
+        },
+        {
+          "id": "img-014",
+          "url": "https://picsum.photos/300/400?random=14",
+          "caption": "團隊專注開發中",
+          "tags": ["開發", "專注"]
+        },
+        {
+          "id": "img-015",
+          "url": "https://picsum.photos/500/300?random=15",
+          "caption": "最終作品展示",
+          "tags": ["作品", "展示"]
+        }
+      ]
+    }
+  ],
+  "eventTypes": [
+    { "value": "workshop", "label": "工作坊", "color": "from-blue-500 to-blue-600" },
+    { "value": "talk", "label": "技術講座", "color": "from-green-500 to-green-600" },
+    { "value": "social", "label": "社群聚會", "color": "from-purple-500 to-purple-600" },
+    { "value": "hackathon", "label": "黑客松", "color": "from-red-500 to-red-600" }
+  ],
+  "years": ["2024", "2023", "2022", "2021"]
+}

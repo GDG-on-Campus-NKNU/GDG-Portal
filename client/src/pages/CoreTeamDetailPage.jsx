@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { Navbar } from '../components/general/Navbar';
 import { Footer } from '../components/Footer';
 import LoadingSpinner from '../components/general/LoadingSpinner';
-import NotificationToast from '../components/general/NotificationToast';
+import { BackgroundEffects } from '../components/general/BackgroundEffects';
+import { ScrollEffects } from '../components/general/ScrollEffects';
 import { useMemberDetail } from '../hooks/useCoreTeamData';
 
 export default function CoreTeamDetailPage() {
@@ -12,6 +13,11 @@ export default function CoreTeamDetailPage() {
   const navigate = useNavigate();
   const { member, loading, error } = useMemberDetail(id);
   const [selectedPhoto, setSelectedPhoto] = useState('');
+
+  // 頁面載入時滾動到頂部
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   // 設定主要照片
   useEffect(() => {
@@ -31,141 +37,291 @@ export default function CoreTeamDetailPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 text-slate-800 relative overflow-hidden">
+      <BackgroundEffects />
+      <ScrollEffects />
       <Navbar />
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
+      <main className="flex-1 w-full max-w-[1400px] mx-auto px-4 py-8 relative z-10">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <LoadingSpinner size={16} />
           </div>
         ) : error ? (
-          <NotificationToast message={error} type="error" />
+          <motion.div 
+            className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-lg"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 10 }}
+          >
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">載入失敗</h3>
+              <p className="text-slate-600 mb-4">{error}</p>
+              <button
+                onClick={handleBack}
+                className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+              >
+                返回幹部列表
+              </button>
+            </div>
+          </motion.div>
         ) : member ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-6"
+            transition={{ type: "spring", stiffness: 100, damping: 10 }}
+            className="space-y-8"
           >
             {/* 返回按鈕 */}
-            <button
+            <motion.button
               onClick={handleBack}
-              className="flex items-center text-blue-600 hover:text-blue-800"
+              className="flex items-center text-blue-600 hover:text-blue-700 transition-colors group"
+              whileHover={{ x: -5 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               返回幹部列表
-            </button>
+            </motion.button>
 
             {/* 幹部基本資料卡 */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <div className="md:flex">
+            <motion.div 
+              className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg overflow-hidden relative"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 10, delay: 0.1 }}
+              whileHover={{ y: -5 }}
+            >
+              {/* 裝飾性背景元素 */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full -translate-y-16 translate-x-16"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-400/20 to-blue-400/20 rounded-full translate-y-12 -translate-x-12"></div>
+              
+              <div className="md:flex relative z-10">
                 <div className="md:flex-shrink-0 md:w-1/3">
-                  <div className="h-full relative">
+                  <motion.div 
+                    className="h-full relative group"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  >
                     <img
-                      className="h-full w-full object-cover md:object-center"
+                      className="h-full w-full object-cover md:object-center transition-all duration-500 group-hover:brightness-110"
                       src={selectedPhoto || member.photo}
                       alt={member.name}
                     />
+                    {/* 漸層遮罩增強 */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    
                     {/* 額外照片選擇器 */}
                     {member.additionalPhotos && member.additionalPhotos.length > 0 && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                      <motion.div 
+                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                      >
                         <div className="flex gap-2 justify-center">
-                          <button
+                          <motion.button
                             onClick={() => handlePhotoClick(member.photo)}
-                            className={`w-12 h-12 rounded-md overflow-hidden border-2 ${selectedPhoto === member.photo ? 'border-blue-500' : 'border-white/50'
+                            className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${selectedPhoto === member.photo ? 'border-blue-500 scale-110' : 'border-white/50 hover:border-white'
                               }`}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
                           >
                             <img
                               src={member.photo}
                               alt="幹部主要照片"
                               className="w-full h-full object-cover"
                             />
-                          </button>
+                          </motion.button>
                           {member.additionalPhotos.map((photo, index) => (
-                            <button
+                            <motion.button
                               key={index}
                               onClick={() => handlePhotoClick(photo)}
-                              className={`w-12 h-12 rounded-md overflow-hidden border-2 ${selectedPhoto === photo ? 'border-blue-500' : 'border-white/50'
+                              className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${selectedPhoto === photo ? 'border-blue-500 scale-110' : 'border-white/50 hover:border-white'
                                 }`}
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: 0.6 + index * 0.1 }}
                             >
                               <img
                                 src={photo}
                                 alt={`幹部照片 ${index + 1}`}
                                 className="w-full h-full object-cover"
                               />
-                            </button>
+                            </motion.button>
                           ))}
                         </div>
-                      </div>
+                      </motion.div>
                     )}
-                  </div>
+                  </motion.div>
                 </div>
 
                 <div className="p-8 md:w-2/3">
-                  <div className="flex items-center justify-between">
+                  <motion.div 
+                    className="flex items-center justify-between"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
                     <div>
-                      <h1 className="text-2xl font-bold text-gray-800">{member.name}</h1>
-                      <p className="text-lg text-blue-600 font-medium">{member.title}</p>
+                      <motion.h1 
+                        className="text-3xl font-bold text-slate-900"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                      >
+                        {member.name}
+                      </motion.h1>
+                      <motion.p 
+                        className="text-xl text-blue-600 font-medium"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                        {member.title}
+                      </motion.p>
                     </div>
                     {member.categories && member.categories.length > 0 && (
-                      <span className="inline-block bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">
-                        {member.categories[0] === 'core' ? '核心幹部' :
-                          member.categories[0] === 'tech' ? '技術教學' :
-                            member.categories[0] === 'pr' ? '公關行銷' :
-                              member.categories[0] === 'design' ? '美術設計' :
-                                member.categories[0] === 'affairs' ? '總務攝影' :
+                      <motion.span 
+                        className="inline-block bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 text-sm px-4 py-2 rounded-full font-medium border border-blue-200/50 shadow-sm"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.6, type: "spring", stiffness: 300 }}
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        {member.categories[0] === 'core' ? '🌟 核心幹部' :
+                          member.categories[0] === 'tech' ? '💻 技術教學' :
+                            member.categories[0] === 'pr' ? '📢 公關行銷' :
+                              member.categories[0] === 'design' ? '🎨 美術設計' :
+                                member.categories[0] === 'affairs' ? '📸 總務攝影' :
                                   member.categories[0]}
-                      </span>
+                      </motion.span>
                     )}
-                  </div>
+                  </motion.div>
 
-                  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">系所:</span> {member.department}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <span className="font-medium">年級:</span> {member.year}
-                      </p>
+                  <motion.div 
+                    className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.7 }}
+                  >
+                    <div className="space-y-3">
+                      <motion.div 
+                        className="flex items-center group"
+                        whileHover={{ x: 5 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <div className="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center mr-3 group-hover:bg-gradient-to-br group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300">
+                          <svg className="w-4 h-4 text-slate-600 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm text-slate-500">系所</p>
+                          <p className="font-medium text-slate-900">{member.department}</p>
+                        </div>
+                      </motion.div>
+                      <motion.div 
+                        className="flex items-center group"
+                        whileHover={{ x: 5 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <div className="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center mr-3 group-hover:bg-gradient-to-br group-hover:from-green-100 group-hover:to-green-200 transition-all duration-300">
+                          <svg className="w-4 h-4 text-slate-600 group-hover:text-green-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm text-slate-500">年級</p>
+                          <p className="font-medium text-slate-900">{member.year}</p>
+                        </div>
+                      </motion.div>
                       {member.contactEmail && (
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">聯絡信箱:</span>{' '}
-                          <a href={`mailto:${member.contactEmail}`} className="text-blue-500 hover:underline">
-                            {member.contactEmail}
-                          </a>
-                        </p>
+                        <motion.div 
+                          className="flex items-center group"
+                          whileHover={{ x: 5 }}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <div className="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center mr-3 group-hover:bg-gradient-to-br group-hover:from-purple-100 group-hover:to-purple-200 transition-all duration-300">
+                            <svg className="w-4 h-4 text-slate-600 group-hover:text-purple-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-sm text-slate-500">聯絡信箱</p>
+                            <a href={`mailto:${member.contactEmail}`} className="font-medium text-blue-600 hover:text-blue-700 transition-colors hover:underline">
+                              {member.contactEmail}
+                            </a>
+                          </div>
+                        </motion.div>
                       )}
                     </div>
 
                     <div>
-                      <p className="text-sm font-medium text-gray-600">專長:</p>
-                      <div className="flex flex-wrap gap-2 mt-1">
+                      <p className="text-sm font-medium text-slate-700 mb-3 flex items-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center mr-3">
+                          <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                        </div>
+                        專長領域
+                      </p>
+                      <div className="flex flex-wrap gap-2">
                         {member.skills && member.skills.map((skill, index) => (
-                          <span
+                          <motion.span
                             key={index}
-                            className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
+                            className="bg-gradient-to-r from-slate-100 to-slate-200 text-slate-800 text-sm px-3 py-1 rounded-lg font-medium hover:from-blue-100 hover:to-blue-200 hover:text-blue-800 transition-all duration-300 cursor-default"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.8 + index * 0.1 }}
+                            whileHover={{ scale: 1.05 }}
                           >
                             {skill}
-                          </span>
+                          </motion.span>
                         ))}
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* 社群媒體連結 */}
                   {member.socialLinks && Object.keys(member.socialLinks).length > 0 && (
-                    <div className="mt-6">
-                      <p className="text-sm font-medium text-gray-700 mb-2">社群媒體:</p>
-                      <div className="flex flex-wrap gap-3">
-                        {Object.entries(member.socialLinks).map(([platform, url]) => (
-                          <a
+                    <motion.div 
+                      className="mt-8"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.9 }}
+                    >
+                      <p className="text-sm font-medium text-slate-700 mb-3 flex items-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center mr-3">
+                          <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                        </div>
+                        🌐 社群媒體
+                      </p>
+                      <div className="flex flex-wrap gap-4">
+                        {Object.entries(member.socialLinks).map(([platform, url], index) => (
+                          <motion.a
                             key={platform}
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-gray-600 hover:text-blue-600"
+                            className="p-3 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl text-slate-600 hover:text-blue-600 hover:from-blue-50 hover:to-blue-100 transition-all duration-300 shadow-sm hover:shadow-md group"
                             title={platform.charAt(0).toUpperCase() + platform.slice(1)}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 1.0 + index * 0.1 }}
+                            whileHover={{ scale: 1.1, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
                           >
                             {platform === 'github' ? (
                               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -196,33 +352,81 @@ export default function CoreTeamDetailPage() {
                                 <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2 16h-2v-6h2v6zm-1-6.891c-.607 0-1.1-.496-1.1-1.109 0-.612.492-1.109 1.1-1.109s1.1.497 1.1 1.109c0 .613-.493 1.109-1.1 1.109zm8 6.891h-1.998v-2.861c0-1.881-2.002-1.722-2.002 0v2.861h-2v-6h2v1.093c.872-1.616 4-1.736 4 1.548v3.359z" />
                               </svg>
                             )}
-                          </a>
+                          </motion.a>
                         ))}
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* 幹部詳細介紹 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-lg shadow-md p-6"
+              transition={{ type: "spring", stiffness: 100, damping: 10, delay: 0.2 }}
+              className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 relative overflow-hidden"
+              whileHover={{ y: -3 }}
             >
-              <h2 className="text-xl font-bold text-gray-800 mb-4">個人簡介</h2>
-              <div className="prose max-w-none">
-                {member.fullBio && typeof member.fullBio === 'string' ? (
-                  member.fullBio.split('\n\n').map((paragraph, index) => (
-                    <p key={index} className="mb-4 text-gray-700">
-                      {paragraph}
-                    </p>
-                  ))
-                ) : (
-                  <p className="mb-4 text-gray-700">暫無詳細介紹</p>
-                )}
+              {/* 裝飾性背景元素 */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-400/10 to-purple-400/10 rounded-full -translate-y-20 translate-x-20"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-green-400/10 to-blue-400/10 rounded-full translate-y-16 -translate-x-16"></div>
+              
+              <div className="relative z-10">
+                <motion.h2 
+                  className="text-2xl font-bold text-slate-900 mb-6 flex items-center"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <motion.div 
+                    className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mr-4 shadow-sm"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </motion.div>
+                  ✨ 個人簡介
+                </motion.h2>
+                <motion.div 
+                  className="prose max-w-none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  {member.fullBio && typeof member.fullBio === 'string' ? (
+                    member.fullBio.split('\n\n').map((paragraph, index) => (
+                      <motion.p 
+                        key={index} 
+                        className="mb-4 text-slate-700 leading-relaxed hover:text-slate-900 transition-colors duration-300"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 + index * 0.1 }}
+                        whileHover={{ x: 5 }}
+                      >
+                        {paragraph}
+                      </motion.p>
+                    ))
+                  ) : (
+                    <motion.div 
+                      className="text-center py-8"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.6 }}
+                    >
+                      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                      </div>
+                      <p className="text-slate-600 italic">暫無詳細介紹</p>
+                      <p className="text-sm text-slate-500 mt-2">期待 {member.name} 與我們分享更多故事 📖</p>
+                    </motion.div>
+                  )}
+                </motion.div>
               </div>
             </motion.div>
 
@@ -231,20 +435,78 @@ export default function CoreTeamDetailPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-white rounded-lg shadow-md p-6"
+                transition={{ type: "spring", stiffness: 100, damping: 10, delay: 0.3 }}
+                className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg p-8 relative overflow-hidden"
+                whileHover={{ y: -3 }}
               >
-                <h2 className="text-xl font-bold text-gray-800 mb-4">成就與貢獻</h2>
-                <ul className="space-y-3">
-                  {member.achievements.map((achievement, index) => (
-                    <li key={index} className="flex items-start">
-                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                {/* 裝飾性背景元素 */}
+                <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-bl from-green-400/10 to-emerald-400/10 rounded-full -translate-y-18 translate-x-18"></div>
+                <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-yellow-400/10 to-green-400/10 rounded-full translate-y-14 -translate-x-14"></div>
+                
+                <div className="relative z-10">
+                  <motion.h2 
+                    className="text-2xl font-bold text-slate-900 mb-6 flex items-center"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <motion.div 
+                      className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center mr-4 shadow-sm"
+                      whileHover={{ scale: 1.1, rotate: -5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                       </svg>
-                      <span className="text-gray-700">{achievement}</span>
-                    </li>
-                  ))}
-                </ul>
+                    </motion.div>
+                    🏆 成就與貢獻
+                  </motion.h2>
+                  <ul className="space-y-4">
+                    {member.achievements.map((achievement, index) => (
+                      <motion.li 
+                        key={index} 
+                        className="flex items-start group"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.6 + index * 0.1 }}
+                        whileHover={{ x: 5 }}
+                      >
+                        <motion.div 
+                          className="w-6 h-6 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center mr-3 mt-1 flex-shrink-0 group-hover:from-green-200 group-hover:to-green-300 transition-all duration-300"
+                          whileHover={{ scale: 1.1, rotate: 10 }}
+                        >
+                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </motion.div>
+                        <span className="text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors duration-300">{achievement}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                  
+                  {/* 成就統計 */}
+                  <motion.div 
+                    className="mt-6 p-4 bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-xl border border-green-200/50"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.8 }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                          <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <span className="text-sm font-medium text-green-800">共 {member.achievements.length} 項成就</span>
+                      </div>
+                      <span className="text-xs text-green-600 font-medium bg-green-100 px-2 py-1 rounded-full">
+                        優秀表現 ⭐
+                      </span>
+                    </div>
+                  </motion.div>
+                </div>
               </motion.div>
             )}
 
@@ -252,77 +514,101 @@ export default function CoreTeamDetailPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-md p-6 text-white"
+              transition={{ type: "spring", stiffness: 100, damping: 10, delay: 0.4 }}
+              className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-8 text-white relative overflow-hidden"
             >
-              <h2 className="text-xl font-bold mb-4">與 {member.name} 聯繫</h2>
-              <p className="mb-4 text-blue-100">
-                如有與 {member.title} 相關的問題或合作機會，歡迎透過以下表單聯繫：
-              </p>
-              <form className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+              <div className="relative z-10">
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  與 {member.name} 聯繫
+                </h2>
+                <p className="mb-6 text-blue-100">
+                  如有與 {member.title} 相關的問題或合作機會，歡迎透過以下表單聯繫：
+                </p>
+                <form className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-blue-100 mb-2">
+                        姓名
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full p-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
+                        placeholder="請輸入您的姓名"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-blue-100 mb-2">
+                        電子郵件
+                      </label>
+                      <input
+                        type="email"
+                        className="w-full p-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
+                        placeholder="請輸入您的電子郵件"
+                      />
+                    </div>
+                  </div>
                   <div>
-                    <label className="block text-sm font-medium text-blue-100 mb-1">
-                      姓名
+                    <label className="block text-sm font-medium text-blue-100 mb-2">
+                      主旨
                     </label>
                     <input
                       type="text"
-                      className="w-full p-2 rounded-md bg-white/10 border border-white/30 text-white placeholder-blue-200"
-                      placeholder="請輸入您的姓名"
+                      className="w-full p-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
+                      placeholder="請輸入信件主旨"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-blue-100 mb-1">
-                      電子郵件
+                    <label className="block text-sm font-medium text-blue-100 mb-2">
+                      訊息內容
                     </label>
-                    <input
-                      type="email"
-                      className="w-full p-2 rounded-md bg-white/10 border border-white/30 text-white placeholder-blue-200"
-                      placeholder="請輸入您的電子郵件"
-                    />
+                    <textarea
+                      rows={4}
+                      className="w-full p-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all resize-none"
+                      placeholder="請輸入您想表達的內容"
+                    ></textarea>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-blue-100 mb-1">
-                    主旨
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full p-2 rounded-md bg-white/10 border border-white/30 text-white placeholder-blue-200"
-                    placeholder="請輸入信件主旨"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-blue-100 mb-1">
-                    訊息內容
-                  </label>
-                  <textarea
-                    rows={4}
-                    className="w-full p-2 rounded-md bg-white/10 border border-white/30 text-white placeholder-blue-200"
-                    placeholder="請輸入您想表達的內容"
-                  ></textarea>
-                </div>
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="bg-white text-blue-600 px-6 py-2 rounded-md font-medium hover:bg-blue-50 transition"
-                  >
-                    送出訊息
-                  </button>
-                </div>
-              </form>
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="bg-white text-blue-600 px-8 py-3 rounded-xl font-medium hover:bg-blue-50 transition-all duration-300 hover:scale-105 shadow-lg"
+                    >
+                      送出訊息
+                    </button>
+                  </div>
+                </form>
+              </div>
             </motion.div>
           </motion.div>
         ) : (
-          <div className="text-center py-12">
-            <h2 className="text-xl text-gray-600">找不到該幹部資料</h2>
+          <motion.div 
+            className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl p-12 shadow-lg text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 10 }}
+          >
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">找不到該幹部資料</h2>
+            <p className="text-slate-600 mb-6">請檢查網址是否正確，或者該幹部可能已不存在</p>
             <button
               onClick={handleBack}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
             >
               返回幹部列表
             </button>
-          </div>
+          </motion.div>
         )}
       </main>
       <Footer />

@@ -2,19 +2,16 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Navbar } from '../components/general/Navbar'
 import { Footer } from '../components/Footer'
-import SearchBar from '../components/general/SearchBar'
-import FilterPanel from '../components/general/FilterPanel'
+import { BackgroundEffects } from '../components/general/BackgroundEffects'
+import { ScrollEffects } from '../components/general/ScrollEffects'
 import LoadingSpinner from '../components/general/LoadingSpinner'
 import NotificationToast from '../components/general/NotificationToast'
 import Pagination from '../components/general/Pagination'
-import PageBanner from '../components/general/PageBanner'
 import SearchFilterSection from '../components/general/SearchFilterSection'
-import SubscriptionBox from '../components/general/SubscriptionBox'
+import PageBanner from '../components/general/PageBanner'
 import EventCard from '../components/event/EventCard'
 import CalendarView from '../components/event/CalendarView'
-import UpcomingEvents from '../components/event/UpcomingEvents'
-import EventLocations from '../components/event/EventLocations'
-import EventSubscription from '../components/event/EventSubscription'
+import EventSidebar from '../components/event/EventSidebar'
 import { useEventData } from '../hooks/useEventData'
 import { formatEventTimeRange } from '../utils/dateUtils'
 
@@ -74,19 +71,28 @@ export default function EventsPage() {
   ]
 
   // Animation variants
-  const container = {
+  const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.1,
+        delayChildren: 0.2
       }
     }
   }
 
-  const item = {
+  const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+    show: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 10
+      }
+    }
   }
 
   // Helper functions
@@ -108,53 +114,76 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-800">
-      <Navbar />
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6">
-        {/* Header Banner */}
-        <PageBanner title="GDG 活動中心" description="探索 GDG on Campus NKNU 舉辦的各種精彩活動，從工作坊到技術分享會，豐富你的學習體驗。" style="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl p-8 mb-8 relative overflow-hidden"/>
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 text-slate-800 relative overflow-hidden">
+      {/* 動態背景效果 */}
+      <BackgroundEffects />
+      
+      {/* 滾動效果 */}
+      <ScrollEffects />
 
-        <div className="flex flex-col lg:flex-row gap-6">
+      <Navbar />
+      
+      <motion.main
+        initial="hidden"
+        animate="show"
+        variants={containerVariants}
+        className="flex-1 w-full max-w-[1400px] mx-auto px-6 lg:px-8 xl:px-12 py-8 relative z-10"
+      >
+        {/* Header Banner */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <PageBanner
+            title="GDG 活動中心"
+            description="探索 GDG on Campus NKNU 舉辦的各種精彩活動，從工作坊到技術分享會，豐富你的學習體驗。"
+            style="relative bg-gradient-to-br from-blue-600/90 via-purple-600/80 to-indigo-700/90 backdrop-blur-sm rounded-2xl p-6 lg:p-8 text-white shadow-2xl overflow-hidden"
+          />
+        </motion.div>
+
+        <div className="flex flex-col xl:flex-row gap-8 xl:gap-10">
           {/* Main Content Area */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="flex-1 space-y-6"
+            variants={itemVariants}
+            className="flex-1 xl:flex-grow space-y-8"
           >
             {/* Search & Filter */}
-            <SearchFilterSection
-              placeholder="搜尋活動..."
-              keyword={keyword}
-              setKeyword={setKeyword}
-              tags={tags}
-              setTags={setTags}
-              setPage={setPage}
-              availableTags={availableTags}
-              onClearFilters={handleClearFilters}
-              onReload={handleReload}
-            />
+            <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20">
+              <SearchFilterSection
+                placeholder="搜尋活動..."
+                keyword={keyword}
+                setKeyword={setKeyword}
+                tags={tags}
+                setTags={setTags}
+                setPage={setPage}
+                availableTags={availableTags}
+                onClearFilters={handleClearFilters}
+                onReload={handleReload}
+              />
+            </div>
 
             {/* Error or Loading */}
             {error && <NotificationToast message={error} type="error" />}
             {loading ? (
-              <div className="flex justify-center p-12">
+              <div className="flex justify-center p-20">
                 <LoadingSpinner size={16} />
               </div>
             ) : (
               <>
                 {viewMode === 'grid' ? (
                   <motion.div
-                    variants={container}
+                    variants={containerVariants}
                     initial="hidden"
                     animate="show"
-                    className="grid sm:grid-cols-2 gap-4"
+                    className="grid md:grid-cols-2 xl:grid-cols-3 gap-6"
                   >
                     {events.map(ev => (
                       <motion.div
                         key={ev.id}
-                        variants={item}
-                        whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                        variants={itemVariants}
+                        whileHover={{ 
+                          scale: 1.02, 
+                          y: -5,
+                          transition: { duration: 0.3, ease: "easeOut" } 
+                        }}
+                        className="h-full"
                       >
                         <EventCard
                           id={ev.id}
@@ -168,19 +197,25 @@ export default function EventsPage() {
                       </motion.div>
                     ))}
                     {events.length === 0 && (
-                      <motion.p
-                        variants={item}
-                        className="col-span-2 text-center py-12 bg-white rounded-lg shadow-md text-gray-500"
+                      <motion.div
+                        variants={itemVariants}
+                        className="md:col-span-2 xl:col-span-3 text-center py-20 bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20"
                       >
-                        目前沒有符合條件的活動
-                      </motion.p>
+                        <div className="text-6xl mb-4">📅</div>
+                        <p className="text-xl text-slate-600 font-medium">
+                          目前沒有符合條件的活動
+                        </p>
+                        <p className="text-slate-500 mt-2">
+                          請調整搜尋條件或稍後再試
+                        </p>
+                      </motion.div>
                     )}
                   </motion.div>
                 ) : (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="bg-white rounded-lg shadow-md p-6"
+                    className="bg-white/70 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-white/20"
                   >
                     <CalendarView
                       events={calendarEvents}
@@ -197,7 +232,7 @@ export default function EventsPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="py-6"
+                    className="py-8"
                   >
                     <Pagination
                       currentPage={page}
@@ -211,25 +246,15 @@ export default function EventsPage() {
           </motion.div>
 
           {/* Sidebar */}
-          <motion.aside
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="w-full lg:w-80 space-y-6"
-          >
-            {/* Upcoming Events - Using the new component */}
-            <UpcomingEvents
-              events={upcomingEvents}
-              loading={loadingUpcoming}
-              formatEventTimeRange={formatEventTimeRange}
-              getTagLabel={getTagLabel}
-            />
-
-            <EventLocations />
-            <SubscriptionBox title="訂閱活動通知" description="第一時間收到最新活動資訊，不錯過任何一場精彩活動！" />
-          </motion.aside>
+          <EventSidebar
+            upcomingEvents={upcomingEvents}
+            loadingUpcoming={loadingUpcoming}
+            formatEventTimeRange={formatEventTimeRange}
+            getTagLabel={getTagLabel}
+          />
         </div>
-      </main>
+      </motion.main>
+      
       <Footer />
     </div>
   )
