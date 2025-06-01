@@ -325,7 +325,7 @@ export function AuthProvider({ children }) {
       const roleHierarchy = {
         guest: 0,
         member: 1,
-        core_team: 2,
+        core: 2,
         admin: 3
       };
 
@@ -383,8 +383,8 @@ export function AuthProvider({ children }) {
     
     // 額外的便利方法
     isAdmin: () => hasUserRole('admin'),
-    isCoreTeam: () => hasUserRole('core_team') || hasUserRole('admin'),
-    isMember: () => hasUserRole('member') || hasUserRole('core_team') || hasUserRole('admin'),
+    isCoreTeam: () => hasUserRole('core') || hasUserRole('admin'),
+    isMember: () => hasUserRole('member') || hasUserRole('core') || hasUserRole('admin'),
     
     // 快速權限檢查
     canManageUsers: () => hasUserPermission('manage_users'),

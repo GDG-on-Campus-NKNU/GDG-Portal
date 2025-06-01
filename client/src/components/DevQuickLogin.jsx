@@ -135,11 +135,11 @@ export default function DevQuickLogin() {
 
             {/* 核心團隊登入 */}
             <button
-              onClick={() => handleQuickLogin('coreTeam')}
+              onClick={() => handleQuickLogin('core')}
               className="w-full text-left px-3 py-2 text-xs bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 transition-colors"
             >
               <div className="font-medium text-blue-800">⭐ 核心團隊</div>
-              <div className="text-blue-600">{mockUsers.coreTeam.email}</div>
+              <div className="text-blue-600">{mockUsers.core.email}</div>
             </button>
 
             {/* 一般會員登入 */}
@@ -208,7 +208,7 @@ export default function DevQuickLogin() {
           exit={{ scale: 0 }}
         >
           {user?.role === 'admin' && '👑'}
-          {user?.role === 'core_team' && '⭐'}
+          {user?.role === 'core' && '⭐'}
           {user?.role === 'member' && '👤'}
         </motion.div>
       )}

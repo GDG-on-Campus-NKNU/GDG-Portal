@@ -27,12 +27,12 @@ export const mockUsers = {
   },
 
   // 核心團隊成員
-  coreTeam: {
+  core: {
     id: 'user_002',
     name: '核心成員 Xavier',
     email: 'core@gdg.dev.tw',
     password: 'Core123!',
-    role: 'core_team',
+    role: 'core',
     permissions: ['read', 'write', 'manage_events', 'manage_announcements'],
     avatar: '/assets/members/member2.png',
     joinDate: '2023-03-20',
@@ -93,8 +93,8 @@ export const mockRoles = {
     permissions: ['read', 'write', 'delete', 'manage_users', 'manage_events', 'manage_announcements', 'manage_system'],
     level: 100
   },
-  core_team: {
-    name: 'core_team',
+  core: {
+    name: 'core',
     displayName: '核心團隊',
     permissions: ['read', 'write', 'manage_events', 'manage_announcements'],
     level: 50
@@ -162,7 +162,7 @@ export const mockAnnouncements = [
     id: 'announce_002',
     title: '新年技術分享會即將開始報名',
     content: '2025 年新年技術分享會即將開放報名，敬請期待精彩的技術分享...',
-    author: 'core_team',
+    author: 'core',
     authorName: '核心成員 王小華',
     date: '2024-12-18T15:30:00Z',
     isPinned: false,
