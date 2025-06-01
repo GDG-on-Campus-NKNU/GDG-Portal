@@ -22,7 +22,7 @@ export const getAllEvents = async (req, res) => {
       },
       {
         model: EventTag,
-        as: 'tags'
+        as: 'eventTags'
       }
     ];
 
@@ -37,9 +37,9 @@ export const getAllEvents = async (req, res) => {
 
     // 時間篩選
     if (queryParams.future === 'true') {
-      whereClause.date = { [Op.gte]: new Date() };
+      whereClause.start_date = { [Op.gte]: new Date() };
     } else if (queryParams.future === 'false') {
-      whereClause.date = { [Op.lt]: new Date() };
+      whereClause.start_date = { [Op.lt]: new Date() };
     }
 
     // 標籤篩選
@@ -54,8 +54,8 @@ export const getAllEvents = async (req, res) => {
 
     // 排序設定
     const order = queryParams.sort === 'asc' 
-      ? [['date', 'ASC']] 
-      : [['date', 'DESC']];
+      ? [['start_date', 'ASC']] 
+      : [['start_date', 'DESC']];
 
     // 執行查詢
     const { count, rows } = await Event.findAndCountAll({

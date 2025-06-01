@@ -217,3 +217,13 @@
 
 ---
 
+## First hand new schema testing. (Went wrong) 06/02
+
+> 2025-06-02 02:23:40
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `bc2bc99b8e9dc0b4bcb1c18147051ee5479d7471`
+
+---
+

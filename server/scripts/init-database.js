@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 
 // 手動載入環境變數
 import fs from 'fs';
-const envPath = path.join(__dirname, '../.env');
+const envPath = path.join(__dirname, '../server/.env');
 if (fs.existsSync(envPath)) {
   const envConfig = fs.readFileSync(envPath, 'utf8');
   const envLines = envConfig.split('\n');
@@ -27,8 +27,8 @@ if (fs.existsSync(envPath)) {
   });
 }
 
-// 動態導入 Sequelize 和模型
-process.chdir(path.join(__dirname, '..'));
+// 動態導入 Sequelize 和模型（確保在 server 目錄執行）
+process.chdir(path.join(__dirname, '../server'));
 
 const { Sequelize } = await import('sequelize');
 

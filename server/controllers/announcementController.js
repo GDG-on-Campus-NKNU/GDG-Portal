@@ -16,7 +16,7 @@ export const getAllAnnouncements = async (req, res) => {
     const whereClause = {};
     const includeClause = [{
       model: AnnouncementTag,
-      as: 'tags'
+      as: 'announcementTags'
     }];
 
     // 關鍵字搜尋

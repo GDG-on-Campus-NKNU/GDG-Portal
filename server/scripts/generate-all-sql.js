@@ -13,6 +13,18 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 添加樣本用戶資料
+const sampleUsers = [
+  {
+    google_id: '123456789012345678901',  // 這是一個假的 Google ID
+    email: 'admin@gdg.nknu.edu.tw',
+    name: 'GDG NKNU Admin',
+    avatar_url: '/assets/users/admin_avatar.jpg',
+    role: 'admin',
+    is_active: true
+  }
+];
+
 // 樣本 Core Team 成員資料
 const sampleCoreTeamData = [
   {
@@ -23,7 +35,7 @@ const sampleCoreTeamData = [
     year: '大三',
     skills: [
       'JavaScript',
-      'TypeScript', 
+      'TypeScript',
       'React',
       'Vue.js',
       'Node.js',
@@ -37,7 +49,7 @@ const sampleCoreTeamData = [
     full_bio: '技術教育專家，致力於推廣現代 Web 開發技術與最佳實踐。擁有豐富的前端框架經驗，特別專精於 React 和 Vue.js 開發。熱衷於教學分享，希望能透過技術傳授幫助更多同學成長。',
     achievements: [
       '組織 15+ 場技術工作坊',
-      '指導 50+ 位學生程式設計', 
+      '指導 50+ 位學生程式設計',
       '在 5 場技術研討會擔任講者',
       '發表 20+ 篇技術文章',
       '建立校園技術學習社群',
@@ -62,16 +74,16 @@ const sampleCoreTeamData = [
 
 // 樣本分類資料
 const sampleCategories = [
-  { name: 'member', title: '成員', description: '社群成員相關' },
-  { name: 'event', title: '活動', description: '社群活動分類' },
-  { name: 'announcement', title: '公告', description: '重要公告通知' },
-  { name: 'frontend', title: 'Frontend', description: '前端開發技術' },
-  { name: 'backend', title: 'Backend', description: '後端開發技術' },
-  { name: 'mobile', title: 'Mobile', description: '行動應用開發' },
-  { name: 'cloud', title: 'Cloud', description: '雲端服務與部署' },
-  { name: 'ai', title: 'AI/ML', description: '人工智慧與機器學習' },
-  { name: 'workshop', title: 'Workshop', description: '工作坊活動' },
-  { name: 'lecture', title: 'Lecture', description: '講座活動' }
+  { name: 'member', type: 'member', color: '#3B82F6' },
+  { name: 'event', type: 'event', color: '#10B981' },
+  { name: 'announcement', type: 'announcement', color: '#F59E0B' },
+  { name: 'frontend', type: 'event', color: '#3B82F6' },
+  { name: 'backend', type: 'event', color: '#10B981' },
+  { name: 'mobile', type: 'event', color: '#F59E0B' },
+  { name: 'cloud', type: 'event', color: '#6366F1' },
+  { name: 'ai', type: 'event', color: '#EC4899' },
+  { name: 'workshop', type: 'event', color: '#14B8A6' },
+  { name: 'lecture', type: 'event', color: '#8B5CF6' }
 ];
 
 // 樣本公告資料
@@ -116,7 +128,6 @@ const sampleEvents = [
     status: 'published',
     is_featured: true,
     created_by: 1, // 假設 ID 為 1 的用戶
-    event_type: 'workshop'
   },
   {
     title: 'Google Cloud Platform 入門講座',
@@ -132,7 +143,6 @@ const sampleEvents = [
     status: 'published',
     is_featured: true,
     created_by: 1, // 假設 ID 為 1 的用戶
-    event_type: 'lecture'
   }
 ];
 
@@ -214,9 +224,9 @@ const sampleGalleryData = [
 async function main() {
   console.log('🚀 生成完整的 GDG Portal 資料庫初始化 SQL 腳本...');
   console.log('');
-  
+
   let combinedSQL = '';
-  
+
   // 添加總合標頭
   combinedSQL += `-- ============================================\n`;
   combinedSQL += `-- GDG Portal 完整資料庫初始化 SQL 腳本\n`;
@@ -224,24 +234,24 @@ async function main() {
   combinedSQL += `-- 用途: 一次性插入所有樣本資料\n`;
   combinedSQL += `-- 包含: Core Team, Categories, Announcements, Events, Gallery\n`;
   combinedSQL += `-- ============================================\n\n`;
-  
+
   combinedSQL += `-- 開始總事務\n`;
   combinedSQL += `START TRANSACTION;\n\n`;
-  
+
   // 先執行基本資料 (Core Team, Categories, Announcements, Events)
   console.log('📊 生成核心資料 SQL...');
   const coreSQL = generateCoreSQL();
   combinedSQL += coreSQL.replace(/START TRANSACTION;|COMMIT;/g, ''); // 移除個別事務
-  
+
   // 再執行 Gallery 資料
   console.log('📸 生成相簿資料 SQL...');
   const gallerySQL = generateGallerySQL();
   combinedSQL += gallerySQL.replace(/START TRANSACTION;|COMMIT;/g, ''); // 移除個別事務
-  
+
   // 提交總事務
   combinedSQL += `-- 提交總事務\n`;
   combinedSQL += `COMMIT;\n\n`;
-  
+
   // 添加總合驗證查詢
   combinedSQL += `-- ============================================\n`;
   combinedSQL += `-- 完整資料庫驗證查詢\n`;
@@ -259,11 +269,11 @@ async function main() {
   combinedSQL += `UNION ALL\n`;
   combinedSQL += `SELECT 'Gallery' as table_name, COUNT(*) as count FROM gallery\n`;
   combinedSQL += `ORDER BY table_name;\n\n`;
-  
+
   // 寫入檔案
   const outputPath = path.join(__dirname, 'gdg_portal_complete_init.sql');
   fs.writeFileSync(outputPath, combinedSQL, 'utf8');
-  
+
   console.log('✅ 完整 SQL 腳本生成完成！');
   console.log(`📁 檔案位置: ${outputPath}`);
   console.log('');
@@ -288,77 +298,87 @@ async function main() {
  */
 function generateCoreSQL() {
   let sql = '';
-  
+
+  // 先插入用戶資料
+  sql += `-- ============================================\n`;
+  sql += `-- 用戶資料\n`;
+  sql += `-- ============================================\n\n`;
+
+  sampleUsers.forEach(user => {
+    sql += `INSERT INTO users (google_id, email, name, avatar_url, role, is_active, created_at, updated_at) VALUES\n`;
+    sql += `('${user.google_id}', '${user.email}', '${user.name}', '${user.avatar_url}', '${user.role}', ${user.is_active}, NOW(), NOW());\n\n`;
+  });
+
   // Core Team 資料
   sql += `-- ============================================\n`;
   sql += `-- Core Team 成員資料\n`;
   sql += `-- ============================================\n\n`;
-  
+
   sampleCoreTeamData.forEach(member => {
     // 處理 JSON 欄位的轉換
     const skillsJson = JSON.stringify(member.skills).replace(/'/g, "\\'");
     const achievementsJson = JSON.stringify(member.achievements).replace(/'/g, "\\'");
     const socialLinksJson = JSON.stringify(member.social_links).replace(/'/g, "\\'");
     const additionalPhotosJson = JSON.stringify(member.additional_photos).replace(/'/g, "\\'");
-    
+
     sql += `INSERT INTO core_team (name, title, photo, department, year, skills, description, full_bio, achievements, contact_email, social_links, additional_photos, is_active, sort_order, created_at, updated_at) VALUES\n`;
     sql += `('${member.name}', '${member.title}', '${member.photo}', '${member.department}', '${member.year}', '${skillsJson}', '${member.description}', '${member.full_bio}', '${achievementsJson}', '${member.contact_email}', '${socialLinksJson}', '${additionalPhotosJson}', ${member.is_active}, ${member.sort_order}, NOW(), NOW());\n\n`;
   });
-  
+
   // Categories 資料
   sql += `-- ============================================\n`;
   sql += `-- 分類資料\n`;
   sql += `-- ============================================\n\n`;
-  
+
   sampleCategories.forEach(category => {
-    sql += `INSERT INTO categories (name, title, description, created_at, updated_at) VALUES\n`;
-    sql += `('${category.name}', '${category.title}', '${category.description}', NOW(), NOW());\n\n`;
+    sql += `INSERT INTO categories (name, type, color, is_active, created_at) VALUES\n`;
+    sql += `('${category.name}', '${category.type}', '${category.color}', true, NOW());\n\n`;
   });
-  
+
   // Core Team Categories 關聯
   sql += `-- ============================================\n`;
   sql += `-- Core Team 與 Categories 關聯\n`;
   sql += `-- ============================================\n\n`;
-  
-  sql += `INSERT INTO core_team_categories (member_id, category_id, created_at, updated_at) VALUES\n`;
-  sql += `(1, 1, NOW(), NOW());\n\n`; // 顏榕嶙 關聯到 member category
-  
+
+  sql += `INSERT INTO core_team_categories (member_id, category_id) VALUES\n`;
+  sql += `(1, 1);\n\n`; // 顏榕嶙 關聯到 member category
+
   // Announcements 資料
   sql += `-- ============================================\n`;
   sql += `-- 公告資料\n`;
   sql += `-- ============================================\n\n`;
-  
+
   sampleAnnouncements.forEach(announcement => {
     sql += `INSERT INTO announcements (title, content, excerpt, author_id, cover_image, is_pinned, view_count, status, published_at, created_at, updated_at) VALUES\n`;
     sql += `('${announcement.title}', '${announcement.content}', '${announcement.excerpt}', ${announcement.author_id}, ${announcement.cover_image ? `'${announcement.cover_image}'` : 'NULL'}, ${announcement.is_pinned}, ${announcement.view_count}, '${announcement.status}', '${announcement.published_at}', NOW(), NOW());\n\n`;
   });
-  
+
   // Events 資料
   sql += `-- ============================================\n`;
   sql += `-- 活動資料\n`;
   sql += `-- ============================================\n\n`;
-  
+
   sampleEvents.forEach(event => {
-    sql += `INSERT INTO events (title, description, excerpt, start_date, end_date, location, cover_image, registration_url, max_attendees, current_attendees, status, is_featured, created_by, event_type, created_at, updated_at) VALUES\n`;
-    sql += `('${event.title}', '${event.description}', '${event.excerpt}', '${event.start_date}', '${event.end_date}', '${event.location}', '${event.cover_image}', '${event.registration_url}', ${event.max_attendees}, ${event.current_attendees}, '${event.status}', ${event.is_featured}, ${event.created_by}, '${event.event_type}', NOW(), NOW());\n\n`;
+    sql += `INSERT INTO events (title, description, excerpt, start_date, end_date, location, cover_image, registration_url, max_attendees, current_attendees, status, is_featured, created_by, created_at, updated_at) VALUES\n`;
+    sql += `('${event.title}', '${event.description}', '${event.excerpt}', '${event.start_date}', '${event.end_date}', '${event.location}', '${event.cover_image}', '${event.registration_url}', ${event.max_attendees}, ${event.current_attendees}, '${event.status}', ${event.is_featured}, ${event.created_by}, NOW(), NOW());\n\n`;
   });
-  
+
   // Announcement Tags
   sql += `-- ============================================\n`;
   sql += `-- 公告標籤關聯\n`;
   sql += `-- ============================================\n\n`;
-  
+
   sql += `INSERT INTO announcement_tags (announcement_id, tag_name) VALUES\n`;
   sql += `(1, 'welcome'),\n`; // 歡迎訊息 -> welcome 標籤
   sql += `(1, 'community'),\n`; // 歡迎訊息 -> community 標籤
   sql += `(2, 'event'),\n`; // 技術分享會 -> event 標籤
   sql += `(2, 'frontend');\n\n`; // 技術分享會 -> frontend 標籤
-  
+
   // Event Tags  
   sql += `-- ============================================\n`;
   sql += `-- 活動標籤關聯\n`;
   sql += `-- ============================================\n\n`;
-  
+
   sql += `INSERT INTO event_tags (event_id, tag_name) VALUES\n`;
   sql += `(1, 'frontend'),\n`; // React 工作坊 -> frontend
   sql += `(1, 'workshop'),\n`; // React 工作坊 -> workshop
@@ -366,7 +386,7 @@ function generateCoreSQL() {
   sql += `(2, 'cloud'),\n`; // GCP 講座 -> cloud
   sql += `(2, 'lecture'),\n`; // GCP 講座 -> lecture
   sql += `(2, 'google');\n\n`; // GCP 講座 -> google
-  
+
   return sql;
 }
 
@@ -375,20 +395,20 @@ function generateCoreSQL() {
  */
 function generateGallerySQL() {
   let sql = '';
-  
+
   sql += `-- ============================================\n`;
   sql += `-- Gallery 相簿資料\n`;
   sql += `-- ============================================\n\n`;
-  
+
   sampleGalleryData.forEach(gallery => {
     const eventId = gallery.event_id ? gallery.event_id : 'NULL';
     const imagesJson = JSON.stringify(gallery.images).replace(/'/g, "\\'");
     const tagsJson = JSON.stringify(gallery.tags).replace(/'/g, "\\'");
-    
+
     sql += `INSERT INTO gallery (event_id, title, description, cover_image, images, tags, photographer, date_taken, view_count, is_featured, created_at, updated_at) VALUES\n`;
     sql += `(${eventId}, '${gallery.title}', '${gallery.description}', '${gallery.cover_image}', '${imagesJson}', '${tagsJson}', '${gallery.photographer}', '${gallery.date_taken}', ${gallery.view_count}, ${gallery.is_featured}, NOW(), NOW());\n\n`;
   });
-  
+
   return sql;
 }
 

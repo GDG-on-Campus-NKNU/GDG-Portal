@@ -94,6 +94,5 @@ Announcement.hasMany(AnnouncementTag, {
 
 AnnouncementTag.belongsTo(Announcement, { foreignKey: 'announcement_id' });
 
-export default Announcement;
-export { AnnouncementTag };
+export { Announcement, AnnouncementTag };
 

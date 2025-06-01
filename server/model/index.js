@@ -38,7 +38,7 @@ const defineAssociations = () => {
     through: 'event_tag_relationships',
     foreignKey: 'event_id',
     otherKey: 'tag_id',
-    as: 'tags'
+    as: 'eventTags'
   });
   
   EventTag.belongsToMany(Event, { 
@@ -69,7 +69,7 @@ const defineAssociations = () => {
     through: 'announcement_tag_relationships',
     foreignKey: 'announcement_id',
     otherKey: 'tag_id',
-    as: 'tags'
+    as: 'announcementTags'
   });
   
   AnnouncementTag.belongsToMany(Announcement, { 
