@@ -13,7 +13,7 @@ export function ProtectedRoute({ children, requireAuth = true }) {
 
   if (requireAuth && !isAuthenticated) {
     // 保存當前路徑，登入後可以重定向回來
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (!requireAuth && isAuthenticated) {
@@ -34,7 +34,7 @@ export function RoleProtectedRoute({ children, requiredRole, fallback = null }) 
   }
 
   if (!user) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (!hasRole(requiredRole)) {
@@ -76,7 +76,16 @@ export function AdminRoute({ children, fallback = null }) {
   );
 }
 
-// 成員保護路由 (member 或 admin)
+// 核心團隊保護路由 (core 或 admin)
+export function CoreTeamRoute({ children, fallback = null }) {
+  return (
+    <RoleProtectedRoute requiredRole="core" fallback={fallback}>
+      {children}
+    </RoleProtectedRoute>
+  );
+}
+
+// 成員保護路由 (member 或 core 或 admin)
 export function MemberRoute({ children, fallback = null }) {
   return (
     <RoleProtectedRoute requiredRole="member" fallback={fallback}>
@@ -95,7 +104,7 @@ export function PermissionProtectedRoute({ children, requiredPermission, fallbac
   }
 
   if (!user) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (!hasPermission(requiredPermission)) {

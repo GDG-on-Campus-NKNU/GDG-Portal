@@ -27,7 +27,7 @@ class UserController {
         name,
         email,
         password: hashedPassword,
-        role: 'guest',
+        role: 'member',
         emailVerified: false
       });
 
@@ -309,7 +309,7 @@ class UserController {
           email,
           name,
           avatarUrl,
-          role: 'guest',
+          role: 'member',
           emailVerified: true // Google 帳號視為已驗證
         });
       } else {

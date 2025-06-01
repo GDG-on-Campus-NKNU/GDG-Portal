@@ -12,7 +12,7 @@ import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import TestDataPage from './pages/TestDataPage'
-import ProtectedRoute from './pages/ProtectedRoute'
+import ProtectedRoute, { RoleProtectedRoute, MemberRoute, CoreTeamRoute, AdminRoute } from './pages/ProtectedRoute'
 import { AuthProvider } from './hooks/useAuth'
 import { ScrollEffects, CursorEffect, PageTransition } from './components/general/ScrollEffects'
 import { usePageShow } from './hooks/usePageShow'
@@ -95,9 +95,11 @@ function App() {
                   </ProtectedRoute>
                 } />
                 <Route path="/test-data" element={
-                  <PageTransition>
-                    <TestDataPage />
-                  </PageTransition>
+                  <AdminRoute>
+                    <PageTransition>
+                      <TestDataPage />
+                    </PageTransition>
+                  </AdminRoute>
                 } />
                 <Route path="*" element={
                   <PageTransition>

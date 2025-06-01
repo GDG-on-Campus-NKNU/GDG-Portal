@@ -258,8 +258,8 @@ class EventModel {
       {
         id: 14,
         title: 'Google Cloud 應用開發與部署實戰',
-        date: '2025-01-31T14:00:00',
-        endDate: '2025-01-31T18:00:00',
+        date: '2026-01-31T14:00:00',
+        endDate: '2026-01-31T18:00:00',
         location: '學生活動中心',
         tags: ['offline', 'workshop'],
         excerpt: '學習如何使用 Google Cloud 平台開發、測試和部署高可擴展性的應用程式。',
