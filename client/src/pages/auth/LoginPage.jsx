@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { Navbar } from '../../components/general/Navbar'
 import { Footer } from '../../components/Footer'
 import { BackgroundEffects } from '../../components/general/BackgroundEffects'
-import { Link } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -11,22 +12,51 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  
+  const { login, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // 獲取登入前的頁面位置
+  const from = location.state?.from?.pathname || '/'
+
+  // 如果已登入，重定向到目標頁面
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true })
+    }
+  }, [isAuthenticated, navigate, from])
 
   const handleLogin = async (e) => {
     e.preventDefault()
+    if (!email || !password) {
+      setError('請填寫所有欄位')
+      return
+    }
+
     setLoading(true)
     setError('')
 
     try {
-      // 這裡會實作登入邏輯
-      console.log('登入:', { email, password })
-      // 登入成功後導向首頁
-      // window.location.href = '/'
+      const result = await login(email, password)
+      
+      if (result.success) {
+        // 登入成功，useEffect 會處理重定向
+      } else {
+        setError(result.message)
+      }
     } catch (error) {
-      setError('登入失敗，請檢查電子郵件和密碼')
+      setError('登入失敗，請稍後再試')
     } finally {
       setLoading(false)
     }
+  }
+
+  // Google 登入
+  const handleGoogleLogin = () => {
+    // 保存當前要重定向的位置
+    sessionStorage.setItem('loginRedirect', from)
+    window.location.href = '/api/auth/google'
   }
 
   // 頁面載入時滾動到頂部
@@ -34,60 +64,65 @@ export default function LoginPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // 動畫設定
+  // 檢查 URL 中的登入狀態
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const loginStatus = urlParams.get('login')
+    
+    if (loginStatus === 'success') {
+      // Google 登入成功，重定向到目標頁面
+      const redirectTo = sessionStorage.getItem('loginRedirect') || '/'
+      sessionStorage.removeItem('loginRedirect')
+      navigate(redirectTo, { replace: true })
+    } else if (loginStatus === 'error') {
+      setError('Google 登入失敗，請稍後再試')
+    }
+  }, [navigate])
+
   const containerVariants = {
     hidden: { opacity: 0 },
-    show: {
+    visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: 0.1
       }
     }
   }
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    show: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15
-      }
-    }
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
   }
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 text-slate-800 relative overflow-hidden">
-      {/* 動態背景效果 */}
       <BackgroundEffects />
-      
       <Navbar />
-      
+
       <motion.main
         initial="hidden"
-        animate="show"
+        animate="visible"
         variants={containerVariants}
         className="flex-1 w-full max-w-7xl mx-auto px-4 py-12 relative z-10 flex items-center justify-center"
       >
         <motion.div
-          variants={itemVariants}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
           className="w-full max-w-md relative"
         >
-          {/* 主要登入卡片 */}
+          {/* 登入表單容器 */}
           <div className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden relative">
             {/* 裝飾性背景元素 */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full -translate-y-16 translate-x-16"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-400/20 to-blue-400/20 rounded-full translate-y-12 -translate-x-12"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-400/20 to-blue-400/20 rounded-full translate-y-12 -translate-x-12"></div>
             
             {/* 標題區域 */}
             <motion.div 
               className="relative overflow-hidden"
               variants={itemVariants}
             >
-              <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 py-8 px-8 relative">
+              <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 py-8 px-8 relative">
                 <div className="absolute inset-0 bg-black/5"></div>
                 <div className="absolute top-0 left-0 w-full h-full">
                   <div className="absolute top-4 left-8 w-12 h-12 bg-white/10 rounded-full"></div>
@@ -101,7 +136,7 @@ export default function LoginPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3, duration: 0.6 }}
                   >
-                    歡迎回來！
+                    歡迎回來
                   </motion.h1>
                   <motion.p 
                     className="text-blue-100 text-sm"
@@ -109,7 +144,7 @@ export default function LoginPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4, duration: 0.6 }}
                   >
-                    登入您的 GDG 帳戶以繼續精彩旅程
+                    登入您的 GDG Portal 帳號
                   </motion.p>
                 </div>
               </div>
@@ -117,6 +152,7 @@ export default function LoginPage() {
 
             {/* 表單區域 */}
             <div className="p-8 relative z-10">
+              {/* 錯誤訊息 */}
               {error && (
                 <motion.div 
                   className="mb-6 bg-red-50/80 backdrop-blur-sm border border-red-200/50 text-red-700 px-4 py-3 rounded-xl"
@@ -133,9 +169,17 @@ export default function LoginPage() {
                 </motion.div>
               )}
 
-              <form onSubmit={handleLogin} className="space-y-6">
+              {/* 登入表單 */}
+              <motion.form 
+                onSubmit={handleLogin} 
+                className="space-y-6"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {/* 電子郵件欄位 */}
                 <motion.div variants={itemVariants}>
-                  <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     電子郵件
                   </label>
                   <div className="relative">
@@ -145,19 +189,19 @@ export default function LoginPage() {
                       </svg>
                     </div>
                     <input
-                      id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      required
                       className="w-full pl-10 pr-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 focus:outline-none transition-all duration-300 placeholder-slate-400"
-                      placeholder="name@example.com"
+                      placeholder="請輸入您的電子郵件"
+                      required
                     />
                   </div>
                 </motion.div>
 
+                {/* 密碼欄位 */}
                 <motion.div variants={itemVariants}>
-                  <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     密碼
                   </label>
                   <div className="relative">
@@ -167,13 +211,12 @@ export default function LoginPage() {
                       </svg>
                     </div>
                     <input
-                      id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      required
                       className="w-full pl-10 pr-12 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 focus:outline-none transition-all duration-300 placeholder-slate-400"
-                      placeholder="••••••••"
+                      placeholder="請輸入您的密碼"
+                      required
                     />
                     <button
                       type="button"
@@ -182,60 +225,45 @@ export default function LoginPage() {
                     >
                       <svg className="h-5 w-5 text-slate-400 hover:text-slate-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         {showPassword ? (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
                         ) : (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         )}
                       </svg>
                     </button>
                   </div>
                 </motion.div>
 
-                <motion.div 
-                  className="flex items-center justify-between"
+                {/* 登入按鈕 */}
+                <motion.button
+                  type="submit"
+                  disabled={loading}
                   variants={itemVariants}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
                 >
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 focus:ring-2"
-                    />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-600">
-                      記住我
-                    </label>
-                  </div>
-                  <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors">
-                    忘記密碼？
-                  </a>
-                </motion.div>
-
-                <motion.div variants={itemVariants}>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-white/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
-                  >
-                    {loading ? (
-                      <div className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        登入中...
-                      </div>
-                    ) : (
-                      '登入'
-                    )}
-                  </button>
-                </motion.div>
-              </form>
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      登入中...
+                    </div>
+                  ) : (
+                    '登入'
+                  )}
+                </motion.button>
+              </motion.form>
 
               {/* 分隔線和 Google 登入 */}
-              <motion.div className="mt-8" variants={itemVariants}>
+              <motion.div 
+                className="mt-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-200/60"></div>
+                    <div className="w-full border-t border-slate-200/50"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="px-4 bg-white/70 text-slate-500 font-medium">或使用</span>
@@ -243,8 +271,10 @@ export default function LoginPage() {
                 </div>
 
                 <div className="mt-6">
-                  <a
-                    href="http://localhost:5000/api/auth/google"
+                  <motion.button
+                    onClick={handleGoogleLogin}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     className="w-full flex items-center justify-center px-4 py-3 border border-slate-200/50 shadow-lg text-sm font-medium rounded-xl text-slate-700 bg-white/50 backdrop-blur-sm hover:bg-white/70 hover:border-slate-300/50 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
                   >
                     <svg className="h-5 w-5 mr-3" viewBox="0 0 24 24">
@@ -254,16 +284,18 @@ export default function LoginPage() {
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
                     使用 Google 登入
-                  </a>
+                  </motion.button>
                 </div>
               </motion.div>
 
               {/* 註冊連結 */}
               <motion.div 
                 className="mt-8 text-center text-sm"
-                variants={itemVariants}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
               >
-                <span className="text-slate-600">還沒有帳號？ </span>
+                <span className="text-slate-500">還沒有帳號？ </span>
                 <Link 
                   to="/register" 
                   className="text-blue-600 hover:text-blue-700 font-semibold transition-colors hover:underline"

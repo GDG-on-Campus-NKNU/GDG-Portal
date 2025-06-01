@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { Navbar } from '../components/general/Navbar';
 import { Footer } from '../components/Footer';
 import { BackgroundEffects } from '../components/general/BackgroundEffects';
@@ -11,6 +12,10 @@ export default function AnnouncementDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { announcement, loading, error } = useAnnouncementDetail(id);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   // 動畫變體
   const pageVariants = {

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar } from '../components/general/Navbar';
 import { Footer } from '../components/Footer';
 import { BackgroundEffects } from '../components/general/BackgroundEffects';
@@ -15,6 +15,10 @@ export default function EventDetailPage() {
   const navigate = useNavigate();
   const { event, loading, error } = useEventDetail(id);
   const [registering, setRegistering] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   // 處理報名按鈕點擊
   const handleRegister = () => {
