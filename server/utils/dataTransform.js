@@ -62,7 +62,8 @@ export const transformEvent = (event) => {
     
     // 關聯資料
     speakers: eventData.speakers || [],
-    tags: eventData.tags ? eventData.tags.map(tag => tag.name) : [],
+    tags: eventData.eventTags ? eventData.eventTags.map(tag => tag.name) : 
+          eventData.tags ? eventData.tags.map(tag => tag.name) : [], // 支援兩種別名
     registrations: eventData.registrations || [],
     
     // 時間戳
@@ -89,8 +90,11 @@ export const transformAnnouncement = (announcement) => {
     status: announcementData.status,
     publishedAt: announcementData.published_at,
     
+    // 前端期望的 date 欄位
+    date: announcementData.published_at || announcementData.created_at,
+    
     // 關聯資料
-    tags: announcementData.tags ? announcementData.tags.map(tag => tag.name) : [],
+    tags: announcementData.tags ? announcementData.tags.map(tag => tag.tag_name || tag.name) : [],
     
     // 時間戳
     createdAt: announcementData.created_at,
@@ -110,11 +114,11 @@ export const transformGallery = (gallery) => {
     description: galleryData.description,
     eventId: galleryData.event_id,
     coverImage: galleryData.cover_image,
-    images: galleryData.images || [],           // photos -> images
-    tags: galleryData.tags || [],               // 新增 tags 欄位
+    images: galleryData.photos || galleryData.images || [], // 支援兩種欄位名稱
+    tags: galleryData.tags || [],               
     photographer: galleryData.photographer,
-    dateTaken: galleryData.date_taken,          // photo_date -> date_taken
-    isFeatured: galleryData.is_featured,        // is_published -> is_featured
+    dateTaken: galleryData.photo_date || galleryData.date_taken, // 支援兩種欄位名稱
+    isFeatured: galleryData.is_published || galleryData.is_featured, // 支援兩種欄位名稱
     viewCount: galleryData.view_count,
     
     // 關聯資料

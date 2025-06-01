@@ -1,4 +1,5 @@
 import { Announcement, AnnouncementTag } from '../model/announcementModel.js';
+import { transformAnnouncement } from '../utils/dataTransform.js';
 import { Op } from 'sequelize';
 
 // 獲取所有公告
@@ -16,7 +17,7 @@ export const getAllAnnouncements = async (req, res) => {
     const whereClause = {};
     const includeClause = [{
       model: AnnouncementTag,
-      as: 'announcementTags'
+      as: 'tags'
     }];
 
     // 關鍵字搜尋
@@ -37,7 +38,7 @@ export const getAllAnnouncements = async (req, res) => {
     // 標籤篩選
     if (queryParams.tags.length > 0) {
       includeClause[0].where = {
-        name: { [Op.in]: queryParams.tags }
+        tag_name: { [Op.in]: queryParams.tags }
       };
     }
 
@@ -58,7 +59,7 @@ export const getAllAnnouncements = async (req, res) => {
     });
 
     const result = {
-      announcements: rows,
+      announcements: rows.map(announcement => transformAnnouncement(announcement)),
       totalCount: count,
       totalPages: Math.ceil(count / queryParams.limit),
       currentPage: queryParams.page,
@@ -91,7 +92,7 @@ export const getPinnedAnnouncements = async (req, res) => {
     });
 
     const result = {
-      announcements,
+      announcements: announcements.map(announcement => transformAnnouncement(announcement)),
       totalCount: announcements.length,
       totalPages: 1,
       currentPage: 1,
@@ -122,7 +123,7 @@ export const getAnnouncementById = async (req, res) => {
       return res.status(404).json({ message: '找不到此公告' });
     }
 
-    res.status(200).json(announcement);
+    res.status(200).json(transformAnnouncement(announcement));
   } catch (error) {
     console.error('Error in getAnnouncementById:', error);
     res.status(500).json({ message: '發生錯誤', error: error.message });
@@ -149,14 +150,17 @@ export const createAnnouncement = async (req, res) => {
       const tagInstances = [];
       for (const tagName of tags) {
         const [tag] = await AnnouncementTag.findOrCreate({
-          where: { name: tagName.trim() },
-          defaults: { name: tagName.trim() }
+          where: { 
+            announcement_id: announcement.id,
+            tag_name: tagName.trim() 
+          },
+          defaults: { 
+            announcement_id: announcement.id,
+            tag_name: tagName.trim() 
+          }
         });
         tagInstances.push(tag);
       }
-
-      // 建立關聯
-      await announcement.setTags(tagInstances);
     }
 
     // 獲取完整的公告資料（包含標籤）
@@ -169,7 +173,7 @@ export const createAnnouncement = async (req, res) => {
 
     res.status(201).json({
       message: '公告創建成功',
-      announcement: createdAnnouncement
+      announcement: transformAnnouncement(createdAnnouncement)
     });
   } catch (error) {
     console.error('Error in createAnnouncement:', error);
@@ -204,20 +208,22 @@ export const updateAnnouncement = async (req, res) => {
     if (tags !== undefined && Array.isArray(tags)) {
       if (tags.length === 0) {
         // 移除所有標籤
-        await announcement.setTags([]);
+        await AnnouncementTag.destroy({
+          where: { announcement_id: announcementId }
+        });
       } else {
-        // 查找或創建標籤
-        const tagInstances = [];
+        // 先刪除舊標籤
+        await AnnouncementTag.destroy({
+          where: { announcement_id: announcementId }
+        });
+        
+        // 創建新標籤
         for (const tagName of tags) {
-          const [tag] = await AnnouncementTag.findOrCreate({
-            where: { name: tagName.trim() },
-            defaults: { name: tagName.trim() }
+          await AnnouncementTag.create({
+            announcement_id: announcementId,
+            tag_name: tagName.trim()
           });
-          tagInstances.push(tag);
         }
-
-        // 更新關聯
-        await announcement.setTags(tagInstances);
       }
     }
 
@@ -231,7 +237,7 @@ export const updateAnnouncement = async (req, res) => {
 
     res.status(200).json({
       message: '公告更新成功',
-      announcement: updatedAnnouncement
+      announcement: transformAnnouncement(updatedAnnouncement)
     });
   } catch (error) {
     console.error('Error in updateAnnouncement:', error);
@@ -251,7 +257,9 @@ export const deleteAnnouncement = async (req, res) => {
     }
 
     // 移除標籤關聯
-    await announcement.setTags([]);
+    await AnnouncementTag.destroy({
+      where: { announcement_id: announcementId }
+    });
 
     // 刪除公告
     await announcement.destroy();

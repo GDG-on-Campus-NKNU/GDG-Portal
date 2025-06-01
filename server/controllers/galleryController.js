@@ -1,6 +1,7 @@
 import Gallery from '../model/galleryModel.js';
 import { Event } from '../model/eventModel.js';
 import { Op } from 'sequelize';
+import { transformGallery } from '../utils/dataTransform.js';
 
 // 獲取所有照片集
 export const getAllGalleries = async (req, res) => {
@@ -40,7 +41,7 @@ export const getAllGalleries = async (req, res) => {
       include: [{
         model: Event,
         as: 'event',
-        attributes: ['id', 'title', 'date']
+        attributes: ['id', 'title', 'start_date']
       }],
       limit: queryParams.limit,
       offset: offset,
@@ -48,8 +49,11 @@ export const getAllGalleries = async (req, res) => {
       distinct: true
     });
 
+    // 轉換資料格式
+    const transformedGalleries = rows.map(gallery => transformGallery(gallery));
+
     const result = {
-      galleries: rows,
+      galleries: transformedGalleries,
       totalCount: count,
       totalPages: Math.ceil(count / queryParams.limit),
       currentPage: queryParams.page,
@@ -77,7 +81,7 @@ export const getGalleryById = async (req, res) => {
       include: [{
         model: Event,
         as: 'event',
-        attributes: ['id', 'title', 'date', 'location']
+        attributes: ['id', 'title', 'start_date', 'location']
       }]
     });
 
@@ -88,7 +92,10 @@ export const getGalleryById = async (req, res) => {
     // 增加瀏覽次數
     await gallery.increment('view_count');
 
-    res.status(200).json(gallery);
+    // 轉換資料格式
+    const transformedGallery = transformGallery(gallery);
+
+    res.status(200).json(transformedGallery);
   } catch (error) {
     console.error('Error in getGalleryById:', error);
     res.status(500).json({ message: '獲取照片集詳情失敗', error: error.message });
@@ -107,13 +114,16 @@ export const getPopularGalleries = async (req, res) => {
       include: [{
         model: Event,
         as: 'event',
-        attributes: ['id', 'title', 'date']
+        attributes: ['id', 'title', 'start_date']
       }],
       limit: limit,
       order: [['view_count', 'DESC'], ['photo_date', 'DESC']]
     });
 
-    res.status(200).json({ galleries });
+    // 轉換資料格式
+    const transformedGalleries = galleries.map(gallery => transformGallery(gallery));
+
+    res.status(200).json({ galleries: transformedGalleries });
   } catch (error) {
     console.error('Error in getPopularGalleries:', error);
     res.status(500).json({ message: '獲取熱門照片集失敗', error: error.message });
@@ -132,13 +142,16 @@ export const getLatestGalleries = async (req, res) => {
       include: [{
         model: Event,
         as: 'event',
-        attributes: ['id', 'title', 'date']
+        attributes: ['id', 'title', 'start_date']
       }],
       limit: limit,
       order: [['created_at', 'DESC']]
     });
 
-    res.status(200).json({ galleries });
+    // 轉換資料格式
+    const transformedGalleries = galleries.map(gallery => transformGallery(gallery));
+
+    res.status(200).json({ galleries: transformedGalleries });
   } catch (error) {
     console.error('Error in getLatestGalleries:', error);
     res.status(500).json({ message: '獲取最新照片集失敗', error: error.message });
@@ -180,13 +193,16 @@ export const createGallery = async (req, res) => {
       include: [{
         model: Event,
         as: 'event',
-        attributes: ['id', 'title', 'date', 'location']
+        attributes: ['id', 'title', 'start_date', 'location']
       }]
     });
 
+    // 轉換資料格式
+    const transformedGallery = transformGallery(createdGallery);
+
     res.status(201).json({
       message: '照片集創建成功',
-      gallery: createdGallery
+      gallery: transformedGallery
     });
   } catch (error) {
     console.error('Error in createGallery:', error);
@@ -236,13 +252,16 @@ export const updateGallery = async (req, res) => {
       include: [{
         model: Event,
         as: 'event',
-        attributes: ['id', 'title', 'date', 'location']
+        attributes: ['id', 'title', 'start_date', 'location']
       }]
     });
 
+    // 轉換資料格式
+    const transformedGallery = transformGallery(updatedGallery);
+
     res.status(200).json({
       message: '照片集更新成功',
-      gallery: updatedGallery
+      gallery: transformedGallery
     });
   } catch (error) {
     console.error('Error in updateGallery:', error);
@@ -310,7 +329,7 @@ export const getAllGalleriesAdmin = async (req, res) => {
       include: [{
         model: Event,
         as: 'event',
-        attributes: ['id', 'title', 'date']
+        attributes: ['id', 'title', 'start_date']
       }],
       limit: queryParams.limit,
       offset: offset,

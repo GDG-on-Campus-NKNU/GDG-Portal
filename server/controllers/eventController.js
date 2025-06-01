@@ -1,5 +1,6 @@
 import { Event, EventSpeaker, EventTag, EventRegistration } from '../model/eventModel.js';
 import { Op } from 'sequelize';
+import { transformEvent } from '../utils/dataTransform.js';
 
 // 獲取所有活動
 export const getAllEvents = async (req, res) => {
@@ -67,8 +68,11 @@ export const getAllEvents = async (req, res) => {
       distinct: true
     });
 
+    // 轉換資料格式
+    const transformedEvents = rows.map(event => transformEvent(event));
+
     const result = {
-      events: rows,
+      events: transformedEvents,
       totalCount: count,
       totalPages: Math.ceil(count / queryParams.limit),
       currentPage: queryParams.page,
@@ -96,7 +100,7 @@ export const getEventById = async (req, res) => {
         },
         {
           model: EventTag,
-          as: 'tags'
+          as: 'eventTags'
         },
         {
           model: EventRegistration,
@@ -109,7 +113,10 @@ export const getEventById = async (req, res) => {
       return res.status(404).json({ message: '找不到活動' });
     }
 
-    res.status(200).json(event);
+    // 轉換資料格式
+    const transformedEvent = transformEvent(event);
+
+    res.status(200).json(transformedEvent);
   } catch (error) {
     console.error('Error in getEventById:', error);
     res.status(500).json({ message: '發生錯誤', error: error.message });
@@ -130,7 +137,7 @@ export const getEventsByDateRange = async (req, res) => {
 
     const events = await Event.findAll({
       where: {
-        date: {
+        start_date: {
           [Op.between]: [startDate, endDate]
         }
       },
@@ -141,13 +148,16 @@ export const getEventsByDateRange = async (req, res) => {
         },
         {
           model: EventTag,
-          as: 'tags'
+          as: 'eventTags'
         }
       ],
-      order: [['date', 'ASC']]
+      order: [['start_date', 'ASC']]
     });
 
-    res.status(200).json({ events });
+    // 轉換資料格式
+    const transformedEvents = events.map(event => transformEvent(event));
+
+    res.status(200).json({ events: transformedEvents });
   } catch (error) {
     console.error('Error in getEventsByDateRange:', error);
     res.status(500).json({ message: '發生錯誤', error: error.message });
@@ -162,7 +172,7 @@ export const getHistoricalEvents = async (req, res) => {
     
     // 構建查詢條件
     const whereClause = {
-      date: { [Op.lt]: new Date() } // 只獲取過去的活動
+      start_date: { [Op.lt]: new Date() } // 只獲取過去的活動
     };
     
     const includeClause = [
@@ -172,7 +182,7 @@ export const getHistoricalEvents = async (req, res) => {
       },
       {
         model: EventTag,
-        as: 'tags'
+        as: 'eventTags'
       }
     ];
 
@@ -199,12 +209,15 @@ export const getHistoricalEvents = async (req, res) => {
       include: includeClause,
       limit: parseInt(limit),
       offset: offset,
-      order: [['date', 'DESC']],
+      order: [['start_date', 'DESC']],
       distinct: true
     });
 
+    // 轉換資料格式
+    const transformedEvents = rows.map(event => transformEvent(event));
+
     const result = {
-      events: rows,
+      events: transformedEvents,
       totalCount: count,
       totalPages: Math.ceil(count / parseInt(limit)),
       currentPage: parseInt(page),
@@ -254,7 +267,7 @@ export const createEvent = async (req, res) => {
       title,
       description,
       excerpt,
-      date,
+      start_date: date, // 前端傳入的 date 對應資料庫的 start_date
       end_date,
       location,
       max_attendees,
@@ -284,13 +297,16 @@ export const createEvent = async (req, res) => {
     const createdEvent = await Event.findByPk(event.id, {
       include: [
         { model: EventSpeaker, as: 'speakers' },
-        { model: EventTag, as: 'tags' }
+        { model: EventTag, as: 'eventTags' }
       ]
     });
 
+    // 轉換資料格式
+    const transformedEvent = transformEvent(createdEvent);
+
     res.status(201).json({
       message: '活動創建成功',
-      event: createdEvent
+      event: transformedEvent
     });
   } catch (error) {
     console.error('Error in createEvent:', error);
@@ -341,13 +357,16 @@ export const updateEvent = async (req, res) => {
     const updatedEvent = await Event.findByPk(eventId, {
       include: [
         { model: EventSpeaker, as: 'speakers' },
-        { model: EventTag, as: 'tags' }
+        { model: EventTag, as: 'eventTags' }
       ]
     });
 
+    // 轉換資料格式
+    const transformedEvent = transformEvent(updatedEvent);
+
     res.status(200).json({
       message: '活動更新成功',
-      event: updatedEvent
+      event: transformedEvent
     });
   } catch (error) {
     console.error('Error in updateEvent:', error);

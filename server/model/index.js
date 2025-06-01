@@ -64,20 +64,9 @@ const defineAssociations = () => {
     as: 'user'
   });
 
-  // Announcement 關聯
-  Announcement.belongsToMany(AnnouncementTag, { 
-    through: 'announcement_tag_relationships',
-    foreignKey: 'announcement_id',
-    otherKey: 'tag_id',
-    as: 'announcementTags'
-  });
-  
-  AnnouncementTag.belongsToMany(Announcement, { 
-    through: 'announcement_tag_relationships',
-    foreignKey: 'tag_id',
-    otherKey: 'announcement_id',
-    as: 'announcements'
-  });
+  // Announcement 關聯 - 移除錯誤的 belongsToMany 關聯
+  // 實際關聯已經在 announcementModel.js 中定義
+  // Announcement.hasMany(AnnouncementTag, { foreignKey: 'announcement_id', as: 'tags' })
 
   // Gallery 關聯
   Gallery.belongsTo(Event, { 
