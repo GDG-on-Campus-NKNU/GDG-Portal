@@ -20,6 +20,8 @@ import galleryRoutes from "./routes/galleryRoutes.js"; // 引入照片集路由
 import "./config/passport.js";
 import { authenticateJWT } from './middlewares/auth.js';
 import { initializeDatabase } from './model/index.js';
+import { getLogger, requestDetailsLogger, responseLogger } from './middlewares/logger.js';
+import { notFoundHandler, globalErrorHandler } from './middlewares/errorHandler.js';
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -28,6 +30,15 @@ app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173', // 允許的來源
   credentials: true, // 允許攜帶 Cookie
 }));
+
+// 日誌中間件
+app.use(getLogger());
+
+// 開發環境下的詳細日誌
+if (process.env.NODE_ENV === 'development') {
+  app.use(requestDetailsLogger);
+  app.use(responseLogger);
+}
 
 // 重要：cookie-parser 必須在路由之前設定
 app.use(cookieParser());
@@ -57,12 +68,7 @@ app.get('/api/test', authenticateJWT, (req, res) =>{
 })
 
 // 404 處理 - 只處理 API 路由
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ 
-    error: 'API 端點不存在',
-    message: `找不到路由：${req.originalUrl}` 
-  });
-});
+app.use('/api/*', notFoundHandler);
 
 // SPA 路由處理 - 所有非 API 請求都返回 index.html
 app.get('*', (req, res) => {
@@ -82,13 +88,7 @@ app.get('*', (req, res) => {
 });
 
 // 全域錯誤處理中介軟體
-app.use((err, req, res, next) => {
-  console.error('伺服器錯誤:', err.stack);
-  res.status(500).json({ 
-    error: '伺服器內部錯誤',
-    message: process.env.NODE_ENV === 'development' ? err.message : '請稍後再試'
-  });
-});
+app.use(globalErrorHandler);
 
 const startServer = async (port) => {
   try {

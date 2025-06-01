@@ -3,22 +3,28 @@ import express from "express";
 import { generateToken } from "../utils/jwt.js";
 import userController from "../controllers/userController.js";
 import { authenticateJWT, optionalAuth } from "../middlewares/auth.js";
+import { 
+  validateUserRegistration, 
+  validateUserLogin, 
+  validatePasswordChange, 
+  validateProfileUpdate 
+} from "../middlewares/validation.js";
 
 const router = express.Router();
 export default router;
 
-// 傳統登入註冊路由
-router.post("/register", userController.register);
-router.post("/login", userController.login);
+// 傳統登入註冊路由 (加入驗證中間件)
+router.post("/register", validateUserRegistration, userController.register);
+router.post("/login", validateUserLogin, userController.login);
 router.post("/logout", authenticateJWT, userController.logout);
 
 // Token 管理
 router.post("/refresh", userController.refreshToken);
 router.get("/me", authenticateJWT, userController.getCurrentUser);
 
-// 使用者資料管理
-router.put("/profile", authenticateJWT, userController.updateProfile);
-router.post("/change-password", authenticateJWT, userController.changePassword);
+// 使用者資料管理 (加入驗證中間件)
+router.put("/profile", authenticateJWT, validateProfileUpdate, userController.updateProfile);
+router.post("/change-password", authenticateJWT, validatePasswordChange, userController.changePassword);
 
 // Google OAuth 路由
 router.get("/login", (req, res) => {

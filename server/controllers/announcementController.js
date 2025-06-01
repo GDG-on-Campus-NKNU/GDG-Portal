@@ -128,3 +128,137 @@ export const getAnnouncementById = async (req, res) => {
     res.status(500).json({ message: '發生錯誤', error: error.message });
   }
 };
+
+// 創建新公告
+export const createAnnouncement = async (req, res) => {
+  try {
+    const { title, content, is_pinned, tags } = req.body;
+
+    // 創建公告
+    const announcement = await Announcement.create({
+      title,
+      content,
+      is_pinned: is_pinned || false,
+      created_at: new Date(),
+      updated_at: new Date()
+    });
+
+    // 如果有標籤，處理標籤關聯
+    if (tags && Array.isArray(tags) && tags.length > 0) {
+      // 查找或創建標籤
+      const tagInstances = [];
+      for (const tagName of tags) {
+        const [tag] = await AnnouncementTag.findOrCreate({
+          where: { name: tagName.trim() },
+          defaults: { name: tagName.trim() }
+        });
+        tagInstances.push(tag);
+      }
+
+      // 建立關聯
+      await announcement.setTags(tagInstances);
+    }
+
+    // 獲取完整的公告資料（包含標籤）
+    const createdAnnouncement = await Announcement.findByPk(announcement.id, {
+      include: [{
+        model: AnnouncementTag,
+        as: 'tags'
+      }]
+    });
+
+    res.status(201).json({
+      message: '公告創建成功',
+      announcement: createdAnnouncement
+    });
+  } catch (error) {
+    console.error('Error in createAnnouncement:', error);
+    res.status(500).json({ message: '創建公告失敗', error: error.message });
+  }
+};
+
+// 更新公告
+export const updateAnnouncement = async (req, res) => {
+  try {
+    const announcementId = parseInt(req.params.id);
+    const { title, content, is_pinned, tags } = req.body;
+
+    // 查找公告
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) {
+      return res.status(404).json({ message: '找不到該公告' });
+    }
+
+    // 更新公告基本資料
+    const updateData = {
+      updated_at: new Date()
+    };
+
+    if (title !== undefined) updateData.title = title;
+    if (content !== undefined) updateData.content = content;
+    if (is_pinned !== undefined) updateData.is_pinned = is_pinned;
+
+    await announcement.update(updateData);
+
+    // 如果有標籤更新，處理標籤關聯
+    if (tags !== undefined && Array.isArray(tags)) {
+      if (tags.length === 0) {
+        // 移除所有標籤
+        await announcement.setTags([]);
+      } else {
+        // 查找或創建標籤
+        const tagInstances = [];
+        for (const tagName of tags) {
+          const [tag] = await AnnouncementTag.findOrCreate({
+            where: { name: tagName.trim() },
+            defaults: { name: tagName.trim() }
+          });
+          tagInstances.push(tag);
+        }
+
+        // 更新關聯
+        await announcement.setTags(tagInstances);
+      }
+    }
+
+    // 獲取更新後的完整資料
+    const updatedAnnouncement = await Announcement.findByPk(announcementId, {
+      include: [{
+        model: AnnouncementTag,
+        as: 'tags'
+      }]
+    });
+
+    res.status(200).json({
+      message: '公告更新成功',
+      announcement: updatedAnnouncement
+    });
+  } catch (error) {
+    console.error('Error in updateAnnouncement:', error);
+    res.status(500).json({ message: '更新公告失敗', error: error.message });
+  }
+};
+
+// 刪除公告
+export const deleteAnnouncement = async (req, res) => {
+  try {
+    const announcementId = parseInt(req.params.id);
+
+    // 查找公告
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) {
+      return res.status(404).json({ message: '找不到該公告' });
+    }
+
+    // 移除標籤關聯
+    await announcement.setTags([]);
+
+    // 刪除公告
+    await announcement.destroy();
+
+    res.status(200).json({ message: '公告刪除成功' });
+  } catch (error) {
+    console.error('Error in deleteAnnouncement:', error);
+    res.status(500).json({ message: '刪除公告失敗', error: error.message });
+  }
+};

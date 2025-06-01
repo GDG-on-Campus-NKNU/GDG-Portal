@@ -232,3 +232,151 @@ export const getEventTags = async (req, res) => {
     res.status(500).json({ message: '獲取活動標籤失敗', error: error.message });
   }
 };
+
+// 創建新活動 (管理員專用)
+export const createEvent = async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      excerpt,
+      date,
+      end_date,
+      location,
+      max_attendees,
+      registration_url,
+      speakers = [],
+      tags = []
+    } = req.body;
+
+    // 創建活動
+    const event = await Event.create({
+      title,
+      description,
+      excerpt,
+      date,
+      end_date,
+      location,
+      max_attendees,
+      registration_url,
+      created_by: req.user.id, // 來自 JWT 認證
+    });
+
+    // 添加講者 (如果有)
+    if (speakers.length > 0) {
+      const eventSpeakers = speakers.map(speaker => ({
+        event_id: event.id,
+        ...speaker
+      }));
+      await EventSpeaker.bulkCreate(eventSpeakers);
+    }
+
+    // 添加標籤 (如果有)
+    if (tags.length > 0) {
+      const eventTags = tags.map(tag => ({
+        event_id: event.id,
+        name: tag
+      }));
+      await EventTag.bulkCreate(eventTags);
+    }
+
+    // 獲取完整的活動資料 (包含關聯)
+    const createdEvent = await Event.findByPk(event.id, {
+      include: [
+        { model: EventSpeaker, as: 'speakers' },
+        { model: EventTag, as: 'tags' }
+      ]
+    });
+
+    res.status(201).json({
+      message: '活動創建成功',
+      event: createdEvent
+    });
+  } catch (error) {
+    console.error('Error in createEvent:', error);
+    res.status(500).json({ message: '創建活動失敗', error: error.message });
+  }
+};
+
+// 更新活動 (管理員專用)
+export const updateEvent = async (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id);
+    const updateData = req.body;
+
+    // 檢查活動是否存在
+    const event = await Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ message: '活動不存在' });
+    }
+
+    // 更新活動基本資料
+    await event.update(updateData);
+
+    // 如果有講者資料，更新講者
+    if (updateData.speakers) {
+      await EventSpeaker.destroy({ where: { event_id: eventId } });
+      if (updateData.speakers.length > 0) {
+        const eventSpeakers = updateData.speakers.map(speaker => ({
+          event_id: eventId,
+          ...speaker
+        }));
+        await EventSpeaker.bulkCreate(eventSpeakers);
+      }
+    }
+
+    // 如果有標籤資料，更新標籤
+    if (updateData.tags) {
+      await EventTag.destroy({ where: { event_id: eventId } });
+      if (updateData.tags.length > 0) {
+        const eventTags = updateData.tags.map(tag => ({
+          event_id: eventId,
+          name: tag
+        }));
+        await EventTag.bulkCreate(eventTags);
+      }
+    }
+
+    // 獲取更新後的完整活動資料
+    const updatedEvent = await Event.findByPk(eventId, {
+      include: [
+        { model: EventSpeaker, as: 'speakers' },
+        { model: EventTag, as: 'tags' }
+      ]
+    });
+
+    res.status(200).json({
+      message: '活動更新成功',
+      event: updatedEvent
+    });
+  } catch (error) {
+    console.error('Error in updateEvent:', error);
+    res.status(500).json({ message: '更新活動失敗', error: error.message });
+  }
+};
+
+// 刪除活動 (管理員專用)
+export const deleteEvent = async (req, res) => {
+  try {
+    const eventId = parseInt(req.params.id);
+
+    // 檢查活動是否存在
+    const event = await Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ message: '活動不存在' });
+    }
+
+    // 刪除關聯資料 (講者、標籤、報名記錄)
+    await EventSpeaker.destroy({ where: { event_id: eventId } });
+    await EventTag.destroy({ where: { event_id: eventId } });
+    await EventRegistration.destroy({ where: { event_id: eventId } });
+
+    // 刪除活動
+    await event.destroy();
+
+    res.status(200).json({ message: '活動刪除成功' });
+  } catch (error) {
+    console.error('Error in deleteEvent:', error);
+    res.status(500).json({ message: '刪除活動失敗', error: error.message });
+  }
+};

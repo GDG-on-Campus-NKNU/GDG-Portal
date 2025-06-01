@@ -40,6 +40,15 @@ const CoreTeam = sequelize.define('CoreTeam', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  description: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return this.getDataValue('bio');
+    },
+    set(value) {
+      this.setDataValue('bio', value);
+    }
+  },
   achievements: {
     type: DataTypes.JSON,
     allowNull: true
