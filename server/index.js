@@ -17,6 +17,7 @@ import eventRoutes from "./routes/eventRoutes.js"; // 引入活動路由
 import announcementRoutes from "./routes/announcementRoutes.js"; // 引入公告路由
 import coreteamRoutes from "./routes/coreteamRoutes.js"; // 引入幹部路由
 import galleryRoutes from "./routes/galleryRoutes.js"; // 引入照片集路由
+import uploadRoutes from "./routes/uploadRoutes.js"; // 引入檔案上傳路由
 import "./config/passport.js";
 import { authenticateJWT } from './middlewares/auth.js';
 import { initializeDatabase } from './model/index.js';
@@ -50,6 +51,7 @@ app.use("/api/events", eventRoutes); // 活動路由
 app.use("/api/announcements", announcementRoutes); // 公告路由
 app.use("/api/coreteam", coreteamRoutes); // 幹部路由
 app.use("/api/gallery", galleryRoutes); // 照片集路由
+app.use("/api/upload", uploadRoutes); // 檔案上傳路由
 
 app.get('/', (req, res) => {
   res.send('伺服器運行中 🚀');

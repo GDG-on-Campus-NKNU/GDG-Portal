@@ -1,5 +1,6 @@
 {
   "name": "gdg-on-campus-portal",
+  "type": "module",
   "version": "0.0.0",
   "description": "GDG on Campus-Portal",
   "main": "app.js",
@@ -14,6 +15,7 @@
     "db:init": "node scripts/init-database.js",
     "db:clear": "node scripts/init-database.js --clear",
     "db:check": "node scripts/check-database.js",
+    "db:generate-sql": "node scripts/generate-sql.js",
     "test:all": "./tests/run-all-tests.sh"
   },
   "author": {
