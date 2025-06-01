@@ -207,3 +207,13 @@
 
 ---
 
+## Updated announcement and event detail to make it smoother. 06/01
+
+> 2025-06-01 19:44:32
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `988c682b68e9bd7c3e99bbf607752490142cf73b`
+
+---
+
