@@ -59,7 +59,28 @@ cd ../server
 npm install
 ```
 
-3. **啟動開發環境 (於根目錄下)**
+3. **設定環境變數**
+```bash
+# 複製環境變數檔案
+cp server/.env.example server/.env
+
+# 編輯資料庫設定
+nano server/.env
+```
+
+4. **初始化資料庫**
+```bash
+# 檢查資料庫連接
+npm run db:check
+
+# 互動式資料庫設置
+npm run db:setup
+
+# 或直接初始化
+npm run db:init
+```
+
+5. **啟動開發環境 (於根目錄下)**
 ```bash
 node dev-runner.mjs
 ```

@@ -1,5 +1,5 @@
 {
-  "name": "GDG on Campus-portal",
+  "name": "gdg-on-campus-portal",
   "version": "0.0.0",
   "description": "GDG on Campus-Portal",
   "main": "app.js",
@@ -9,7 +9,12 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "build": "cd client && npm run build",
     "start": "cd server && npm start",
-    "install:all": "npm install && cd client && npm install && cd ../server && npm install"
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "db:setup": "./scripts/setup-database.sh",
+    "db:init": "node scripts/init-database.js",
+    "db:clear": "node scripts/init-database.js --clear",
+    "db:check": "node scripts/check-database.js",
+    "test:all": "./tests/run-all-tests.sh"
   },
   "author": {
     "name": ""

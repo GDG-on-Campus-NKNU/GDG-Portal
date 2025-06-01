@@ -45,7 +45,12 @@ echo "檢查前端 API 響應處理..."
 node tests/test-frontend-response.js
 echo ""
 
-echo -e "${BLUE}🚀 4. Mock API 伺服器測試${NC}"
+echo -e "${BLUE}🗄️  4. 資料庫腳本驗證${NC}"
+echo "檢查資料庫初始化腳本和樣本資料..."
+node tests/test-database-scripts.js
+echo ""
+
+echo -e "${BLUE}🚀 5. Mock API 伺服器測試${NC}"
 echo "啟動測試伺服器進行實際 API 測試..."
 
 # 檢查 port 3001 是否被占用
@@ -88,6 +93,7 @@ echo "=================================="
 echo -e "${GREEN}✅ 架構完整性驗證: 完成${NC}"
 echo -e "${GREEN}✅ Message Passing 測試: 完成${NC}" 
 echo -e "${GREEN}✅ 前端響應處理驗證: 完成${NC}"
+echo -e "${GREEN}✅ 資料庫腳本驗證: 完成${NC}"
 echo -e "${GREEN}✅ Mock API 伺服器測試: 完成${NC}"
 echo ""
 
