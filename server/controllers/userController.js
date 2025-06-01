@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import User from '../model/userModel.js';
+import { transformUser } from '../utils/dataTransform.js';
 import { 
   generateAccessToken, 
   generateRefreshToken, 
@@ -47,13 +48,7 @@ class UserController {
 
       res.status(201).json({
         message: '註冊成功',
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          avatarUrl: user.avatarUrl
-        },
+        user: transformUser(user),
         accessToken
       });
     } catch (error) {
@@ -107,13 +102,7 @@ class UserController {
 
       res.json({
         message: '登入成功',
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          avatarUrl: user.avatarUrl
-        },
+        user: transformUser(user),
         accessToken
       });
     } catch (error) {
@@ -204,16 +193,7 @@ class UserController {
       }
 
       res.json({
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          avatarUrl: user.avatarUrl,
-          emailVerified: user.emailVerified,
-          lastLogin: user.lastLogin,
-          isActive: user.isActive
-        }
+        user: transformUser(user)
       });
     } catch (error) {
       console.error('獲取使用者資訊錯誤:', error);
@@ -239,13 +219,7 @@ class UserController {
 
       res.json({
         message: '資料更新成功',
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          avatarUrl: user.avatarUrl
-        }
+        user: transformUser(user)
       });
     } catch (error) {
       console.error('更新資料錯誤:', error);

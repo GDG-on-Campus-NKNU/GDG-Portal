@@ -1,4 +1,3 @@
-
 // 轉換 CoreTeam 資料格式以匹配前端期望
 export const transformCoreTeamMember = (member) => {
   if (!member) return null;
@@ -127,5 +126,40 @@ export const transformGallery = (gallery) => {
     // 時間戳
     createdAt: galleryData.created_at,
     updatedAt: galleryData.updated_at
+  };
+};
+
+// 轉換 User 資料格式
+export const transformUser = (user) => {
+  if (!user) return null;
+
+  const userData = user.get ? user.get({ plain: true }) : user;
+
+  return {
+    id: userData.id,
+    name: userData.name,
+    email: userData.email,
+    role: userData.role,
+    avatar: userData.avatar,
+    department: userData.department,
+    year: userData.year,
+    studentId: userData.student_id,
+    bio: userData.bio,
+    skills: userData.skills || [],
+    socialLinks: userData.social_links || {},
+    isActive: userData.is_active,
+    emailVerified: userData.email_verified,
+    lastLoginAt: userData.last_login_at,
+    
+    // 關聯資料
+    registrations: userData.registrations || [],
+    galleries: userData.galleries || [],
+    
+    // 時間戳
+    createdAt: userData.created_at,
+    updatedAt: userData.updated_at,
+    
+    // 隱藏敏感資訊
+    // password 和 refreshToken 不應該回傳到前端
   };
 };

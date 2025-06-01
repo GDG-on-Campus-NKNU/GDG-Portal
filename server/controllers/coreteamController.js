@@ -16,6 +16,7 @@ export const getAllMembers = async (req, res) => {
     const whereClause = {};
     const includeClause = [{
       model: Category,
+      as: 'categories',
       through: { attributes: [] }
     }];
 
@@ -76,6 +77,7 @@ export const getMemberById = async (req, res) => {
     const member = await CoreTeam.findByPk(memberId, {
       include: [{
         model: Category,
+        as: 'categories',
         through: { attributes: [] }
       }]
     });
@@ -143,6 +145,7 @@ export const createMember = async (req, res) => {
     const createdMember = await CoreTeam.findByPk(member.id, {
       include: [{
         model: Category,
+        as: 'categories',
         through: { attributes: [] }
       }]
     });
@@ -209,6 +212,7 @@ export const updateMember = async (req, res) => {
     const updatedMember = await CoreTeam.findByPk(memberId, {
       include: [{
         model: Category,
+        as: 'categories',
         through: { attributes: [] }
       }]
     });
