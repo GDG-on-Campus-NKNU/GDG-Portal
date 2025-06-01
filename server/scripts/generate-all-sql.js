@@ -79,18 +79,24 @@ const sampleAnnouncements = [
   {
     title: '歡迎加入 GDG on Campus NKNU！',
     content: '歡迎所有對 Google 技術充滿熱忱的同學加入我們的社群！我們致力於創造一個開放、包容的學習環境，讓每個人都能在這裡成長。',
-    author: '顏榕嶙',
-    category_id: 3, // announcement category
-    is_featured: true,
-    is_published: true
+    excerpt: '歡迎所有對 Google 技術充滿熱忱的同學加入我們的社群！',
+    author_id: 1, // 假設 ID 為 1 的用戶
+    cover_image: null,
+    is_pinned: true,
+    view_count: 0,
+    status: 'published',
+    published_at: '2024-03-10 10:00:00'
   },
   {
     title: '技術分享會報名開始',
     content: '本月的技術分享會將聚焦於現代前端開發技術，包含 React Hooks、狀態管理最佳實踐等主題。名額有限，敬請把握機會！',
-    author: '顏榕嶙',
-    category_id: 3, // announcement category
-    is_featured: false,
-    is_published: true
+    excerpt: '本月的技術分享會將聚焦於現代前端開發技術',
+    author_id: 1, // 假設 ID 為 1 的用戶
+    cover_image: null,
+    is_pinned: false,
+    view_count: 0,
+    status: 'published',
+    published_at: '2024-03-15 14:30:00'
   }
 ];
 
@@ -98,38 +104,39 @@ const sampleAnnouncements = [
 const sampleEvents = [
   {
     title: 'React 進階工作坊',
-    content: '深入學習 React 進階概念，包含 Context API、自訂 Hooks、效能優化等主題。適合有基礎 React 經驗的開發者參加。',
-    description: '這是一個為期半天的 React 進階工作坊，我們將探討現代 React 開發的最佳實踐。',
-    event_date: '2024-04-20 14:00:00',
+    description: '深入學習 React 進階概念，包含 Context API、自訂 Hooks、效能優化等主題。適合有基礎 React 經驗的開發者參加。',
+    excerpt: '這是一個為期半天的 React 進階工作坊，我們將探討現代 React 開發的最佳實踐。',
+    start_date: '2024-04-20 14:00:00',
+    end_date: '2024-04-20 17:30:00',
     location: '資訊大樓 A301',
+    cover_image: '/assets/events/react_workshop.jpg',
+    registration_url: 'https://forms.gle/example',
     max_attendees: 30,
     current_attendees: 25,
-    registration_deadline: '2024-04-18 23:59:59',
-    speaker_name: '顏榕嶙',
-    speaker_bio: 'Frontend 技術專家，專精於 React 生態系統',
-    category_id: 2, // event category
+    status: 'published',
     is_featured: true,
-    is_published: true,
+    created_by: 1, // 假設 ID 為 1 的用戶
     event_type: 'workshop'
   },
   {
     title: 'Google Cloud Platform 入門講座',
-    content: '從零開始學習 GCP 雲端服務，涵蓋計算、儲存、網路等核心服務介紹，以及實際部署範例。',
-    description: '全面介紹 Google Cloud Platform 的核心服務與應用場景。',
-    event_date: '2024-05-10 19:00:00',
+    description: '從零開始學習 GCP 雲端服務，涵蓋計算、儲存、網路等核心服務介紹，以及實際部署範例。',
+    excerpt: '全面介紹 Google Cloud Platform 的核心服務與應用場景。',
+    start_date: '2024-05-10 19:00:00',
+    end_date: '2024-05-10 21:00:00',
     location: '線上講座 (Google Meet)',
+    cover_image: '/assets/events/gcp_lecture.jpg',
+    registration_url: 'https://forms.gle/example2',
     max_attendees: 100,
     current_attendees: 67,
-    registration_deadline: '2024-05-08 23:59:59',
-    speaker_name: '顏榕嶙',
-    speaker_bio: 'Cloud Architecture 專家，擁有多項 GCP 認證',
-    category_id: 7, // cloud category
+    status: 'published',
     is_featured: true,
-    is_published: true,
+    created_by: 1, // 假設 ID 為 1 的用戶
     event_type: 'lecture'
   }
 ];
 
+// 樣本相簿資料
 // 樣本相簿資料
 const sampleGalleryData = [
   {
@@ -137,44 +144,67 @@ const sampleGalleryData = [
     title: 'GDG on Campus NKNU 成立活動',
     description: '記錄我們社群成立的珍貴時刻，成員們齊聚一堂共同見證這個重要里程碑。',
     cover_image: '/assets/gallery/founding_event/cover.jpg',
-    date_taken: '2024-03-15',
+    images: [
+      '/assets/gallery/founding_event/image1.jpg',
+      '/assets/gallery/founding_event/image2.jpg',
+      '/assets/gallery/founding_event/image3.jpg'
+    ],
+    tags: ['founding', 'community', 'milestone'],
     photographer: '社群攝影團隊',
-    location: '高雄師範大學',
-    is_featured: true,
-    sort_order: 1
+    date_taken: '2024-03-15',
+    view_count: 120,
+    is_featured: true
   },
   {
     event_id: 1,
     title: 'React 工作坊活動花絮',
     description: '記錄同學們認真學習 React 進階技術的精彩瞬間，大家互相討論、實作練習的熱絡氣氛。',
     cover_image: '/assets/gallery/react_workshop/cover.jpg',
-    date_taken: '2024-04-20',
+    images: [
+      '/assets/gallery/react_workshop/image1.jpg',
+      '/assets/gallery/react_workshop/image2.jpg',
+      '/assets/gallery/react_workshop/image3.jpg',
+      '/assets/gallery/react_workshop/image4.jpg'
+    ],
+    tags: ['workshop', 'react', 'frontend', 'learning'],
     photographer: '顏榕嶙',
-    location: '資訊大樓 A301',
-    is_featured: true,
-    sort_order: 2
+    date_taken: '2024-04-20',
+    view_count: 85,
+    is_featured: true
   },
   {
     event_id: 2,
     title: 'Google Cloud Platform 講座紀錄',
     description: '線上講座的螢幕截圖與參與者互動畫面，展現同學們對雲端技術的學習熱忱。',
     cover_image: '/assets/gallery/gcp_lecture/cover.jpg',
-    date_taken: '2024-05-10',
+    images: [
+      '/assets/gallery/gcp_lecture/image1.jpg',
+      '/assets/gallery/gcp_lecture/image2.jpg',
+      '/assets/gallery/gcp_lecture/image3.jpg'
+    ],
+    tags: ['lecture', 'cloud', 'gcp', 'online'],
     photographer: '線上截圖',
-    location: '線上講座',
-    is_featured: false,
-    sort_order: 3
+    date_taken: '2024-05-10',
+    view_count: 65,
+    is_featured: false
   },
   {
     event_id: null,
     title: '團隊建設活動',
     description: '社群成員們的日常互動與團隊建設活動，增進彼此感情與合作默契。',
     cover_image: '/assets/gallery/team_building/cover.jpg',
-    date_taken: '2024-05-25',
+    images: [
+      '/assets/gallery/team_building/image1.jpg',
+      '/assets/gallery/team_building/image2.jpg',
+      '/assets/gallery/team_building/image3.jpg',
+      '/assets/gallery/team_building/image4.jpg',
+      '/assets/gallery/team_building/image5.jpg'
+    ],
+    tags: ['team-building', 'community', 'friendship'],
     photographer: '社群成員',
-    location: '高雄師範大學校園',
-    is_featured: false,
-    sort_order: 4
+    date_taken: '2024-05-25',
+    view_count: 42,
+    is_featured: false
   }
 ];
 
@@ -299,8 +329,8 @@ function generateCoreSQL() {
   sql += `-- ============================================\n\n`;
   
   sampleAnnouncements.forEach(announcement => {
-    sql += `INSERT INTO announcements (title, content, author, category_id, is_featured, is_published, created_at, updated_at) VALUES\n`;
-    sql += `('${announcement.title}', '${announcement.content}', '${announcement.author}', ${announcement.category_id}, ${announcement.is_featured}, ${announcement.is_published}, NOW(), NOW());\n\n`;
+    sql += `INSERT INTO announcements (title, content, excerpt, author_id, cover_image, is_pinned, view_count, status, published_at, created_at, updated_at) VALUES\n`;
+    sql += `('${announcement.title}', '${announcement.content}', '${announcement.excerpt}', ${announcement.author_id}, ${announcement.cover_image ? `'${announcement.cover_image}'` : 'NULL'}, ${announcement.is_pinned}, ${announcement.view_count}, '${announcement.status}', '${announcement.published_at}', NOW(), NOW());\n\n`;
   });
   
   // Events 資料
@@ -309,8 +339,8 @@ function generateCoreSQL() {
   sql += `-- ============================================\n\n`;
   
   sampleEvents.forEach(event => {
-    sql += `INSERT INTO events (title, content, description, event_date, location, max_attendees, current_attendees, registration_deadline, speaker_name, speaker_bio, category_id, is_featured, is_published, event_type, created_at, updated_at) VALUES\n`;
-    sql += `('${event.title}', '${event.content}', '${event.description}', '${event.event_date}', '${event.location}', ${event.max_attendees}, ${event.current_attendees}, '${event.registration_deadline}', '${event.speaker_name}', '${event.speaker_bio}', ${event.category_id}, ${event.is_featured}, ${event.is_published}, '${event.event_type}', NOW(), NOW());\n\n`;
+    sql += `INSERT INTO events (title, description, excerpt, start_date, end_date, location, cover_image, registration_url, max_attendees, current_attendees, status, is_featured, created_by, event_type, created_at, updated_at) VALUES\n`;
+    sql += `('${event.title}', '${event.description}', '${event.excerpt}', '${event.start_date}', '${event.end_date}', '${event.location}', '${event.cover_image}', '${event.registration_url}', ${event.max_attendees}, ${event.current_attendees}, '${event.status}', ${event.is_featured}, ${event.created_by}, '${event.event_type}', NOW(), NOW());\n\n`;
   });
   
   // Announcement Tags
@@ -318,20 +348,24 @@ function generateCoreSQL() {
   sql += `-- 公告標籤關聯\n`;
   sql += `-- ============================================\n\n`;
   
-  sql += `INSERT INTO announcement_tags (announcement_id, category_id, created_at, updated_at) VALUES\n`;
-  sql += `(1, 1, NOW(), NOW()),\n`; // 歡迎訊息 -> member
-  sql += `(2, 4, NOW(), NOW());\n\n`; // 技術分享會 -> frontend
+  sql += `INSERT INTO announcement_tags (announcement_id, tag_name) VALUES\n`;
+  sql += `(1, 'welcome'),\n`; // 歡迎訊息 -> welcome 標籤
+  sql += `(1, 'community'),\n`; // 歡迎訊息 -> community 標籤
+  sql += `(2, 'event'),\n`; // 技術分享會 -> event 標籤
+  sql += `(2, 'frontend');\n\n`; // 技術分享會 -> frontend 標籤
   
   // Event Tags  
   sql += `-- ============================================\n`;
   sql += `-- 活動標籤關聯\n`;
   sql += `-- ============================================\n\n`;
   
-  sql += `INSERT INTO event_tags (event_id, category_id, created_at, updated_at) VALUES\n`;
-  sql += `(1, 4, NOW(), NOW()),\n`; // React 工作坊 -> frontend
-  sql += `(1, 9, NOW(), NOW()),\n`; // React 工作坊 -> workshop
-  sql += `(2, 7, NOW(), NOW()),\n`; // GCP 講座 -> cloud
-  sql += `(2, 10, NOW(), NOW());\n\n`; // GCP 講座 -> lecture
+  sql += `INSERT INTO event_tags (event_id, tag_name) VALUES\n`;
+  sql += `(1, 'frontend'),\n`; // React 工作坊 -> frontend
+  sql += `(1, 'workshop'),\n`; // React 工作坊 -> workshop
+  sql += `(1, 'react'),\n`; // React 工作坊 -> react
+  sql += `(2, 'cloud'),\n`; // GCP 講座 -> cloud
+  sql += `(2, 'lecture'),\n`; // GCP 講座 -> lecture
+  sql += `(2, 'google');\n\n`; // GCP 講座 -> google
   
   return sql;
 }
@@ -348,8 +382,11 @@ function generateGallerySQL() {
   
   sampleGalleryData.forEach(gallery => {
     const eventId = gallery.event_id ? gallery.event_id : 'NULL';
-    sql += `INSERT INTO gallery (event_id, title, description, cover_image, date_taken, photographer, location, is_featured, sort_order, created_at, updated_at) VALUES\n`;
-    sql += `(${eventId}, '${gallery.title}', '${gallery.description}', '${gallery.cover_image}', '${gallery.date_taken}', '${gallery.photographer}', '${gallery.location}', ${gallery.is_featured}, ${gallery.sort_order}, NOW(), NOW());\n\n`;
+    const imagesJson = JSON.stringify(gallery.images).replace(/'/g, "\\'");
+    const tagsJson = JSON.stringify(gallery.tags).replace(/'/g, "\\'");
+    
+    sql += `INSERT INTO gallery (event_id, title, description, cover_image, images, tags, photographer, date_taken, view_count, is_featured, created_at, updated_at) VALUES\n`;
+    sql += `(${eventId}, '${gallery.title}', '${gallery.description}', '${gallery.cover_image}', '${imagesJson}', '${tagsJson}', '${gallery.photographer}', '${gallery.date_taken}', ${gallery.view_count}, ${gallery.is_featured}, NOW(), NOW());\n\n`;
   });
   
   return sql;
