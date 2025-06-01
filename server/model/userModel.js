@@ -7,13 +7,13 @@ const User = sequelize.define('User', {
     primaryKey: true,
     autoIncrement: true
   },
-  googleId: {
-    type: DataTypes.STRING,
+  google_id: {
+    type: DataTypes.STRING(255),
     unique: true,
     allowNull: true
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(255),
     unique: true,
     allowNull: false,
     validate: {
@@ -21,14 +21,10 @@ const User = sequelize.define('User', {
     }
   },
   name: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(100),
     allowNull: false
   },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: true // Google 使用者可能沒有密碼
-  },
-  avatarUrl: {
+  avatar_url: {
     type: DataTypes.TEXT,
     allowNull: true
   },
@@ -36,21 +32,9 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('admin', 'core', 'member'),
     defaultValue: 'member'
   },
-  isActive: {
+  is_active: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
-  },
-  emailVerified: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  lastLogin: {
-    type: DataTypes.DATE,
-    allowNull: true
-  },
-  refreshToken: {
-    type: DataTypes.TEXT,
-    allowNull: true
   }
 }, {
   tableName: 'users',

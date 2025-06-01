@@ -20,11 +20,11 @@ const Announcement = sequelize.define('Announcement', {
     type: DataTypes.STRING(500),
     allowNull: true
   },
-  coverImage: {
+  cover_image: {
     type: DataTypes.STRING(255),
     allowNull: true
   },
-  authorId: {
+  author_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
@@ -32,11 +32,11 @@ const Announcement = sequelize.define('Announcement', {
       key: 'id'
     }
   },
-  isPinned: {
+  is_pinned: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   },
-  viewCount: {
+  view_count: {
     type: DataTypes.INTEGER,
     defaultValue: 0
   },
@@ -44,7 +44,7 @@ const Announcement = sequelize.define('Announcement', {
     type: DataTypes.ENUM('draft', 'published', 'archived'),
     defaultValue: 'draft'
   },
-  publishedAt: {
+  published_at: {
     type: DataTypes.DATE,
     allowNull: true
   }
@@ -55,14 +55,14 @@ const Announcement = sequelize.define('Announcement', {
   updatedAt: 'updated_at'
 });
 
-// AnnouncementTag 公告標籤模型
+// AnnouncementTag 公告標籤關聯表
 const AnnouncementTag = sequelize.define('AnnouncementTag', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  announcementId: {
+  announcement_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
@@ -70,7 +70,7 @@ const AnnouncementTag = sequelize.define('AnnouncementTag', {
       key: 'id'
     }
   },
-  tagName: {
+  tag_name: {
     type: DataTypes.STRING(50),
     allowNull: false
   }
@@ -80,19 +80,19 @@ const AnnouncementTag = sequelize.define('AnnouncementTag', {
   indexes: [
     {
       unique: true,
-      fields: ['announcementId', 'tagName']
+      fields: ['announcement_id', 'tag_name']
     }
   ]
 });
 
 // 定義關聯
 Announcement.hasMany(AnnouncementTag, { 
-  foreignKey: 'announcementId',
+  foreignKey: 'announcement_id',
   as: 'tags',
   onDelete: 'CASCADE'
 });
 
-AnnouncementTag.belongsTo(Announcement, { foreignKey: 'announcementId' });
+AnnouncementTag.belongsTo(Announcement, { foreignKey: 'announcement_id' });
 
 export default Announcement;
 export { AnnouncementTag };

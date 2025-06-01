@@ -36,18 +36,13 @@ const CoreTeam = sequelize.define('CoreTeam', {
     type: DataTypes.JSON,
     allowNull: true
   },
-  bio: {
+  description: {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  description: {
-    type: DataTypes.VIRTUAL,
-    get() {
-      return this.getDataValue('bio');
-    },
-    set(value) {
-      this.setDataValue('bio', value);
-    }
+  full_bio: {
+    type: DataTypes.TEXT,
+    allowNull: true
   },
   achievements: {
     type: DataTypes.JSON,
@@ -69,7 +64,7 @@ const CoreTeam = sequelize.define('CoreTeam', {
     type: DataTypes.BOOLEAN,
     defaultValue: true
   },
-  position: {
+  sort_order: {
     type: DataTypes.INTEGER,
     defaultValue: 0
   }
@@ -117,7 +112,7 @@ const CoreTeamCategory = sequelize.define('CoreTeamCategory', {
     primaryKey: true,
     autoIncrement: true
   },
-  core_team_id: {
+  member_id: {
     type: DataTypes.INTEGER,
     allowNull: false
   },

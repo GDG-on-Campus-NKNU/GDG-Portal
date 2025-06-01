@@ -1,6 +1,6 @@
 -- ============================================
 -- GDG Portal 完整資料庫初始化 SQL 腳本
--- 生成時間: 2025-06-01T16:09:53.221Z
+-- 生成時間: 2025-06-01T16:37:11.941Z
 -- 用途: 一次性插入所有樣本資料
 -- 包含: Core Team, Categories, Announcements, Events, Gallery
 -- ============================================
@@ -12,8 +12,8 @@ START TRANSACTION;
 -- Core Team 成員資料
 -- ============================================
 
-INSERT INTO core_team (name, title, department, bio, profile_image, sort_order, created_at, updated_at) VALUES
-('顏榕嶙', 'Technical Education Lead', 'Technical Education', '技術教育專家，致力於推廣現代 Web 開發技術與最佳實踐。擁有豐富的前端框架經驗，特別專精於 React 和 Vue.js 開發。', '/assets/members/yen_profile.jpg', 1, NOW(), NOW());
+INSERT INTO core_team (name, title, photo, department, year, skills, description, full_bio, achievements, contact_email, social_links, additional_photos, is_active, sort_order, created_at, updated_at) VALUES
+('顏榕嶙', 'Technical Education Lead', '/assets/members/yen_profile.jpg', '軟體工程與管理學系', '大三', '["JavaScript","TypeScript","React","Vue.js","Node.js","Python","Git/GitHub","Workshop Design","Technical Writing","Public Speaking"]', 'Technical Education Lead - 負責技術教育規劃、工作坊設計與技術分享活動推廣', '技術教育專家，致力於推廣現代 Web 開發技術與最佳實踐。擁有豐富的前端框架經驗，特別專精於 React 和 Vue.js 開發。熱衷於教學分享，希望能透過技術傳授幫助更多同學成長。', '["組織 15+ 場技術工作坊","指導 50+ 位學生程式設計","在 5 場技術研討會擔任講者","發表 20+ 篇技術文章","建立校園技術學習社群","推動開源專案參與文化"]', 'technical.education@gdg.nknu.edu.tw', '{"linkedin":"https://linkedin.com/in/yen-jung-lin","github":"https://github.com/yen-jung-lin","twitter":"https://twitter.com/yen_jung_lin","facebook":"https://facebook.com/yen.jung.lin"}', '["/assets/members/yen_workshop_1.jpg","/assets/members/yen_workshop_2.jpg","/assets/members/yen_team_photo.jpg"]', true, 1, NOW(), NOW());
 
 -- ============================================
 -- 分類資料
@@ -53,7 +53,7 @@ INSERT INTO categories (name, title, description, created_at, updated_at) VALUES
 -- Core Team 與 Categories 關聯
 -- ============================================
 
-INSERT INTO core_team_categories (core_team_id, category_id, created_at, updated_at) VALUES
+INSERT INTO core_team_categories (member_id, category_id, created_at, updated_at) VALUES
 (1, 1, NOW(), NOW());
 
 -- ============================================

@@ -15,8 +15,8 @@ export const transformCoreTeamMember = (member) => {
     year: memberData.year,
     
     // 前端期望的欄位名稱
-    description: memberData.bio, // bio -> description
-    fullBio: memberData.bio,
+    description: memberData.description, // 職務介紹
+    fullBio: memberData.full_bio, // 個人自我介紹
     contactEmail: memberData.contact_email, // snake_case -> camelCase
     socialLinks: memberData.social_links || {},
     additionalPhotos: memberData.additional_photos || [],
@@ -27,7 +27,7 @@ export const transformCoreTeamMember = (member) => {
     
     // 狀態
     isActive: memberData.is_active,
-    position: memberData.position,
+    sortOrder: memberData.sort_order, // position -> sortOrder
     
     // 分類 (如果有關聯)
     categories: memberData.Categories ? memberData.Categories.map(cat => cat.name) : [],
@@ -49,8 +49,8 @@ export const transformEvent = (event) => {
     title: eventData.title,
     description: eventData.description,
     excerpt: eventData.excerpt,
-    date: eventData.date,
-    endDate: eventData.end_date, // snake_case -> camelCase
+    date: eventData.start_date,        // start_date 改名
+    endDate: eventData.end_date,       // snake_case -> camelCase
     location: eventData.location,
     coverImage: eventData.cover_image,
     registrationUrl: eventData.registration_url,
@@ -110,12 +110,12 @@ export const transformGallery = (gallery) => {
     description: galleryData.description,
     eventId: galleryData.event_id,
     coverImage: galleryData.cover_image,
-    photos: galleryData.photos || [],
+    images: galleryData.images || [],           // photos -> images
+    tags: galleryData.tags || [],               // 新增 tags 欄位
     photographer: galleryData.photographer,
-    photoDate: galleryData.photo_date,
-    isPublished: galleryData.is_published,
+    dateTaken: galleryData.date_taken,          // photo_date -> date_taken
+    isFeatured: galleryData.is_featured,        // is_published -> is_featured
     viewCount: galleryData.view_count,
-    createdBy: galleryData.created_by,
     
     // 關聯資料
     event: galleryData.event,

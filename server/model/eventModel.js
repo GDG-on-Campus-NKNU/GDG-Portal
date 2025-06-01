@@ -20,7 +20,7 @@ const Event = sequelize.define('Event', {
     type: DataTypes.STRING(500),
     allowNull: true
   },
-  date: {
+  start_date: {
     type: DataTypes.DATE,
     allowNull: false
   },
@@ -103,30 +103,24 @@ const EventSpeaker = sequelize.define('EventSpeaker', {
   timestamps: false
 });
 
-// EventTag 活動標籤模型
+// EventTag 活動標籤關聯表
 const EventTag = sequelize.define('EventTag', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  name: {
-    type: DataTypes.STRING(50),
+  event_id: {
+    type: DataTypes.INTEGER,
     allowNull: false
   },
-  color: {
-    type: DataTypes.STRING(7),
-    defaultValue: '#3B82F6'
-  },
-  is_active: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
+  tag_name: {
+    type: DataTypes.STRING(50),
+    allowNull: false
   }
 }, {
   tableName: 'event_tags',
-  timestamps: true,
-  createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  timestamps: false
 });
 
 // EventRegistration 活動報名模型

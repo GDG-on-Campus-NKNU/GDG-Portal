@@ -8,57 +8,58 @@ const Gallery = sequelize.define('Gallery', {
     primaryKey: true,
     autoIncrement: true
   },
-  title: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-    comment: '照片集標題'
-  },
-  description: {
-    type: DataTypes.TEXT,
-    comment: '照片集描述'
-  },
   event_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
     comment: '關聯的活動ID'
   },
+  title: {
+    type: DataTypes.STRING(200),
+    allowNull: false,
+    comment: '照片集標題'
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: '照片集描述'
+  },
   cover_image: {
-    type: DataTypes.STRING(500),
+    type: DataTypes.STRING(255),
     allowNull: false,
     comment: '封面圖片URL'
   },
-  photos: {
+  images: {
     type: DataTypes.JSON,
-    allowNull: false,
-    defaultValue: [],
+    allowNull: true,
     comment: '照片列表，包含URL、描述等資訊'
+  },
+  tags: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    comment: '標籤列表'
   },
   photographer: {
     type: DataTypes.STRING(100),
+    allowNull: true,
     comment: '攝影師'
   },
-  photo_date: {
-    type: DataTypes.DATE,
-    allowNull: false,
+  date_taken: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
     comment: '拍攝日期'
-  },
-  is_published: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-    comment: '是否發布'
   },
   view_count: {
     type: DataTypes.INTEGER,
     defaultValue: 0,
     comment: '瀏覽次數'
   },
-  created_by: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    comment: '創建者ID'
+  is_featured: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    comment: '是否為精選'
   }
 }, {
-  tableName: 'galleries',
+  tableName: 'gallery',
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',

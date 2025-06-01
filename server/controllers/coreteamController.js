@@ -24,7 +24,8 @@ export const getAllMembers = async (req, res) => {
       whereClause[Op.or] = [
         { name: { [Op.like]: `%${queryParams.keyword}%` } },
         { title: { [Op.like]: `%${queryParams.keyword}%` } },
-        { bio: { [Op.like]: `%${queryParams.keyword}%` } }
+        { description: { [Op.like]: `%${queryParams.keyword}%` } },
+        { full_bio: { [Op.like]: `%${queryParams.keyword}%` } }
       ];
     }
 
@@ -44,7 +45,7 @@ export const getAllMembers = async (req, res) => {
       include: includeClause,
       limit: queryParams.limit,
       offset: offset,
-      order: [['position', 'ASC'], ['name', 'ASC']],
+      order: [['sort_order', 'ASC'], ['name', 'ASC']],
       distinct: true
     });
 

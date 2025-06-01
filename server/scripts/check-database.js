@@ -13,10 +13,10 @@ import dotenv from 'dotenv';
 // 設定環境變數路徑
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.join(__dirname, '../server/.env') });
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 // 引入資料庫
-import sequelize from '../server/config/database.js';
+import sequelize from '../config/database.js';
 
 /**
  * 檢查資料庫連接

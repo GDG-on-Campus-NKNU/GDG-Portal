@@ -10,7 +10,7 @@ const defineAssociations = () => {
   // CoreTeam 和 Category 的多對多關聯
   CoreTeam.belongsToMany(Category, { 
     through: CoreTeamCategory,
-    foreignKey: 'core_team_id',
+    foreignKey: 'member_id',
     otherKey: 'category_id',
     as: 'categories'
   });
@@ -18,7 +18,7 @@ const defineAssociations = () => {
   Category.belongsToMany(CoreTeam, { 
     through: CoreTeamCategory,
     foreignKey: 'category_id',
-    otherKey: 'core_team_id',
+    otherKey: 'member_id',
     as: 'members'
   });
 
