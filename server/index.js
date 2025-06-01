@@ -16,31 +16,13 @@ import authRoutes from "./routes/auth_routes.js";
 import eventRoutes from "./routes/eventRoutes.js"; // 引入活動路由
 import announcementRoutes from "./routes/announcementRoutes.js"; // 引入公告路由
 import coreteamRoutes from "./routes/coreteamRoutes.js"; // 引入幹部路由
+import galleryRoutes from "./routes/galleryRoutes.js"; // 引入照片集路由
 import "./config/passport.js";
 import { authenticateJWT } from './middlewares/auth.js';
-import sequelize from './config/database.js';
+import { initializeDatabase } from './model/index.js';
 
 const app = express()
 const PORT = process.env.PORT || 5000
-
-// 資料庫連線初始化
-const initializeDatabase = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('✅ Database connection has been established successfully.');
-    
-    // 開發環境下同步資料庫模型
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('✅ Database models synchronized.');
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
-    return false;
-  }
-};
 
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173', // 允許的來源
@@ -56,6 +38,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes); // 活動路由
 app.use("/api/announcements", announcementRoutes); // 公告路由
 app.use("/api/coreteam", coreteamRoutes); // 幹部路由
+app.use("/api/gallery", galleryRoutes); // 照片集路由
 
 app.get('/', (req, res) => {
   res.send('伺服器運行中 🚀');
@@ -137,6 +120,7 @@ const startServer = async (port) => {
     process.on('SIGINT', () => {
       console.log('\n⚠️ 正在關閉伺服器...');
       server.close(async () => {
+        const { sequelize } = await import('./model/index.js');
         await sequelize.close();
         console.log('✅ 伺服器已安全關閉');
         process.exit(0);

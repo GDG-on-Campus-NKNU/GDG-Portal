@@ -1,7 +1,8 @@
-import eventModel from '../model/eventModel.js';
+import { Event, EventSpeaker, EventTag, EventRegistration } from '../model/eventModel.js';
+import { Op } from 'sequelize';
 
 // 獲取所有活動
-export const getAllEvents = (req, res) => {
+export const getAllEvents = async (req, res) => {
   try {
     const queryParams = {
       page: parseInt(req.query.page) || 1,
@@ -12,7 +13,69 @@ export const getAllEvents = (req, res) => {
       sort: req.query.sort || 'desc'
     };
 
-    const result = eventModel.getAllEvents(queryParams);
+    // 構建查詢條件
+    const whereClause = {};
+    const includeClause = [
+      {
+        model: EventSpeaker,
+        as: 'speakers'
+      },
+      {
+        model: EventTag,
+        as: 'tags'
+      }
+    ];
+
+    // 關鍵字搜尋
+    if (queryParams.keyword) {
+      whereClause[Op.or] = [
+        { title: { [Op.like]: `%${queryParams.keyword}%` } },
+        { description: { [Op.like]: `%${queryParams.keyword}%` } },
+        { location: { [Op.like]: `%${queryParams.keyword}%` } }
+      ];
+    }
+
+    // 時間篩選
+    if (queryParams.future === 'true') {
+      whereClause.date = { [Op.gte]: new Date() };
+    } else if (queryParams.future === 'false') {
+      whereClause.date = { [Op.lt]: new Date() };
+    }
+
+    // 標籤篩選
+    if (queryParams.tags.length > 0) {
+      includeClause[1].where = {
+        name: { [Op.in]: queryParams.tags }
+      };
+    }
+
+    // 計算偏移量
+    const offset = (queryParams.page - 1) * queryParams.limit;
+
+    // 排序設定
+    const order = queryParams.sort === 'asc' 
+      ? [['date', 'ASC']] 
+      : [['date', 'DESC']];
+
+    // 執行查詢
+    const { count, rows } = await Event.findAndCountAll({
+      where: whereClause,
+      include: includeClause,
+      limit: queryParams.limit,
+      offset: offset,
+      order: order,
+      distinct: true
+    });
+
+    const result = {
+      events: rows,
+      totalCount: count,
+      totalPages: Math.ceil(count / queryParams.limit),
+      currentPage: queryParams.page,
+      hasNext: queryParams.page * queryParams.limit < count,
+      hasPrevious: queryParams.page > 1
+    };
+
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in getAllEvents:', error);
@@ -21,10 +84,26 @@ export const getAllEvents = (req, res) => {
 };
 
 // 獲取單個活動詳情
-export const getEventById = (req, res) => {
+export const getEventById = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const event = eventModel.getEventById(id);
+    
+    const event = await Event.findByPk(id, {
+      include: [
+        {
+          model: EventSpeaker,
+          as: 'speakers'
+        },
+        {
+          model: EventTag,
+          as: 'tags'
+        },
+        {
+          model: EventRegistration,
+          as: 'registrations'
+        }
+      ]
+    });
 
     if (!event) {
       return res.status(404).json({ message: '找不到活動' });
@@ -38,7 +117,7 @@ export const getEventById = (req, res) => {
 };
 
 // 根據日期範圍獲取活動
-export const getEventsByDateRange = (req, res) => {
+export const getEventsByDateRange = async (req, res) => {
   try {
     const { start, end } = req.query;
 
@@ -49,7 +128,25 @@ export const getEventsByDateRange = (req, res) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
 
-    const events = eventModel.getEventsByDateRange(startDate, endDate);
+    const events = await Event.findAll({
+      where: {
+        date: {
+          [Op.between]: [startDate, endDate]
+        }
+      },
+      include: [
+        {
+          model: EventSpeaker,
+          as: 'speakers'
+        },
+        {
+          model: EventTag,
+          as: 'tags'
+        }
+      ],
+      order: [['date', 'ASC']]
+    });
+
     res.status(200).json({ events });
   } catch (error) {
     console.error('Error in getEventsByDateRange:', error);
@@ -58,20 +155,62 @@ export const getEventsByDateRange = (req, res) => {
 };
 
 // 獲取歷史活動
-export const getHistoricalEvents = (req, res) => {
+export const getHistoricalEvents = async (req, res) => {
   try {
     const { keyword, tags, page = 1, limit = 10 } = req.query;
-
-    // 處理標籤參數
     const tagArray = tags ? tags.split(',') : [];
+    
+    // 構建查詢條件
+    const whereClause = {
+      date: { [Op.lt]: new Date() } // 只獲取過去的活動
+    };
+    
+    const includeClause = [
+      {
+        model: EventSpeaker,
+        as: 'speakers'
+      },
+      {
+        model: EventTag,
+        as: 'tags'
+      }
+    ];
 
-    // 呼叫模型方法獲取歷史活動
-    const result = eventModel.getHistoricalEvents({
-      keyword,
-      tags: tagArray,
-      page: parseInt(page),
-      limit: parseInt(limit)
+    // 關鍵字搜尋
+    if (keyword) {
+      whereClause[Op.or] = [
+        { title: { [Op.like]: `%${keyword}%` } },
+        { description: { [Op.like]: `%${keyword}%` } },
+        { location: { [Op.like]: `%${keyword}%` } }
+      ];
+    }
+
+    // 標籤篩選
+    if (tagArray.length > 0) {
+      includeClause[1].where = {
+        name: { [Op.in]: tagArray }
+      };
+    }
+
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const { count, rows } = await Event.findAndCountAll({
+      where: whereClause,
+      include: includeClause,
+      limit: parseInt(limit),
+      offset: offset,
+      order: [['date', 'DESC']],
+      distinct: true
     });
+
+    const result = {
+      events: rows,
+      totalCount: count,
+      totalPages: Math.ceil(count / parseInt(limit)),
+      currentPage: parseInt(page),
+      hasNext: parseInt(page) * parseInt(limit) < count,
+      hasPrevious: parseInt(page) > 1
+    };
 
     res.status(200).json(result);
   } catch (error) {
@@ -81,10 +220,13 @@ export const getHistoricalEvents = (req, res) => {
 };
 
 // 獲取所有活動標籤
-export const getEventTags = (req, res) => {
+export const getEventTags = async (req, res) => {
   try {
-    const tagOptions = eventModel.getEventTags();
-    res.status(200).json({ tags: tagOptions });
+    const tags = await EventTag.findAll({
+      order: [['name', 'ASC']]
+    });
+    
+    res.status(200).json({ tags });
   } catch (error) {
     console.error('Error in getEventTags:', error);
     res.status(500).json({ message: '獲取活動標籤失敗', error: error.message });

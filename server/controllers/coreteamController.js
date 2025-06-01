@@ -1,7 +1,8 @@
-import coreteamModel from '../model/coreteamModel.js';
+import { CoreTeam, Category, CoreTeamCategory } from '../model/coreteamModel.js';
+import { Op } from 'sequelize';
 
 // 獲取所有幹部
-export const getAllMembers = (req, res) => {
+export const getAllMembers = async (req, res) => {
   try {
     const queryParams = {
       keyword: req.query.keyword || '',
@@ -10,7 +11,51 @@ export const getAllMembers = (req, res) => {
       limit: parseInt(req.query.limit) || 10
     };
 
-    const result = coreteamModel.getAllMembers(queryParams);
+    // 構建查詢條件
+    const whereClause = {};
+    const includeClause = [{
+      model: Category,
+      through: { attributes: [] }
+    }];
+
+    // 關鍵字搜尋
+    if (queryParams.keyword) {
+      whereClause[Op.or] = [
+        { name: { [Op.like]: `%${queryParams.keyword}%` } },
+        { title: { [Op.like]: `%${queryParams.keyword}%` } },
+        { bio: { [Op.like]: `%${queryParams.keyword}%` } }
+      ];
+    }
+
+    // 分類篩選
+    if (queryParams.categories.length > 0) {
+      includeClause[0].where = {
+        name: { [Op.in]: queryParams.categories }
+      };
+    }
+
+    // 計算偏移量
+    const offset = (queryParams.page - 1) * queryParams.limit;
+
+    // 執行查詢
+    const { count, rows } = await CoreTeam.findAndCountAll({
+      where: whereClause,
+      include: includeClause,
+      limit: queryParams.limit,
+      offset: offset,
+      order: [['position', 'ASC'], ['name', 'ASC']],
+      distinct: true
+    });
+
+    const result = {
+      members: rows,
+      totalCount: count,
+      totalPages: Math.ceil(count / queryParams.limit),
+      currentPage: queryParams.page,
+      hasNext: queryParams.page * queryParams.limit < count,
+      hasPrevious: queryParams.page > 1
+    };
+
     res.status(200).json(result);
   } catch (error) {
     console.error('Error in getAllMembers:', error);
@@ -19,10 +64,16 @@ export const getAllMembers = (req, res) => {
 };
 
 // 獲取單一幹部
-export const getMemberById = (req, res) => {
+export const getMemberById = async (req, res) => {
   try {
     const memberId = parseInt(req.params.id);
-    const member = coreteamModel.getMemberById(memberId);
+    
+    const member = await CoreTeam.findByPk(memberId, {
+      include: [{
+        model: Category,
+        through: { attributes: [] }
+      }]
+    });
 
     if (!member) {
       return res.status(404).json({ message: '找不到該幹部' });
@@ -36,9 +87,12 @@ export const getMemberById = (req, res) => {
 };
 
 // 獲取分類選項
-export const getCategoryOptions = (req, res) => {
+export const getCategoryOptions = async (req, res) => {
   try {
-    const categories = coreteamModel.getCategoryOptions();
+    const categories = await Category.findAll({
+      order: [['name', 'ASC']]
+    });
+    
     res.status(200).json({ categories });
   } catch (error) {
     console.error('Error in getCategoryOptions:', error);
