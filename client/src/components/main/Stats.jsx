@@ -1,4 +1,4 @@
-export function Stats() {
+export default function Stats() {
   return (
     <section className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
       <div className="group relative bg-white/70 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden">

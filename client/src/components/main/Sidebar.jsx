@@ -1,4 +1,4 @@
-export function Sidebar() {
+export default function Sidebar() {
   return (
     <aside className="space-y-6">
       <section className="relative bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300 overflow-hidden">

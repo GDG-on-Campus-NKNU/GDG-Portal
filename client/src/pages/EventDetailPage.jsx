@@ -10,8 +10,7 @@ import {
 } from '../components/general';
 import { Footer } from '../components/Footer';
 import { useEventDetail } from '../hooks/useEventData';
-import { EventDetailInfo } from '../components/event';
-const { EventTimeInfo, EventLocationInfo, EventDescriptionInfo } = EventDetailInfo;
+import { EventTimeInfo, EventLocationInfo, EventDescriptionInfo } from '../components/event';
 
 export default function EventDetailPage() {
   const { id } = useParams();

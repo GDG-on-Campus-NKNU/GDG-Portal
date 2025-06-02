@@ -1,6 +1,6 @@
 // components/announcements/AnnouncementsList.jsx
 import { motion } from 'framer-motion';
-import { PostCard } from '../general/Postcard';
+import PostCard from '../general/Postcard';
 
 export default function AnnouncementsList({ announcements }) {
   const container = {

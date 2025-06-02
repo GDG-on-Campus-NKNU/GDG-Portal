@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-export function PostCard({
+export default function PostCard({
   id,
   title,
   date,

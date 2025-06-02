@@ -1,4 +1,4 @@
-export function MainBanner() {
+export default function MainBanner() {
   return (
     <section className="relative h-[450px] mb-8 rounded-3xl overflow-hidden">
       {/* 主漸層背景 */}

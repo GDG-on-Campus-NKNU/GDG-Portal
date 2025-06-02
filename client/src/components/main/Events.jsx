@@ -3,7 +3,7 @@ import { useEventData } from '../../hooks/useEventData'
 import LoadingSpinner from '../general/LoadingSpinner'
 import { Link } from 'react-router-dom'
 
-export function UpcomingEvents({ limit = 3, showTitle = true }) {
+export default function UpcomingEvents({ limit = 3, showTitle = true }) {
   const { events, loading, error } = useEventData({
     page: 1,
     limit,
