@@ -6,6 +6,9 @@ import { Footer } from '../components/Footer';
 import { BackgroundEffects } from '../components/general/BackgroundEffects';
 import LoadingSpinner from '../components/general/LoadingSpinner';
 import { useAuth } from '../hooks/useAuth';
+import ImageUploader from '../components/general/ImageUploader';
+import BlobImage from '../components/general/BlobImage';
+import { prepareImageForUpload } from '../services/imageService';
 
 export default function UserProfilePage() {
   const { id } = useParams();
@@ -16,10 +19,13 @@ export default function UserProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     avatarUrl: '',
-    bannerUrl: ''
+    bannerUrl: '',
+    avatarFile: null,
+    bannerFile: null
   });
   const [updateMessage, setUpdateMessage] = useState('');
   const [updateMessageType, setUpdateMessageType] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   // 檢查是否為自己的個人頁面
   const isOwnProfile = currentUser && user && currentUser.id === user.id;
@@ -32,7 +38,9 @@ export default function UserProfilePage() {
     if (user) {
       setEditData({
         avatarUrl: user.avatarUrl || '',
-        bannerUrl: user.profile?.bannerUrl || ''
+        bannerUrl: user.profile?.bannerUrl || '',
+        avatarFile: null,
+        bannerFile: null
       });
     }
   }, [user]);
@@ -74,26 +82,64 @@ export default function UserProfilePage() {
     setIsEditing(false);
     setEditData({
       avatarUrl: user.avatarUrl || '',
-      bannerUrl: user.profile?.bannerUrl || ''
+      bannerUrl: user.profile?.bannerUrl || '',
+      avatarFile: null,
+      bannerFile: null
     });
   };
 
   const handleSaveEdit = async () => {
     try {
       setLoading(true);
+      setIsUploading(true);
+
+      // 處理頭像圖片
+      let avatarData = editData.avatarUrl;
+      if (editData.avatarFile) {
+        try {
+          avatarData = await prepareImageForUpload(editData.avatarFile, {
+            compress: true,
+            outputFormat: 'base64'
+          });
+        } catch (err) {
+          console.error('處理頭像失敗:', err);
+          showUpdateMessage('處理頭像圖片失敗，請嘗試使用較小的圖片', 'error');
+          setLoading(false);
+          setIsUploading(false);
+          return;
+        }
+      }
+
+      // 處理橫幅圖片
+      let bannerData = editData.bannerUrl;
+      if (editData.bannerFile) {
+        try {
+          bannerData = await prepareImageForUpload(editData.bannerFile, {
+            compress: true,
+            outputFormat: 'base64'
+          });
+        } catch (err) {
+          console.error('處理橫幅失敗:', err);
+          showUpdateMessage('處理橫幅圖片失敗，請嘗試使用較小的圖片', 'error');
+          setLoading(false);
+          setIsUploading(false);
+          return;
+        }
+      }
+
       const result = await updateProfile({
-        avatarUrl: editData.avatarUrl,
-        bannerUrl: editData.bannerUrl
+        avatarUrl: avatarData,
+        bannerUrl: bannerData
       });
 
       if (result.success) {
         // 更新本地用戶資料
         setUser(prev => ({
           ...prev,
-          avatarUrl: editData.avatarUrl,
+          avatarUrl: avatarData,
           profile: {
             ...prev.profile,
-            bannerUrl: editData.bannerUrl
+            bannerUrl: bannerData
           }
         }));
         setIsEditing(false);
@@ -106,6 +152,7 @@ export default function UserProfilePage() {
       showUpdateMessage('更新失敗，請稍後再試', 'error');
     } finally {
       setLoading(false);
+      setIsUploading(false);
     }
   };
 
@@ -185,10 +232,11 @@ export default function UserProfilePage() {
           {/* 橫幅區域 */}
           <div className="relative h-64 bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 rounded-t-2xl overflow-hidden">
             {user.profile?.bannerUrl ? (
-              <img
+              <BlobImage
                 src={user.profile.bannerUrl}
                 alt="個人橫幅"
                 className="w-full h-full object-cover"
+                fallbackSrc="/assets/default-banner.jpg"
               />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 via-purple-600/80 to-green-600/80" />
@@ -196,37 +244,43 @@ export default function UserProfilePage() {
 
             {/* 橫幅編輯按鈕 - 只有自己才能看到 */}
             {isOwnProfile && !isEditing && (
-              <button
+              <motion.button
                 onClick={handleEdit}
-                className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-                title="編輯橫幅"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2.5 rounded-full transition-colors shadow-lg flex items-center gap-2"
+                title="編輯個人資料"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
-              </button>
+                <span className="hidden md:inline text-sm font-medium">編輯資料</span>
+              </motion.button>
             )}
             
             {/* 頭像 */}
             <div className="absolute -bottom-16 left-8">
               <div className="relative">
-                <img
-                  src={user.avatarUrl || '/assets/default-avatar.png'}
+                <BlobImage
+                  src={user.avatarUrl}
                   alt={user.name}
                   className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
+                  fallbackSrc="/assets/default-avatar.png"
                 />
                 
                 {/* 頭像編輯按鈕 - 只有自己才能看到 */}
                 {isOwnProfile && !isEditing && (
-                  <button
+                  <motion.button
                     onClick={handleEdit}
-                    className="absolute bottom-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="absolute bottom-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors shadow-lg"
                     title="編輯頭像"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
-                  </button>
+                  </motion.button>
                 )}
 
                 <div className={`absolute -bottom-2 -right-2 px-3 py-1 rounded-full border-2 text-sm font-semibold ${getRoleBadgeColor(user.role)}`}>
@@ -243,90 +297,239 @@ export default function UserProfilePage() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-xl"
+                className="mb-8 p-6 bg-gradient-to-b from-blue-50 to-sky-50 border border-blue-200 rounded-xl shadow-sm"
               >
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                   </svg>
-                  編輯頭像和橫幅
+                  個人形象設定
                 </h3>
+                <p className="text-sm text-gray-600 mb-5">
+                  透過更新您的頭像和橫幅圖片，讓其他社群成員更了解您。您可以直接上傳圖片或使用圖片網址。
+                </p>
                 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      頭像圖片網址
-                    </label>
-                    <input
-                      type="url"
-                      value={editData.avatarUrl}
-                      onChange={(e) => setEditData(prev => ({ ...prev, avatarUrl: e.target.value }))}
-                      placeholder="輸入頭像圖片的網址..."
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    {editData.avatarUrl && (
-                      <div className="mt-2 flex items-center gap-3">
-                        <img
-                          src={editData.avatarUrl}
-                          alt="頭像預覽"
-                          className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
-                          onError={(e) => {
-                            e.target.src = '/assets/default-avatar.png';
+                <div className="space-y-6">
+                  {/* 頭像上傳 */}
+                  <div className="bg-white/60 p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mr-3">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <h4 className="text-base font-semibold text-gray-800">個人頭像</h4>
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <div className="w-full md:w-1/2">
+                        <ImageUploader
+                          label="上傳頭像圖片"
+                          initialImage={editData.avatarUrl}
+                          defaultImage="/assets/default-avatar.png"
+                          circle={true}
+                          aspectRatio="1:1"
+                          placeholder="點擊或拖曳上傳頭像"
+                          onImageChange={(file) => {
+                            if (file) {
+                              setEditData(prev => ({ ...prev, avatarFile: file }));
+                            } else {
+                              setEditData(prev => ({ 
+                                ...prev, 
+                                avatarFile: null,
+                                avatarUrl: user.avatarUrl || ''
+                              }));
+                            }
                           }}
                         />
-                        <span className="text-sm text-gray-600">預覽</span>
+                        <div className="mt-2 text-xs text-gray-500 flex items-center">
+                          <svg className="w-3.5 h-3.5 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          建議使用正方形圖片，最大尺寸 5MB
+                        </div>
                       </div>
-                    )}
+                      <div className="w-full md:w-1/2">
+                        <div className="p-4 bg-white rounded-lg border border-gray-200 h-full">
+                          <h5 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                            <svg className="w-4 h-4 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            使用圖片網址
+                          </h5>
+                          <input
+                            type="url"
+                            value={editData.avatarUrl}
+                            onChange={(e) => setEditData(prev => ({ 
+                              ...prev, 
+                              avatarUrl: e.target.value,
+                              avatarFile: null 
+                            }))}
+                            placeholder="輸入頭像圖片的網址..."
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          <div className="flex justify-center mt-4">
+                            {editData.avatarUrl && !editData.avatarFile && (
+                              <div className="relative">
+                                <img 
+                                  src={editData.avatarUrl} 
+                                  alt="頭像預覽" 
+                                  className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                                  onError={(e) => { e.target.src = '/assets/default-avatar.png'; }} 
+                                />
+                                <span className="absolute -bottom-5 left-0 right-0 text-xs text-center text-gray-500">
+                                  預覽
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      橫幅圖片網址
-                    </label>
-                    <input
-                      type="url"
-                      value={editData.bannerUrl}
-                      onChange={(e) => setEditData(prev => ({ ...prev, bannerUrl: e.target.value }))}
-                      placeholder="輸入橫幅圖片的網址..."
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    {editData.bannerUrl && (
-                      <div className="mt-2">
-                        <img
-                          src={editData.bannerUrl}
-                          alt="橫幅預覽"
-                          className="w-full h-20 rounded-lg object-cover border-2 border-gray-200"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
+                  {/* 橫幅上傳 */}
+                  <div className="mt-6 bg-white/60 p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <div className="flex items-center mb-4">
+                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mr-3">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <h4 className="text-base font-semibold text-gray-800">個人背景橫幅</h4>
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <div className="w-full md:w-3/5">
+                        <ImageUploader
+                          label="上傳橫幅圖片"
+                          initialImage={editData.bannerUrl}
+                          defaultImage="/assets/default-banner.jpg"
+                          aspectRatio="16:5"
+                          placeholder="點擊或拖曳上傳橫幅圖片"
+                          onImageChange={(file) => {
+                            if (file) {
+                              setEditData(prev => ({ ...prev, bannerFile: file }));
+                            } else {
+                              setEditData(prev => ({ 
+                                ...prev, 
+                                bannerFile: null,
+                                bannerUrl: user.profile?.bannerUrl || ''
+                              }));
+                            }
                           }}
                         />
-                        <span className="text-sm text-gray-600">預覽</span>
+                        <div className="mt-2 text-xs text-gray-500 flex items-center">
+                          <svg className="w-3.5 h-3.5 mr-1 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          建議使用寬幅圖片(16:5)，最大尺寸 5MB
+                        </div>
                       </div>
-                    )}
+                      <div className="w-full md:w-2/5">
+                        <div className="p-4 bg-white rounded-lg border border-gray-200 h-full">
+                          <h5 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                            <svg className="w-4 h-4 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            使用圖片網址
+                          </h5>
+                          <input
+                            type="url"
+                            value={editData.bannerUrl}
+                            onChange={(e) => setEditData(prev => ({ 
+                              ...prev, 
+                              bannerUrl: e.target.value,
+                              bannerFile: null
+                            }))}
+                            placeholder="輸入橫幅圖片的網址..."
+                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          <div className="flex justify-center mt-4">
+                            {editData.bannerUrl && !editData.bannerFile && (
+                              <div className="relative w-full">
+                                <img 
+                                  src={editData.bannerUrl} 
+                                  alt="橫幅預覽" 
+                                  className="w-full h-16 rounded-lg object-cover border-2 border-gray-200"
+                                  onError={(e) => { e.target.style.display = 'none'; }} 
+                                />
+                                <span className="absolute -bottom-5 left-0 right-0 text-xs text-center text-gray-500">
+                                  預覽
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="flex justify-end gap-3 mt-6">
-                  <button
+                {/* 上傳進度和相關提示 */}
+                {isUploading && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="mt-5 overflow-hidden"
+                  >
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="mb-3 flex items-center gap-3">
+                        <div className="w-10 h-10 flex-shrink-0 bg-blue-100 rounded-full flex items-center justify-center">
+                          <svg className="w-6 h-6 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-blue-800">圖片處理中</h4>
+                          <p className="text-sm text-blue-700">正在壓縮和處理您的圖片，這可能需要幾秒鐘...</p>
+                        </div>
+                      </div>
+                      <div className="w-full bg-blue-200 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-blue-600 h-full animate-pulse" style={{ width: '90%' }}></div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+                
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-4 mt-8 border-t border-gray-200 pt-6">
+                  <motion.button
                     onClick={handleCancelEdit}
-                    disabled={loading}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors disabled:opacity-50"
+                    disabled={loading || isUploading}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-5 py-2.5 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 font-medium text-sm shadow-sm flex items-center justify-center gap-2"
                   >
-                    取消
-                  </button>
-                  <button
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    取消編輯
+                  </motion.button>
+                  <motion.button
                     onClick={handleSaveEdit}
-                    disabled={loading}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                    disabled={loading || isUploading}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-lg transition-colors disabled:opacity-50 font-medium text-sm flex items-center justify-center gap-2"
                   >
-                    {loading && (
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                    {loading || isUploading ? (
+                      <>
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>處理圖片中...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        儲存變更
+                      </>
                     )}
-                    保存
-                  </button>
+                  </motion.button>
                 </div>
               </motion.div>
             )}
@@ -334,24 +537,46 @@ export default function UserProfilePage() {
             {/* 更新消息顯示 */}
             {updateMessage && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className={`mb-6 p-5 rounded-xl flex items-center shadow-lg ${
                   updateMessageType === 'success' 
-                    ? 'bg-green-50 border border-green-200 text-green-800'
-                    : 'bg-red-50 border border-red-200 text-red-800'
+                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-800'
+                    : 'bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 text-red-800'
                 }`}
               >
-                {updateMessageType === 'success' ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="mr-4">
+                  {updateMessageType === 'success' ? (
+                    <div className="bg-green-100 rounded-full p-2">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  ) : (
+                    <div className="bg-red-100 rounded-full p-2">
+                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">{updateMessageType === 'success' ? '操作成功!' : '發生錯誤'}</h4>
+                  <p className="text-sm">{updateMessage}</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    setUpdateMessage('');
+                    setUpdateMessageType('');
+                  }}
+                  className="ml-auto p-1.5 rounded-full hover:bg-black/5"
+                >
+                  <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                )}
-                <span>{updateMessage}</span>
+                </button>
               </motion.div>
             )}
 

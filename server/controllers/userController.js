@@ -271,6 +271,9 @@ class UserController {
       } = req.body;
       const userId = req.user.id;
 
+      // 導入 imageHandler 處理 Base64 圖片
+      const { saveBase64Image, isBase64Image } = await import('../utils/imageHandler.js');
+
       const user = await User.findByPk(userId, {
         include: [{
           model: Profile,
@@ -284,7 +287,20 @@ class UserController {
       // 更新 User 表的基本資料
       const userUpdateData = {};
       if (name !== undefined) userUpdateData.name = name;
-      if (avatarUrl !== undefined) userUpdateData.avatar_url = avatarUrl;
+      
+      // 處理頭像，如果是 Base64 格式則保存為文件
+      if (avatarUrl !== undefined) {
+        if (isBase64Image(avatarUrl)) {
+          const savedImageUrl = saveBase64Image(avatarUrl, 'avatar');
+          if (savedImageUrl) {
+            userUpdateData.avatar_url = savedImageUrl;
+          } else {
+            return res.status(400).json({ message: '頭像圖片處理失敗' });
+          }
+        } else {
+          userUpdateData.avatar_url = avatarUrl;
+        }
+      }
 
       if (Object.keys(userUpdateData).length > 0) {
         await user.update(userUpdateData);
@@ -313,7 +329,21 @@ class UserController {
       if (linkedinUrl !== undefined) profileUpdateData.linkedin_url = linkedinUrl;
       if (githubUrl !== undefined) profileUpdateData.github_url = githubUrl;
       if (twitterUrl !== undefined) profileUpdateData.twitter_url = twitterUrl;
-      if (bannerUrl !== undefined) profileUpdateData.banner_url = bannerUrl;
+      
+      // 處理橫幅，如果是 Base64 格式則保存為文件
+      if (bannerUrl !== undefined) {
+        if (isBase64Image(bannerUrl)) {
+          const savedImageUrl = saveBase64Image(bannerUrl, 'banner');
+          if (savedImageUrl) {
+            profileUpdateData.banner_url = savedImageUrl;
+          } else {
+            return res.status(400).json({ message: '橫幅圖片處理失敗' });
+          }
+        } else {
+          profileUpdateData.banner_url = bannerUrl;
+        }
+      }
+      
       if (skills !== undefined) profileUpdateData.skills = skills;
       if (interests !== undefined) profileUpdateData.interests = interests;
       if (education !== undefined) profileUpdateData.education = education;
