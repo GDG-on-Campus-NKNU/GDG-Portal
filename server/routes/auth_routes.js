@@ -3,11 +3,11 @@ import express from "express";
 import { generateToken } from "../utils/jwt.js";
 import userController from "../controllers/userController.js";
 import { authenticateJWT, optionalAuth } from "../middlewares/auth.js";
-import { 
-  validateUserRegistration, 
-  validateUserLogin, 
-  validatePasswordChange, 
-  validateProfileUpdate 
+import {
+  validateUserRegistration,
+  validateUserLogin,
+  validatePasswordChange,
+  validateProfileUpdate
 } from "../middlewares/validation.js";
 
 const router = express.Router();
@@ -59,12 +59,7 @@ router.get(
 );
 
 // 檢查認證狀態 (可選認證)
-router.get("/status", optionalAuth, (req, res) => {
-  res.json({
-    isAuthenticated: !!req.user,
-    user: req.user || null
-  });
-});
+router.get("/status", optionalAuth, userController.getAuthStatus);
 
 // 獲取使用者公開個人頁面
 router.get("/profile/:id", userController.getUserProfile);

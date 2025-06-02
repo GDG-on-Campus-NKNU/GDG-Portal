@@ -6,12 +6,12 @@ import { useAuth } from '../../hooks/useAuth'
 import { Link } from 'react-router-dom'
 
 export default function DashboardPage() {
-  const { user, updateProfile, changePassword, linkGoogleAccount, unlinkGoogleAccount } = useAuth()
+  const { user, updateProfile, changePassword, linkGoogleAccount, unlinkGoogleAccount, checkAuthStatus } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState('') // 'success' or 'error'
-  
+
   // 個人資料表單
   const [profileData, setProfileData] = useState({
     name: '',
@@ -124,23 +124,29 @@ export default function DashboardPage() {
     try {
       // 開啟新視窗進行 Google OAuth 登入，添加 linkAccount 標記
       const authWindow = window.open('/api/auth/google?linkAccount=true', 'google-oauth', 'width=500,height=600')
-      
+
       // 設置訊息監聽，接收 OAuth 回調結果
       window.addEventListener('message', async function handleAuthMessage(event) {
         if (event.data.type === 'google-oauth-success') {
           authWindow.close()
-          
+
           // Google OAuth 成功，將 googleId 發送到後端進行綁定
           const result = await linkGoogleAccount({
             googleId: event.data.googleId
           })
-          
+
           if (result.success) {
             showMessage(result.message || 'Google 帳號連接成功', 'success')
           } else {
             showMessage(result.message || 'Google 帳號連接失敗', 'error')
           }
-          
+          // 自動刷新 user 狀態
+          if (typeof checkAuthStatus === 'function') {
+            await checkAuthStatus()
+          } else {
+            window.location.reload()
+          }
+
           window.removeEventListener('message', handleAuthMessage)
         } else if (event.data.type === 'google-oauth-error') {
           authWindow.close()
@@ -148,7 +154,7 @@ export default function DashboardPage() {
           window.removeEventListener('message', handleAuthMessage)
         }
       })
-      
+
       // 如果用戶關閉窗口而沒有完成授權
       const checkWindowClosed = setInterval(() => {
         if (authWindow.closed) {
@@ -156,7 +162,7 @@ export default function DashboardPage() {
           setLoading(false)
         }
       }, 1000)
-      
+
     } catch (error) {
       showMessage('Google 帳號連接失敗', 'error')
       setLoading(false)
@@ -172,7 +178,7 @@ export default function DashboardPage() {
     try {
       // 呼叫 unlinkGoogleAccount 函數解除帳號連接
       const result = await unlinkGoogleAccount()
-      
+
       if (result.success) {
         showMessage(result.message || 'Google 帳號連接已取消', 'success')
       } else {
@@ -200,8 +206,8 @@ export default function DashboardPage() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    show: { 
-      opacity: 1, 
+    show: {
+      opacity: 1,
       y: 0,
       transition: {
         type: "spring",
@@ -219,8 +225,8 @@ export default function DashboardPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-slate-800 mb-4">請先登入</h1>
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               className="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 transition-all duration-300"
             >
               前往登入
@@ -236,7 +242,7 @@ export default function DashboardPage() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 text-slate-800 relative overflow-hidden">
       <BackgroundEffects />
       <Navbar />
-      
+
       <motion.main
         initial="hidden"
         animate="show"
@@ -244,7 +250,7 @@ export default function DashboardPage() {
         className="flex-1 w-full max-w-7xl mx-auto px-4 py-12 relative z-10"
       >
         {/* 頁面標題 */}
-        <motion.div 
+        <motion.div
           className="text-center mb-12"
           variants={itemVariants}
         >
@@ -258,10 +264,10 @@ export default function DashboardPage() {
 
         {/* 訊息提示 */}
         {message && (
-          <motion.div 
+          <motion.div
             className={`mb-6 p-4 rounded-xl ${
-              messageType === 'success' 
-                ? 'bg-green-50/80 border border-green-200/50 text-green-700' 
+              messageType === 'success'
+                ? 'bg-green-50/80 border border-green-200/50 text-green-700'
                 : 'bg-red-50/80 border border-red-200/50 text-red-700'
             }`}
             initial={{ opacity: 0, y: -20 }}
@@ -269,9 +275,9 @@ export default function DashboardPage() {
             exit={{ opacity: 0, y: -20 }}
           >
             <div className="flex items-center">
-              <svg 
-                className="w-5 h-5 mr-2" 
-                fill="currentColor" 
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
                 viewBox="0 0 20 20"
               >
                 {messageType === 'success' ? (
@@ -285,7 +291,7 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        <motion.div 
+        <motion.div
           className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden"
           variants={itemVariants}
         >
@@ -683,14 +689,14 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-sm text-green-700 font-medium">參與活動</div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-200/50 rounded-xl p-6 text-center">
                     <div className="text-2xl font-bold text-blue-600 mb-2">
                       {user.postsCreated || 0}
                     </div>
                     <div className="text-sm text-blue-700 font-medium">發布貼文</div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 border border-purple-200/50 rounded-xl p-6 text-center">
                     <div className="text-2xl font-bold text-purple-600 mb-2">
                       {user.badgesEarned || 0}

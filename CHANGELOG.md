@@ -247,3 +247,13 @@
 
 ---
 
+## Fixed several issues related to database and stuff. 06/03
+
+> 2025-06-03 01:53:27
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `4bb7db6f69c882ac49aa1f90c87b6dbcf7255469`
+
+---
+

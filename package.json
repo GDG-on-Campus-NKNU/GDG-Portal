@@ -22,12 +22,13 @@
     "name": ""
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.1"
   },
   "eslintConfig": {},
   "dependencies": {
     "date-fns": "^4.1.0",
-    "framer-motion": "^12.9.1"
+    "framer-motion": "^12.9.1",
+    "gdg-on-campus-portal": "file:"
   }
 }

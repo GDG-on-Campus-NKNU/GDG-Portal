@@ -1,5 +1,6 @@
 import { Event, EventSpeaker, EventTag, EventRegistration } from '../model/eventModel.js';
 import { Op, literal } from 'sequelize';
+import sequelize from '../config/database.js';
 import { transformEvent } from '../utils/dataTransform.js';
 import { saveBase64Image } from '../utils/imageHandler.js';
 
@@ -54,9 +55,9 @@ export const getAllEvents = async (req, res) => {
         attributes: ['event_id'],
         raw: true
       });
-      
+
       const eventIds = [...new Set(eventIdsWithTags.map(item => item.event_id))];
-      
+
       if (eventIds.length > 0) {
         whereClause.id = { [Op.in]: eventIds };
       } else {
@@ -76,8 +77,8 @@ export const getAllEvents = async (req, res) => {
     const offset = (queryParams.page - 1) * queryParams.limit;
 
     // 排序設定
-    const order = queryParams.sort === 'asc' 
-      ? [['start_date', 'ASC']] 
+    const order = queryParams.sort === 'asc'
+      ? [['start_date', 'ASC']]
       : [['start_date', 'DESC']];
 
     // 執行查詢
@@ -113,7 +114,7 @@ export const getAllEvents = async (req, res) => {
 export const getEventById = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    
+
     const event = await Event.findByPk(id, {
       include: [
         {
@@ -191,12 +192,12 @@ export const getHistoricalEvents = async (req, res) => {
   try {
     const { keyword, tags, page = 1, limit = 10 } = req.query;
     const tagArray = tags ? tags.split(',') : [];
-    
+
     // 構建查詢條件
     const whereClause = {
       start_date: { [Op.lt]: new Date() } // 只獲取過去的活動
     };
-    
+
     const includeClause = [
       {
         model: EventSpeaker,
@@ -217,10 +218,14 @@ export const getHistoricalEvents = async (req, res) => {
       ];
     }
 
-    // 標籤篩選
+    // 標籤篩選 - 使用子查詢而不是 INNER JOIN
     if (tagArray.length > 0) {
-      includeClause[1].where = {
-        tag_name: { [Op.in]: tagArray }
+      whereClause.id = {
+        [Op.in]: sequelize.literal(`(
+          SELECT DISTINCT event_id
+          FROM event_tags
+          WHERE tag_name IN (${tagArray.map(() => '?').join(',')})
+        )`)
       };
     }
 
@@ -232,7 +237,10 @@ export const getHistoricalEvents = async (req, res) => {
       limit: parseInt(limit),
       offset: offset,
       order: [['start_date', 'DESC']],
-      distinct: true
+      distinct: true,
+      ...(tagArray.length > 0 && {
+        replacements: tagArray
+      })
     });
 
     // 轉換資料格式
@@ -258,9 +266,9 @@ export const getHistoricalEvents = async (req, res) => {
 export const getEventTags = async (req, res) => {
   try {
     const tags = await EventTag.findAll({
-      order: [['name', 'ASC']]
+      order: [['tag_name', 'ASC']]
     });
-    
+
     res.status(200).json({ tags });
   } catch (error) {
     console.error('Error in getEventTags:', error);

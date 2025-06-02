@@ -2,11 +2,11 @@ import bcrypt from 'bcryptjs';
 import { Op } from 'sequelize';
 import { User, Profile } from '../model/associations.js';
 import { transformUser } from '../utils/dataTransform.js';
-import { 
-  generateAccessToken, 
-  generateRefreshToken, 
+import {
+  generateAccessToken,
+  generateRefreshToken,
   verifyRefreshToken,
-  cookieOptions 
+  cookieOptions
 } from '../utils/jwt.js';
 
 class UserController {
@@ -77,7 +77,7 @@ class UserController {
       const { email, password } = req.body;
 
       // 尋找使用者並包含 profile
-      const user = await User.findOne({ 
+      const user = await User.findOne({
         where: { email },
         include: [{
           model: Profile,
@@ -118,9 +118,9 @@ class UserController {
       const refreshToken = generateRefreshToken(user);
 
       // 更新最後登入時間和 Refresh Token
-      await user.update({ 
+      await user.update({
         last_login: new Date(),
-        refresh_token: refreshToken 
+        refresh_token: refreshToken
       });
 
       // 設定 Cookie
@@ -174,10 +174,10 @@ class UserController {
 
       // 驗證 Refresh Token
       const decoded = verifyRefreshToken(refreshToken);
-      
+
       // 從資料庫查找使用者並檢查 Refresh Token
       const user = await User.findOne({
-        where: { 
+        where: {
           id: decoded.id,
           refresh_token: refreshToken
         }
@@ -249,16 +249,69 @@ class UserController {
     }
   }
 
+  // 檢查認證狀態 (用於前端狀態檢查)
+  async getAuthStatus(req, res) {
+    try {
+      if (!req.user) {
+        return res.json({
+          isAuthenticated: false,
+          user: null
+        });
+      }
+
+      // 重新從資料庫獲取完整的使用者資料
+      const user = await User.findByPk(req.user.id, {
+        attributes: { exclude: ['password', 'refresh_token'] },
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
+      });
+
+      if (!user || !user.is_active) {
+        return res.json({
+          isAuthenticated: false,
+          user: null
+        });
+      }
+
+      // 如果使用者沒有 profile，創建一個
+      if (!user.profile) {
+        await Profile.create({
+          user_id: user.id
+        });
+        // 重新載入使用者並包含 profile
+        await user.reload({
+          include: [{
+            model: Profile,
+            as: 'profile'
+          }]
+        });
+      }
+
+      res.json({
+        isAuthenticated: true,
+        user: transformUser(user)
+      });
+    } catch (error) {
+      console.error('檢查認證狀態錯誤:', error);
+      res.json({
+        isAuthenticated: false,
+        user: null
+      });
+    }
+  }
+
   // 更新使用者資料
   async updateProfile(req, res) {
     try {
-      const { 
-        name, 
-        avatarUrl, 
+      const {
+        name,
+        avatarUrl,
         bannerUrl,
-        bio, 
-        location, 
-        company, 
+        bio,
+        location,
+        company,
         website,
         phone,
         linkedinUrl,
@@ -287,7 +340,7 @@ class UserController {
       // 更新 User 表的基本資料
       const userUpdateData = {};
       if (name !== undefined) userUpdateData.name = name;
-      
+
       // 處理頭像，如果是 Base64 格式則保存為文件
       if (avatarUrl !== undefined) {
         if (isBase64Image(avatarUrl)) {
@@ -329,7 +382,7 @@ class UserController {
       if (linkedinUrl !== undefined) profileUpdateData.linkedin_url = linkedinUrl;
       if (githubUrl !== undefined) profileUpdateData.github_url = githubUrl;
       if (twitterUrl !== undefined) profileUpdateData.twitter_url = twitterUrl;
-      
+
       // 處理橫幅，如果是 Base64 格式則保存為文件
       if (bannerUrl !== undefined) {
         if (isBase64Image(bannerUrl)) {
@@ -343,7 +396,7 @@ class UserController {
           profileUpdateData.banner_url = bannerUrl;
         }
       }
-      
+
       if (skills !== undefined) profileUpdateData.skills = skills;
       if (interests !== undefined) profileUpdateData.interests = interests;
       if (education !== undefined) profileUpdateData.education = education;
@@ -410,54 +463,34 @@ class UserController {
       const avatarUrl = googleUser.photos?.[0]?.value;
       const googleId = googleUser.id;
 
-      // 尋找或創建使用者
-      let user = await User.findOne({ 
-        where: { 
-          [Op.or]: [
-            { google_id: googleId },
-            { email: email }
-          ]
-        }
+      // 僅允許已存在的 google_id 登入，不自動註冊新帳號
+      let user = await User.findOne({
+        where: { google_id: googleId },
+        include: [{ model: Profile, as: 'profile' }]
       });
 
       if (!user) {
-        // 創建新使用者
-        user = await User.create({
-          google_id: googleId,
-          email,
-          name,
-          password: await bcrypt.hash(Math.random().toString(36).substring(2, 15), 12), // 創建隨機密碼
-          avatar_url: avatarUrl,
-          role: 'member',
-          email_verified: true // Google 帳號視為已驗證
-        });
-        
-        // 創建對應的 Profile
-        await Profile.create({
-          user_id: user.id
-        });
-      } else {
-        // 更新現有使用者的 Google 資訊
-        await user.update({
-          google_id: googleId,
-          avatar_url: avatarUrl,
-          last_login: new Date()
-        });
+        // 阻止未註冊的 Google 帳號登入
+        const errorMessage = encodeURIComponent('此 Google 帳號尚未綁定，請先用本地帳號登入並在個人設定中綁定 Google。');
+        const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+
+        return res.redirect(`${clientUrl}/auth/error?type=google-not-linked&message=${errorMessage}`);
       }
+
+      // 更新現有使用者的 Google 資訊（如有需要）
+      await user.update({
+        avatar_url: avatarUrl,
+        last_login: new Date()
+      });
 
       // 生成 Token
       const accessToken = generateAccessToken(user);
       const refreshToken = generateRefreshToken(user);
-
-      // 儲存 Refresh Token
       await user.update({ refresh_token: refreshToken });
-      
+
       // 重新載入使用者資料，確保包含 profile 資訊
       user = await User.findByPk(user.id, {
-        include: [{
-          model: Profile,
-          as: 'profile'
-        }]
+        include: [{ model: Profile, as: 'profile' }]
       });
 
       // 設定 Cookie
@@ -469,9 +502,7 @@ class UserController {
 
       // 檢查是否是帳號連接請求 (從 session 中獲取)
       const isLinkRequest = req.session?.linkAccount === true;
-      
       if (isLinkRequest) {
-        // 如果是帳號連接請求，向視窗發送成功訊息，只傳回必要的 googleId
         res.send(`
           <html>
           <body>
@@ -489,17 +520,12 @@ class UserController {
           </html>
         `);
       } else {
-        // 否則重定向到前端，攜帶成功訊息
         res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?login=success`);
       }
     } catch (error) {
       console.error('Google 回調錯誤:', error);
-      
-      // 檢查是否是帳號連接請求
       const isLinkRequest = req.query.linkAccount === 'true';
-      
       if (isLinkRequest) {
-        // 如果是帳號連接請求，向視窗發送錯誤訊息
         res.send(`
           <html>
           <body>
@@ -517,7 +543,6 @@ class UserController {
           </html>
         `);
       } else {
-        // 否則重定向到前端，攜帶錯誤訊息
         res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?login=error`);
       }
     }
@@ -608,16 +633,16 @@ class UserController {
       }
 
       // 檢查該 Google ID 是否已被其他帳號使用
-      const existingGoogleUser = await User.findOne({ 
-        where: { 
+      const existingGoogleUser = await User.findOne({
+        where: {
           google_id: googleId,
           id: { [Op.ne]: userId } // 排除當前使用者
-        } 
+        }
       });
-      
+
       if (existingGoogleUser) {
-        return res.status(400).json({ 
-          message: '此 Google 帳號已被其他使用者綁定' 
+        return res.status(400).json({
+          message: '此 Google 帳號已被其他使用者綁定'
         });
       }
 
@@ -654,8 +679,8 @@ class UserController {
 
       // 檢查使用者是否有設定密碼
       if (!user.password) {
-        return res.status(400).json({ 
-          message: '請先設定密碼後再取消 Google 帳號連接' 
+        return res.status(400).json({
+          message: '請先設定密碼後再取消 Google 帳號連接'
         });
       }
 

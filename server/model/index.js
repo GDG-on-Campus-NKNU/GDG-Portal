@@ -14,7 +14,7 @@ const defineAssociations = () => {
   // User 和 CoreTeam 的關聯
   User.hasOne(CoreTeam, {
     foreignKey: 'user_id',
-    as: 'coreTeamProfile',
+    as: 'coreTeam', // 修改別名，避免與其他關聯衝突
     onDelete: 'SET NULL', // 使用者被刪除時，保留 CoreTeam 記錄但清除關聯
     onUpdate: 'CASCADE'
   });
@@ -27,14 +27,14 @@ const defineAssociations = () => {
   });
 
   // CoreTeam 和 Category 的多對多關聯
-  CoreTeam.belongsToMany(Category, { 
+  CoreTeam.belongsToMany(Category, {
     through: CoreTeamCategory,
     foreignKey: 'member_id',
     otherKey: 'category_id',
     as: 'categories'
   });
-  
-  Category.belongsToMany(CoreTeam, { 
+
+  Category.belongsToMany(CoreTeam, {
     through: CoreTeamCategory,
     foreignKey: 'category_id',
     otherKey: 'member_id',
@@ -42,43 +42,40 @@ const defineAssociations = () => {
   });
 
   // Event 關聯
-  Event.hasMany(EventSpeaker, { 
+  Event.hasMany(EventSpeaker, {
     foreignKey: 'event_id',
     as: 'speakers',
     onDelete: 'CASCADE'
   });
-  
-  EventSpeaker.belongsTo(Event, { 
+
+  EventSpeaker.belongsTo(Event, {
     foreignKey: 'event_id',
     as: 'event'
   });
 
-  Event.belongsToMany(EventTag, { 
-    through: 'event_tag_relationships',
+  Event.hasMany(EventTag, {
     foreignKey: 'event_id',
-    otherKey: 'tag_id',
-    as: 'eventTags'
-  });
-  
-  EventTag.belongsToMany(Event, { 
-    through: 'event_tag_relationships',
-    foreignKey: 'tag_id',
-    otherKey: 'event_id',
-    as: 'events'
+    as: 'eventTags',
+    onDelete: 'CASCADE'
   });
 
-  Event.hasMany(EventRegistration, { 
+  EventTag.belongsTo(Event, {
+    foreignKey: 'event_id',
+    as: 'event'
+  });
+
+  Event.hasMany(EventRegistration, {
     foreignKey: 'event_id',
     as: 'registrations',
     onDelete: 'CASCADE'
   });
-  
-  EventRegistration.belongsTo(Event, { 
+
+  EventRegistration.belongsTo(Event, {
     foreignKey: 'event_id',
     as: 'event'
   });
 
-  EventRegistration.belongsTo(User, { 
+  EventRegistration.belongsTo(User, {
     foreignKey: 'user_id',
     as: 'user'
   });
@@ -88,28 +85,28 @@ const defineAssociations = () => {
   // Announcement.hasMany(AnnouncementTag, { foreignKey: 'announcement_id', as: 'tags' })
 
   // Gallery 關聯
-  Gallery.belongsTo(Event, { 
+  Gallery.belongsTo(Event, {
     foreignKey: 'event_id',
     as: 'event'
   });
-  
-  Event.hasMany(Gallery, { 
+
+  Event.hasMany(Gallery, {
     foreignKey: 'event_id',
     as: 'galleries'
   });
 
-  Gallery.belongsTo(User, { 
+  Gallery.belongsTo(User, {
     foreignKey: 'created_by',
     as: 'creator'
   });
 
   // User 關聯
-  User.hasMany(EventRegistration, { 
+  User.hasMany(EventRegistration, {
     foreignKey: 'user_id',
     as: 'registrations'
   });
 
-  User.hasMany(Gallery, { 
+  User.hasMany(Gallery, {
     foreignKey: 'created_by',
     as: 'galleries'
   });
@@ -121,21 +118,21 @@ const initializeDatabase = async () => {
     // 先驗證連接
     await sequelize.authenticate();
     console.log('資料庫連接成功');
-    
+
     // 先同步 User 模型，確保基本表格結構正確
     await User.sync({ force: false });
     console.log('User 模型同步完成');
-    
+
     // 定義關聯
     defineAssociations();
-    
+
     // 同步模型（開發環境）
     if (process.env.NODE_ENV === 'development') {
       // 避免索引過多問題，改用單純 sync 而非 alter
       await sequelize.sync({ force: false });
       console.log('資料庫模型同步完成');
     }
-    
+
     return true;
   } catch (error) {
     console.error('資料庫初始化失敗:', error);

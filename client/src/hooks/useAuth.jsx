@@ -1,13 +1,13 @@
 import { useState, useEffect, useContext, createContext } from 'react';
-import { 
-  mockUsers, 
-  mockRoles, 
-  getCurrentUser, 
-  setCurrentUser, 
-  validateCredentials, 
-  hasPermission, 
-  hasRole, 
-  simulateApiDelay 
+import {
+  mockUsers,
+  mockRoles,
+  getCurrentUser,
+  setCurrentUser,
+  validateCredentials,
+  hasPermission,
+  hasRole,
+  simulateApiDelay
 } from '../data/mockData';
 
 // 是否使用假資料模式 (開發時設為 false，使用真實API)
@@ -64,7 +64,7 @@ export function AuthProvider({ children }) {
         const response = await fetch('/api/auth/status', {
           credentials: 'include'
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.isAuthenticated && data.user) {
@@ -86,7 +86,7 @@ export function AuthProvider({ children }) {
       if (USE_MOCK_DATA) {
         // 使用假資料模式
         await simulateApiDelay(800);
-        
+
         const validUser = validateCredentials(email, password);
         if (validUser) {
           const userWithLastLogin = {
@@ -133,13 +133,13 @@ export function AuthProvider({ children }) {
       if (USE_MOCK_DATA) {
         // 使用假資料模式
         await simulateApiDelay(1000);
-        
+
         // 檢查電子郵件是否已存在
         const existingUser = Object.values(mockUsers).find(u => u.email === email);
         if (existingUser) {
           return { success: false, message: '此電子郵件已被註冊' };
         }
-        
+
         // 創建新使用者
         const newUser = {
           id: `user_${Date.now()}`,
@@ -160,7 +160,7 @@ export function AuthProvider({ children }) {
           },
           lastLogin: new Date().toISOString()
         };
-        
+
         setCurrentUser(newUser);
         setUser(newUser);
         setIsAuthenticated(true);
@@ -220,11 +220,11 @@ export function AuthProvider({ children }) {
       if (USE_MOCK_DATA) {
         // 使用假資料模式
         await simulateApiDelay(600);
-        
+
         if (!user) {
           return { success: false, message: '使用者未登入' };
         }
-        
+
         const updatedUser = {
           ...user,
           ...profileData,
@@ -234,7 +234,7 @@ export function AuthProvider({ children }) {
           },
           ...(profileData.avatarUrl !== undefined && { avatarUrl: profileData.avatarUrl })
         };
-        
+
         setCurrentUser(updatedUser);
         setUser(updatedUser);
         return { success: true, message: '個人資料更新成功' };
@@ -370,7 +370,7 @@ export function AuthProvider({ children }) {
     } else {
       // 原本的角色層級檢查邏輯
       if (!user) return false;
-      
+
       const roleHierarchy = {
         guest: 0,
         member: 1,
@@ -398,10 +398,10 @@ export function AuthProvider({ children }) {
 
   const hasPermission = (permission) => {
     if (!user) return false;
-    
+
     // 管理員擁有所有權限
     if (user.role === 'admin') return true;
-    
+
     // 根據角色定義權限
     const permissions = {
       member: ['view_member_content', 'register_events'],
@@ -416,7 +416,7 @@ export function AuthProvider({ children }) {
     user,
     loading,
     isAuthenticated,
-    
+
     // 方法
     login,
     register,
@@ -427,23 +427,21 @@ export function AuthProvider({ children }) {
     checkAuthStatus,
     linkGoogleAccount,
     unlinkGoogleAccount,
-    
-    // 權限檢查 (使用新的函數名稱避免衝突)
+      // 權限檢查 (使用新的函數名稱避免衝突)
     hasRole: hasUserRole,
     hasPermission: hasUserPermission,
-    
+
     // 額外的便利方法
     isAdmin: () => hasUserRole('admin'),
     isCoreTeam: () => hasUserRole('core') || hasUserRole('admin'),
     isMember: () => hasUserRole('member') || hasUserRole('core') || hasUserRole('admin'),
-    
+
     // 快速權限檢查
     canManageUsers: () => hasUserPermission('manage_users'),
     canManageEvents: () => hasUserPermission('manage_events'),
     canManageAnnouncements: () => hasUserPermission('manage_announcements'),
     canWrite: () => hasUserPermission('write'),
-    canDelete: () => hasUserPermission('delete'),
-    hasPermission
+    canDelete: () => hasUserPermission('delete')
   };
 
   return (

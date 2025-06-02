@@ -10,6 +10,7 @@ import CoreTeamPage from './pages/CoreTeamPage'
 import CoreTeamDetailPage from './pages/CoreTeamDetailPage'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
+import AuthErrorPage from './pages/AuthErrorPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import TestDataPage from './pages/TestDataPage'
 import ProtectedRoute, { RoleProtectedRoute, MemberRoute, CoreTeamRoute, AdminRoute } from './pages/ProtectedRoute'
@@ -26,18 +27,18 @@ import { useSearchParams } from 'react-router-dom'
 function GoogleLoginHandler() {
   const { checkAuthStatus } = useAuth();
   const [searchParams] = useSearchParams();
-  
+
   useEffect(() => {
     // 檢測 URL 參數中的 login=success
     if (searchParams.get('login') === 'success') {
       // Google 登入成功，刷新認證狀態
       checkAuthStatus();
-      
+
       // 清除 URL 參數
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [searchParams, checkAuthStatus]);
-  
+
   return null;
 }
 
@@ -54,7 +55,7 @@ function App() {
           <div className="App min-h-screen">
             {/* 處理 Google 登入重定向 */}
             <GoogleLoginHandler />
-            
+
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={
@@ -111,10 +112,14 @@ function App() {
                   <PageTransition>
                     <LoginPage />
                   </PageTransition>
-                } />
-                <Route path="/register" element={
+                } />                <Route path="/register" element={
                   <PageTransition>
                     <RegisterPage />
+                  </PageTransition>
+                } />
+                <Route path="/auth/error" element={
+                  <PageTransition>
+                    <AuthErrorPage />
                   </PageTransition>
                 } />
                 <Route path="/dashboard" element={
@@ -138,8 +143,8 @@ function App() {
                         <div className="text-6xl">😢</div>
                         <h1 className="text-2xl font-bold text-slate-800">找不到頁面</h1>
                         <p className="text-slate-600">您訪問的頁面不存在</p>
-                        <a 
-                          href="/" 
+                        <a
+                          href="/"
                           className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-shadow"
                         >
                           返回首頁
@@ -150,7 +155,7 @@ function App() {
                 } />
               </Routes>
             </AnimatePresence>
-            
+
             {/* 開發模式快速登入工具 */}
             <DevQuickLogin />
           </div>

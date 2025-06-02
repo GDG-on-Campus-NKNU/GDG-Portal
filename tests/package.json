@@ -12,11 +12,16 @@
     "server:mock": "node test-server.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "gdg-portal-tests": "file:"
   },
-  "devDependencies": {},
-  "keywords": ["testing", "gdg", "portal", "api"],
+  "keywords": [
+    "testing",
+    "gdg",
+    "portal",
+    "api"
+  ],
   "author": "GDG Portal Team",
   "license": "MIT"
 }
