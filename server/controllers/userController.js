@@ -472,9 +472,21 @@ class UserController {
       if (!user) {
         // 阻止未註冊的 Google 帳號登入
         const errorMessage = encodeURIComponent('此 Google 帳號尚未綁定，請先用本地帳號登入並在個人設定中綁定 Google。');
-        const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 
-        return res.redirect(`${clientUrl}/auth/error?type=google-not-linked&message=${errorMessage}`);
+        // 使用JavaScript重定向，無需硬編碼URL
+        return res.send(`
+          <html>
+          <body>
+            <script>
+              window.location.href = window.location.origin + '/auth/error?type=google-not-linked&message=${errorMessage}';
+            </script>
+            <div style="text-align: center; font-family: sans-serif; padding: 20px;">
+              <h3>Google 帳號未綁定</h3>
+              <p>正在重定向到錯誤頁面...</p>
+            </div>
+          </body>
+          </html>
+        `);
       }
 
       // 更新現有使用者的 Google 資訊（如有需要）
@@ -502,6 +514,7 @@ class UserController {
 
       // 檢查是否是帳號連接請求 (從 session 中獲取)
       const isLinkRequest = req.session?.linkAccount === true;
+
       if (isLinkRequest) {
         res.send(`
           <html>
@@ -511,6 +524,7 @@ class UserController {
                 type: 'google-oauth-success',
                 googleId: '${googleId}'
               }, window.location.origin);
+              window.close();
             </script>
             <div style="text-align: center; font-family: sans-serif; padding: 20px;">
               <h3>Google 帳號驗證成功</h3>
@@ -520,11 +534,26 @@ class UserController {
           </html>
         `);
       } else {
-        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?login=success`);
+        // 使用JavaScript重定向，無需硬編碼URL
+        res.send(`
+          <html>
+          <body>
+            <script>
+              // 使用JavaScript重定向，自動適應當前域名
+              window.location.href = window.location.origin + '/?login=success';
+            </script>
+            <div style="text-align: center; font-family: sans-serif; padding: 20px;">
+              <h3>Google 登入成功</h3>
+              <p>正在重定向...</p>
+            </div>
+          </body>
+          </html>
+        `);
       }
     } catch (error) {
       console.error('Google 回調錯誤:', error);
       const isLinkRequest = req.query.linkAccount === 'true';
+
       if (isLinkRequest) {
         res.send(`
           <html>
@@ -534,6 +563,7 @@ class UserController {
                 type: 'google-oauth-error',
                 error: 'Google 驗證失敗'
               }, window.location.origin);
+              window.close();
             </script>
             <div style="text-align: center; font-family: sans-serif; padding: 20px;">
               <h3>Google 帳號驗證失敗</h3>
@@ -543,7 +573,20 @@ class UserController {
           </html>
         `);
       } else {
-        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?login=error`);
+        // 使用JavaScript重定向，無需硬編碼URL
+        res.send(`
+          <html>
+          <body>
+            <script>
+              window.location.href = window.location.origin + '/?login=error';
+            </script>
+            <div style="text-align: center; font-family: sans-serif; padding: 20px;">
+              <h3>Google 登入失敗</h3>
+              <p>正在重定向...</p>
+            </div>
+          </body>
+          </html>
+        `);
       }
     }
   }

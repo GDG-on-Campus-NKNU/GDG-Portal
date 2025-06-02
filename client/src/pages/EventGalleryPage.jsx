@@ -111,8 +111,8 @@ export default function EventGalleryPage() {
   const eventTypes = stats.eventTypes?.length > 0 ? stats.eventTypes : galleryData.eventTypes;
   const years = stats.years?.length > 0 ? stats.years : galleryData.years;
   // 優先使用統計API的總圖片數，如果沒有則使用 useGalleryData 的值，最後才使用 JSON fallback
-  const displayTotalImages = stats.totalImages > 0 ? stats.totalImages : 
-    (totalImages > 0 ? totalImages : 
+  const displayTotalImages = stats.totalImages > 0 ? stats.totalImages :
+    (totalImages > 0 ? totalImages :
     (galleryData.galleries?.reduce((sum, gallery) => sum + gallery.imageCount, 0) || 0));
 
   return (
