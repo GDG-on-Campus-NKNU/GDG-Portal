@@ -2,6 +2,7 @@ import Gallery from '../model/galleryModel.js';
 import { Event } from '../model/eventModel.js';
 import { Op } from 'sequelize';
 import { transformGallery } from '../utils/dataTransform.js';
+import { saveBase64Image } from '../utils/imageHandler.js';
 
 // 獲取所有照片集
 export const getAllGalleries = async (req, res) => {
@@ -172,12 +173,36 @@ export const createGallery = async (req, res) => {
       is_featured 
     } = req.body;
 
+    // 處理 Base64 封面圖片
+    let coverImagePath = cover_image_url;
+    if (cover_image_url && cover_image_url.startsWith('data:image')) {
+      coverImagePath = await saveBase64Image(cover_image_url, 'gallery');
+      if (!coverImagePath) {
+        return res.status(400).json({ message: '封面圖片處理失敗' });
+      }
+    }
+
+    // 處理 Base64 圖庫圖片
+    let processedImages = [];
+    if (Array.isArray(image_urls) && image_urls.length > 0) {
+      for (const img of image_urls) {
+        if (img && img.startsWith('data:image')) {
+          const imgUrl = await saveBase64Image(img, 'gallery');
+          if (imgUrl) {
+            processedImages.push(imgUrl);
+          }
+        } else {
+          processedImages.push(img);
+        }
+      }
+    }
+
     // 創建照片集
     const gallery = await Gallery.create({
       title,
       description,
-      cover_image: cover_image_url,
-      images: Array.isArray(image_urls) ? image_urls : [],
+      cover_image: coverImagePath,
+      images: processedImages.length > 0 ? processedImages : (Array.isArray(image_urls) ? image_urls : []),
       photographer,
       date_taken: photo_date ? new Date(photo_date) : new Date(),
       event_id: event_id ? parseInt(event_id) : null,
@@ -236,10 +261,40 @@ export const updateGallery = async (req, res) => {
       updated_at: new Date()
     };
 
+    // 處理 Base64 封面圖片
+    if (cover_image_url !== undefined) {
+      let coverImagePath = cover_image_url;
+      if (cover_image_url && cover_image_url.startsWith('data:image')) {
+        coverImagePath = await saveBase64Image(cover_image_url, 'gallery');
+        if (!coverImagePath) {
+          return res.status(400).json({ message: '封面圖片處理失敗' });
+        }
+      }
+      updateData.cover_image = coverImagePath;
+    }
+
+    // 處理 Base64 圖庫圖片
+    if (image_urls !== undefined) {
+      let processedImages = [];
+      if (Array.isArray(image_urls) && image_urls.length > 0) {
+        for (const img of image_urls) {
+          if (img && img.startsWith('data:image')) {
+            const imgUrl = await saveBase64Image(img, 'gallery');
+            if (imgUrl) {
+              processedImages.push(imgUrl);
+            }
+          } else {
+            processedImages.push(img);
+          }
+        }
+        updateData.images = processedImages;
+      } else {
+        updateData.images = [];
+      }
+    }
+
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
-    if (cover_image_url !== undefined) updateData.cover_image = cover_image_url;
-    if (image_urls !== undefined) updateData.images = Array.isArray(image_urls) ? image_urls : [];
     if (photographer !== undefined) updateData.photographer = photographer;
     if (photo_date !== undefined) updateData.date_taken = new Date(photo_date);
     if (event_id !== undefined) updateData.event_id = event_id ? parseInt(event_id) : null;

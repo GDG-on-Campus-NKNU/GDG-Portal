@@ -1,6 +1,7 @@
 import { Event, EventSpeaker, EventTag, EventRegistration } from '../model/eventModel.js';
 import { Op, literal } from 'sequelize';
 import { transformEvent } from '../utils/dataTransform.js';
+import { saveBase64Image } from '../utils/imageHandler.js';
 
 // 獲取所有活動
 export const getAllEvents = async (req, res) => {
@@ -279,9 +280,19 @@ export const createEvent = async (req, res) => {
       location,
       max_attendees,
       registration_url,
+      cover_image,
       speakers = [],
       tags = []
     } = req.body;
+
+    // 處理 Base64 圖片
+    let imageUrl = null;
+    if (cover_image) {
+      imageUrl = await saveBase64Image(cover_image, 'event');
+      if (!imageUrl) {
+        return res.status(400).json({ message: '圖片處理失敗' });
+      }
+    }
 
     // 創建活動
     const event = await Event.create({
@@ -293,6 +304,7 @@ export const createEvent = async (req, res) => {
       location,
       max_attendees,
       registration_url,
+      cover_image: imageUrl,
       created_by: req.user.id, // 來自 JWT 認證
     });
 
@@ -339,12 +351,26 @@ export const createEvent = async (req, res) => {
 export const updateEvent = async (req, res) => {
   try {
     const eventId = parseInt(req.params.id);
-    const updateData = req.body;
+    const updateData = { ...req.body };
+    const { cover_image } = req.body;
 
     // 檢查活動是否存在
     const event = await Event.findByPk(eventId);
     if (!event) {
       return res.status(404).json({ message: '活動不存在' });
+    }
+
+    // 處理 Base64 圖片
+    if (cover_image) {
+      // 如果 cover_image 與資料庫中不同（表示是新上傳的 Base64 圖片），則處理並更新
+      if (cover_image !== event.cover_image) {
+        const imageUrl = await saveBase64Image(cover_image, 'event');
+        if (imageUrl) {
+          updateData.cover_image = imageUrl;
+        } else {
+          return res.status(400).json({ message: '圖片處理失敗' });
+        }
+      }
     }
 
     // 更新活動基本資料

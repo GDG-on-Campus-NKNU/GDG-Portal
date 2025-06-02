@@ -44,7 +44,8 @@ if (process.env.NODE_ENV === 'development') {
 // 重要：cookie-parser 必須在路由之前設定
 app.use(cookieParser());
 app.use(express.static('public'));
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes); // 活動路由

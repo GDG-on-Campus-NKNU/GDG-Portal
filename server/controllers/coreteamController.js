@@ -2,6 +2,7 @@ import { CoreTeam, Category, CoreTeamCategory } from '../model/coreteamModel.js'
 import { User } from '../model/index.js'; // 導入 User 模型以建立關聯
 import { Op } from 'sequelize';
 import { transformCoreTeamMember } from '../utils/dataTransform.js';
+import { saveBase64Image } from '../utils/imageHandler.js';
 
 // 獲取所有幹部
 export const getAllMembers = async (req, res) => {
@@ -177,12 +178,38 @@ export const createMember = async (req, res) => {
       }
     }
 
+    // 處理 Base64 圖片
+    let photoUrl = photo;
+    if (photo && photo.startsWith('data:image')) {
+      photoUrl = await saveBase64Image(photo, 'coreteam');
+      if (!photoUrl) {
+        return res.status(400).json({ message: '圖片處理失敗' });
+      }
+    }
+
+    // 處理額外圖片的 Base64
+    let processedAdditionalPhotos = additional_photos || [];
+    if (additional_photos && Array.isArray(additional_photos)) {
+      const processedPhotos = [];
+      for (const img of additional_photos) {
+        if (img && img.startsWith('data:image')) {
+          const imgUrl = await saveBase64Image(img, 'coreteam');
+          if (imgUrl) {
+            processedPhotos.push(imgUrl);
+          }
+        } else {
+          processedPhotos.push(img);
+        }
+      }
+      processedAdditionalPhotos = processedPhotos;
+    }
+    
     // 創建幹部
     const member = await CoreTeam.create({
       user_id: user_id || null,
       name,
       title,
-      photo,
+      photo: photoUrl,
       department,
       year,
       skills: skills || [],
@@ -191,7 +218,7 @@ export const createMember = async (req, res) => {
       achievements: achievements || [],
       contact_email,
       social_links: social_links || {},
-      additional_photos: additional_photos || [],
+      additional_photos: processedAdditionalPhotos,
       sort_order: sort_order || 0
     });
 
@@ -290,10 +317,36 @@ export const updateMember = async (req, res) => {
     // 更新幹部基本資料
     const updateData = {};
 
+    // 處理 Base64 圖片
+    let photoUrl = photo;
+    if (photo !== undefined && photo && photo.startsWith('data:image')) {
+      photoUrl = await saveBase64Image(photo, 'coreteam');
+      if (!photoUrl) {
+        return res.status(400).json({ message: '圖片處理失敗' });
+      }
+    }
+
+    // 處理額外圖片的 Base64
+    let processedAdditionalPhotos = additional_photos;
+    if (additional_photos !== undefined && Array.isArray(additional_photos)) {
+      const processedPhotos = [];
+      for (const img of additional_photos) {
+        if (img && img.startsWith('data:image')) {
+          const imgUrl = await saveBase64Image(img, 'coreteam');
+          if (imgUrl) {
+            processedPhotos.push(imgUrl);
+          }
+        } else {
+          processedPhotos.push(img);
+        }
+      }
+      processedAdditionalPhotos = processedPhotos;
+    }
+
     if (user_id !== undefined) updateData.user_id = user_id;
     if (name !== undefined) updateData.name = name;
     if (title !== undefined) updateData.title = title;
-    if (photo !== undefined) updateData.photo = photo;
+    if (photo !== undefined) updateData.photo = photoUrl;
     if (department !== undefined) updateData.department = department;
     if (year !== undefined) updateData.year = year;
     if (skills !== undefined) updateData.skills = skills;
@@ -302,7 +355,7 @@ export const updateMember = async (req, res) => {
     if (achievements !== undefined) updateData.achievements = achievements;
     if (contact_email !== undefined) updateData.contact_email = contact_email;
     if (social_links !== undefined) updateData.social_links = social_links;
-    if (additional_photos !== undefined) updateData.additional_photos = additional_photos;
+    if (additional_photos !== undefined) updateData.additional_photos = processedAdditionalPhotos;
     if (sort_order !== undefined) updateData.sort_order = sort_order;
 
     await member.update(updateData);

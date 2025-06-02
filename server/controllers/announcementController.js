@@ -1,6 +1,7 @@
 import { Announcement, AnnouncementTag } from '../model/announcementModel.js';
 import { transformAnnouncement } from '../utils/dataTransform.js';
 import { Op } from 'sequelize';
+import { saveBase64Image } from '../utils/imageHandler.js';
 
 // 獲取所有公告
 export const getAllAnnouncements = async (req, res) => {
@@ -133,12 +134,22 @@ export const getAnnouncementById = async (req, res) => {
 // 創建新公告
 export const createAnnouncement = async (req, res) => {
   try {
-    const { title, content, is_pinned, tags } = req.body;
+    const { title, content, is_pinned, tags, cover_image } = req.body;
+
+    // 處理 Base64 圖片
+    let imageUrl = null;
+    if (cover_image) {
+      imageUrl = await saveBase64Image(cover_image, 'announcement');
+      if (!imageUrl) {
+        return res.status(400).json({ message: '圖片處理失敗' });
+      }
+    }
 
     // 創建公告
     const announcement = await Announcement.create({
       title,
       content,
+      cover_image: imageUrl,
       is_pinned: is_pinned || false,
       created_at: new Date(),
       updated_at: new Date()
@@ -185,7 +196,7 @@ export const createAnnouncement = async (req, res) => {
 export const updateAnnouncement = async (req, res) => {
   try {
     const announcementId = parseInt(req.params.id);
-    const { title, content, is_pinned, tags } = req.body;
+    const { title, content, is_pinned, tags, cover_image } = req.body;
 
     // 查找公告
     const announcement = await Announcement.findByPk(announcementId);
@@ -197,6 +208,19 @@ export const updateAnnouncement = async (req, res) => {
     const updateData = {
       updated_at: new Date()
     };
+
+    // 處理 Base64 圖片
+    if (cover_image) {
+      // 如果 cover_image 與資料庫中不同（表示是新上傳的 Base64 圖片），則處理並更新
+      if (cover_image !== announcement.cover_image) {
+        const imageUrl = await saveBase64Image(cover_image, 'announcement');
+        if (imageUrl) {
+          updateData.cover_image = imageUrl;
+        } else {
+          return res.status(400).json({ message: '圖片處理失敗' });
+        }
+      }
+    }
 
     if (title !== undefined) updateData.title = title;
     if (content !== undefined) updateData.content = content;
