@@ -426,9 +426,15 @@ class UserController {
           google_id: googleId,
           email,
           name,
+          password: await bcrypt.hash(Math.random().toString(36).substring(2, 15), 12), // 創建隨機密碼
           avatar_url: avatarUrl,
           role: 'member',
           email_verified: true // Google 帳號視為已驗證
+        });
+        
+        // 創建對應的 Profile
+        await Profile.create({
+          user_id: user.id
         });
       } else {
         // 更新現有使用者的 Google 資訊
@@ -445,6 +451,14 @@ class UserController {
 
       // 儲存 Refresh Token
       await user.update({ refresh_token: refreshToken });
+      
+      // 重新載入使用者資料，確保包含 profile 資訊
+      user = await User.findByPk(user.id, {
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
+      });
 
       // 設定 Cookie
       res.cookie('accessToken', accessToken, {

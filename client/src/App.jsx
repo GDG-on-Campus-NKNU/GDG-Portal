@@ -13,12 +13,33 @@ import RegisterPage from './pages/auth/RegisterPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import TestDataPage from './pages/TestDataPage'
 import ProtectedRoute, { RoleProtectedRoute, MemberRoute, CoreTeamRoute, AdminRoute } from './pages/ProtectedRoute'
-import { AuthProvider } from './hooks/useAuth'
+import { AuthProvider, useAuth } from './hooks/useAuth'
 import { ScrollEffects, CursorEffect, PageTransition } from './components/general'
 import { usePageShow } from './hooks/usePageShow'
 import EventGalleryPage from './pages/EventGalleryPage'
 import UserProfilePage from './pages/UserProfilePage'
 import { default as DevQuickLogin } from './components/DevQuickLogin'
+import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
+// 檢測 Google 登入重定向的組件
+function GoogleLoginHandler() {
+  const { checkAuthStatus } = useAuth();
+  const [searchParams] = useSearchParams();
+  
+  useEffect(() => {
+    // 檢測 URL 參數中的 login=success
+    if (searchParams.get('login') === 'success') {
+      // Google 登入成功，刷新認證狀態
+      checkAuthStatus();
+      
+      // 清除 URL 參數
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [searchParams, checkAuthStatus]);
+  
+  return null;
+}
 
 function App() {
   usePageShow(() => {
@@ -31,6 +52,9 @@ function App() {
         <ScrollEffects>
           <CursorEffect />
           <div className="App min-h-screen">
+            {/* 處理 Google 登入重定向 */}
+            <GoogleLoginHandler />
+            
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={

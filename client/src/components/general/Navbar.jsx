@@ -150,9 +150,23 @@ export default function Navbar() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {user.name ? user.name[0].toUpperCase() : 'U'}
-                  </div>
+                  {user.avatarUrl ? (
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+                      <img 
+                        src={user.avatarUrl} 
+                        alt={`${user.name}'s avatar`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "/assets/default-avatar.jpg";
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                      {user.name ? user.name[0].toUpperCase() : 'U'}
+                    </div>
+                  )}
                   <span className="text-slate-700 font-medium max-w-20 truncate">
                     {user.name || '使用者'}
                   </span>
@@ -409,9 +423,23 @@ export default function Navbar() {
                 // 已登入使用者資訊
                 <div className="pt-4 mt-4 border-t border-slate-100/50">
                   <div className="flex items-center space-x-3 px-4 py-3 bg-gradient-to-r from-green-50/50 to-blue-50/50 rounded-xl mb-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                      {user.name ? user.name[0].toUpperCase() : 'U'}
-                    </div>
+                    {user.avatarUrl ? (
+                      <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+                        <img 
+                          src={user.avatarUrl} 
+                          alt={`${user.name}'s avatar`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/assets/default-avatar.jpg";
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                        {user.name ? user.name[0].toUpperCase() : 'U'}
+                      </div>
+                    )}
                     <div className="flex-1">
                       <div className="text-sm font-semibold text-slate-800">{user.name}</div>
                       <div className="text-xs text-slate-500 truncate">{user.email}</div>
