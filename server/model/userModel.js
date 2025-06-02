@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op } from 'sequelize';
 import sequelize from '../config/database.js';
 
 const User = sequelize.define('User', {
@@ -9,16 +9,16 @@ const User = sequelize.define('User', {
   },
   google_id: {
     type: DataTypes.STRING(255),
-    unique: true,
-    allowNull: true
+    allowNull: true,
+    // 不使用單獨的 unique 索引，後續通過聯合索引處理
   },
   email: {
     type: DataTypes.STRING(255),
-    unique: true,
     allowNull: false,
     validate: {
       isEmail: true
     }
+    // 不使用單獨的 unique 索引，後續通過聯合索引處理
   },
   password: {
     type: DataTypes.STRING(255),
@@ -56,7 +56,30 @@ const User = sequelize.define('User', {
   tableName: 'users',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at'
+  updatedAt: 'updated_at',
+  indexes: [
+    // 為 email 和 google_id 分別添加索引，確保唯一性
+    {
+      unique: true,
+      fields: ['email'],
+      // 僅當 email 不為 null 時添加 unique 約束
+      where: {
+        email: {
+          [Op.ne]: null
+        }
+      }
+    },
+    {
+      unique: true,
+      fields: ['google_id'],
+      // 僅當 google_id 不為 null 時添加 unique 約束
+      where: {
+        google_id: {
+          [Op.ne]: null
+        }
+      }
+    }
+  ]
 });
 
 export default User;
