@@ -104,7 +104,21 @@ export const getCategoryOptions = async (req, res) => {
       order: [['name', 'ASC']]
     });
     
-    res.status(200).json({ categories });
+    // 轉換為前端需要的格式 { label, value }
+    const categoryMap = {
+      'core': '核心幹部',
+      'tech': '技術教學',
+      'pr': '公關行銷',
+      'design': '美術設計',
+      'affairs': '總務攝影'
+    };
+    
+    const formattedCategories = categories.map(cat => ({
+      label: categoryMap[cat.name] || cat.name,
+      value: cat.name
+    }));
+    
+    res.status(200).json({ categories: formattedCategories });
   } catch (error) {
     console.error('Error in getCategoryOptions:', error);
     res.status(500).json({ message: '獲取分類選項失敗', error: error.message });

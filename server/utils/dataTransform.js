@@ -140,26 +140,35 @@ export const transformUser = (user) => {
     name: userData.name,
     email: userData.email,
     role: userData.role,
-    avatar: userData.avatar,
-    department: userData.department,
-    year: userData.year,
-    studentId: userData.student_id,
-    bio: userData.bio,
-    skills: userData.skills || [],
-    socialLinks: userData.social_links || {},
-    isActive: userData.is_active,
-    emailVerified: userData.email_verified,
-    lastLoginAt: userData.last_login_at,
+    avatarUrl: userData.avatar_url,        // snake_case -> camelCase
+    googleId: userData.google_id,          // snake_case -> camelCase
+    isActive: userData.is_active,          // snake_case -> camelCase
+    emailVerified: userData.email_verified, // snake_case -> camelCase
+    lastLogin: userData.last_login,        // snake_case -> camelCase
     
-    // 關聯資料
-    registrations: userData.registrations || [],
-    galleries: userData.galleries || [],
+    // Profile 資料 (如果存在)
+    bio: userData.profile?.bio || null,
+    location: userData.profile?.location || null,
+    company: userData.profile?.company || null,
+    website: userData.profile?.website || null,
+    phone: userData.profile?.phone || null,
+    linkedinUrl: userData.profile?.linkedin_url || null,
+    githubUrl: userData.profile?.github_url || null,
+    twitterUrl: userData.profile?.twitter_url || null,
+    skills: userData.profile?.skills || [],
+    interests: userData.profile?.interests || [],
+    education: userData.profile?.education || [],
+    experience: userData.profile?.experience || [],
     
     // 時間戳
     createdAt: userData.created_at,
     updatedAt: userData.updated_at,
     
+    // Profile 時間戳 (如果存在)
+    profileCreatedAt: userData.profile?.created_at || null,
+    profileUpdatedAt: userData.profile?.updated_at || null,
+    
     // 隱藏敏感資訊
-    // password 和 refreshToken 不應該回傳到前端
+    // password 和 refresh_token 不應該回傳到前端
   };
 };

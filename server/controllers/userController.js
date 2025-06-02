@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
-import User from '../model/userModel.js';
+import { Op } from 'sequelize';
+import { User, Profile } from '../model/associations.js';
 import { transformUser } from '../utils/dataTransform.js';
 import { 
   generateAccessToken, 
@@ -29,7 +30,12 @@ class UserController {
         email,
         password: hashedPassword,
         role: 'member',
-        emailVerified: false
+        email_verified: false
+      });
+
+      // 創建空的 Profile
+      await Profile.create({
+        user_id: user.id
       });
 
       // 生成 Token
@@ -37,7 +43,15 @@ class UserController {
       const refreshToken = generateRefreshToken(user);
 
       // 儲存 Refresh Token
-      await user.update({ refreshToken });
+      await user.update({ refresh_token: refreshToken });
+
+      // 重新載入使用者並包含 profile
+      const userWithProfile = await User.findByPk(user.id, {
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
+      });
 
       // 設定 Cookie
       res.cookie('accessToken', accessToken, {
@@ -48,7 +62,7 @@ class UserController {
 
       res.status(201).json({
         message: '註冊成功',
-        user: transformUser(user),
+        user: transformUser(userWithProfile),
         accessToken
       });
     } catch (error) {
@@ -62,25 +76,41 @@ class UserController {
     try {
       const { email, password } = req.body;
 
-      // 尋找使用者
-      const user = await User.findOne({ where: { email } });
+      // 尋找使用者並包含 profile
+      const user = await User.findOne({ 
+        where: { email },
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
+      });
       if (!user) {
         return res.status(401).json({ message: '電子郵件或密碼錯誤' });
       }
 
-      // 檢查密碼 (Google 使用者可能沒有密碼)
-      if (!user.password) {
-        return res.status(401).json({ message: '此帳號透過 Google 登入，請使用 Google 登入方式' });
-      }
-
+      // 檢查密碼
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
         return res.status(401).json({ message: '電子郵件或密碼錯誤' });
       }
 
       // 檢查帳號狀態
-      if (!user.isActive) {
+      if (!user.is_active) {
         return res.status(401).json({ message: '帳號已被停用' });
+      }
+
+      // 如果使用者沒有 profile，創建一個
+      if (!user.profile) {
+        await Profile.create({
+          user_id: user.id
+        });
+        // 重新載入使用者並包含 profile
+        await user.reload({
+          include: [{
+            model: Profile,
+            as: 'profile'
+          }]
+        });
       }
 
       // 生成 Token
@@ -89,8 +119,8 @@ class UserController {
 
       // 更新最後登入時間和 Refresh Token
       await user.update({ 
-        lastLogin: new Date(),
-        refreshToken 
+        last_login: new Date(),
+        refresh_token: refreshToken 
       });
 
       // 設定 Cookie
@@ -117,7 +147,7 @@ class UserController {
       // 清除使用者的 Refresh Token
       if (req.user && req.user.id) {
         await User.update(
-          { refreshToken: null },
+          { refresh_token: null },
           { where: { id: req.user.id } }
         );
       }
@@ -149,7 +179,7 @@ class UserController {
       const user = await User.findOne({
         where: { 
           id: decoded.id,
-          refreshToken: refreshToken
+          refresh_token: refreshToken
         }
       });
 
@@ -162,7 +192,7 @@ class UserController {
       const newRefreshToken = generateRefreshToken(user);
 
       // 更新資料庫中的 Refresh Token
-      await user.update({ refreshToken: newRefreshToken });
+      await user.update({ refresh_token: newRefreshToken });
 
       // 設定新的 Cookie
       res.cookie('accessToken', newAccessToken, {
@@ -185,11 +215,29 @@ class UserController {
   async getCurrentUser(req, res) {
     try {
       const user = await User.findByPk(req.user.id, {
-        attributes: { exclude: ['password', 'refreshToken'] }
+        attributes: { exclude: ['password', 'refresh_token'] },
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
       });
 
       if (!user) {
         return res.status(404).json({ message: '使用者不存在' });
+      }
+
+      // 如果使用者沒有 profile，創建一個
+      if (!user.profile) {
+        await Profile.create({
+          user_id: user.id
+        });
+        // 重新載入使用者並包含 profile
+        await user.reload({
+          include: [{
+            model: Profile,
+            as: 'profile'
+          }]
+        });
       }
 
       res.json({
@@ -204,17 +252,81 @@ class UserController {
   // 更新使用者資料
   async updateProfile(req, res) {
     try {
-      const { name, avatarUrl } = req.body;
+      const { 
+        name, 
+        avatarUrl, 
+        bio, 
+        location, 
+        company, 
+        website,
+        phone,
+        linkedinUrl,
+        githubUrl,
+        twitterUrl,
+        skills,
+        interests,
+        education,
+        experience
+      } = req.body;
       const userId = req.user.id;
 
-      const user = await User.findByPk(userId);
+      const user = await User.findByPk(userId, {
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
+      });
       if (!user) {
         return res.status(404).json({ message: '使用者不存在' });
       }
 
-      await user.update({
-        name: name || user.name,
-        avatarUrl: avatarUrl || user.avatarUrl
+      // 更新 User 表的基本資料
+      const userUpdateData = {};
+      if (name !== undefined) userUpdateData.name = name;
+      if (avatarUrl !== undefined) userUpdateData.avatar_url = avatarUrl;
+
+      if (Object.keys(userUpdateData).length > 0) {
+        await user.update(userUpdateData);
+      }
+
+      // 如果使用者沒有 profile，創建一個
+      if (!user.profile) {
+        await Profile.create({
+          user_id: user.id
+        });
+        await user.reload({
+          include: [{
+            model: Profile,
+            as: 'profile'
+          }]
+        });
+      }
+
+      // 更新 Profile 表的資料
+      const profileUpdateData = {};
+      if (bio !== undefined) profileUpdateData.bio = bio;
+      if (location !== undefined) profileUpdateData.location = location;
+      if (company !== undefined) profileUpdateData.company = company;
+      if (website !== undefined) profileUpdateData.website = website;
+      if (phone !== undefined) profileUpdateData.phone = phone;
+      if (linkedinUrl !== undefined) profileUpdateData.linkedin_url = linkedinUrl;
+      if (githubUrl !== undefined) profileUpdateData.github_url = githubUrl;
+      if (twitterUrl !== undefined) profileUpdateData.twitter_url = twitterUrl;
+      if (skills !== undefined) profileUpdateData.skills = skills;
+      if (interests !== undefined) profileUpdateData.interests = interests;
+      if (education !== undefined) profileUpdateData.education = education;
+      if (experience !== undefined) profileUpdateData.experience = experience;
+
+      if (Object.keys(profileUpdateData).length > 0) {
+        await user.profile.update(profileUpdateData);
+      }
+
+      // 重新載入使用者資料
+      await user.reload({
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
       });
 
       res.json({
@@ -269,8 +381,8 @@ class UserController {
       // 尋找或創建使用者
       let user = await User.findOne({ 
         where: { 
-          $or: [
-            { googleId: googleId },
+          [Op.or]: [
+            { google_id: googleId },
             { email: email }
           ]
         }
@@ -279,19 +391,19 @@ class UserController {
       if (!user) {
         // 創建新使用者
         user = await User.create({
-          googleId,
+          google_id: googleId,
           email,
           name,
-          avatarUrl,
+          avatar_url: avatarUrl,
           role: 'member',
-          emailVerified: true // Google 帳號視為已驗證
+          email_verified: true // Google 帳號視為已驗證
         });
       } else {
         // 更新現有使用者的 Google 資訊
         await user.update({
-          googleId: googleId,
-          avatarUrl: avatarUrl,
-          lastLogin: new Date()
+          google_id: googleId,
+          avatar_url: avatarUrl,
+          last_login: new Date()
         });
       }
 
@@ -300,7 +412,7 @@ class UserController {
       const refreshToken = generateRefreshToken(user);
 
       // 儲存 Refresh Token
-      await user.update({ refreshToken });
+      await user.update({ refresh_token: refreshToken });
 
       // 設定 Cookie
       res.cookie('accessToken', accessToken, {

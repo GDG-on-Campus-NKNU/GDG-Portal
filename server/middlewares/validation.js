@@ -85,6 +85,70 @@ export const validateProfileUpdate = [
     .isURL()
     .withMessage('請輸入有效的頭像網址'),
   
+  body('bio')
+    .optional()
+    .trim()
+    .isLength({ max: 1000 })
+    .withMessage('個人簡介長度不能超過 1000 個字元'),
+  
+  body('location')
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage('地點長度不能超過 255 個字元'),
+  
+  body('company')
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage('公司名稱長度不能超過 255 個字元'),
+  
+  body('website')
+    .optional()
+    .isURL()
+    .withMessage('請輸入有效的網站網址'),
+  
+  body('phone')
+    .optional()
+    .trim()
+    .isLength({ max: 20 })
+    .withMessage('電話號碼長度不能超過 20 個字元'),
+  
+  body('linkedinUrl')
+    .optional()
+    .isURL()
+    .withMessage('請輸入有效的 LinkedIn 網址'),
+  
+  body('githubUrl')
+    .optional()
+    .isURL()
+    .withMessage('請輸入有效的 GitHub 網址'),
+  
+  body('twitterUrl')
+    .optional()
+    .isURL()
+    .withMessage('請輸入有效的 Twitter 網址'),
+  
+  body('skills')
+    .optional()
+    .isArray()
+    .withMessage('技能必須是陣列格式'),
+  
+  body('interests')
+    .optional()
+    .isArray()
+    .withMessage('興趣必須是陣列格式'),
+  
+  body('education')
+    .optional()
+    .isArray()
+    .withMessage('教育背景必須是陣列格式'),
+  
+  body('experience')
+    .optional()
+    .isArray()
+    .withMessage('工作經驗必須是陣列格式'),
+  
   handleValidationErrors
 ];
 

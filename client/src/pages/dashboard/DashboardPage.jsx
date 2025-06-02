@@ -21,7 +21,13 @@ export default function DashboardPage() {
     bio: '',
     location: '',
     company: '',
-    website: ''
+    website: '',
+    phone: '',
+    linkedinUrl: '',
+    githubUrl: '',
+    twitterUrl: '',
+    skills: [],
+    interests: []
   })
 
   // 密碼變更表單
@@ -37,10 +43,16 @@ export default function DashboardPage() {
       setProfileData({
         name: user.name || '',
         email: user.email || '',
-        bio: user.profile?.bio || user.bio || '',
-        location: user.profile?.location || user.location || '',
-        company: user.profile?.department || user.company || '',
-        website: user.profile?.social?.website || user.website || ''
+        bio: user.bio || '',
+        location: user.location || '',
+        company: user.company || '',
+        website: user.website || '',
+        phone: user.phone || '',
+        linkedinUrl: user.linkedinUrl || '',
+        githubUrl: user.githubUrl || '',
+        twitterUrl: user.twitterUrl || '',
+        skills: user.skills || [],
+        interests: user.interests || []
       })
     }
   }, [user])
@@ -343,6 +355,58 @@ export default function DashboardPage() {
                         onChange={(e) => setProfileData(prev => ({ ...prev, website: e.target.value }))}
                         className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
                         placeholder="https://your-website.com"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        聯絡電話
+                      </label>
+                      <input
+                        type="tel"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
+                        placeholder="+886 912-345-678"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        LinkedIn 連結
+                      </label>
+                      <input
+                        type="url"
+                        value={profileData.linkedinUrl}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, linkedinUrl: e.target.value }))}
+                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
+                        placeholder="https://linkedin.com/in/username"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        GitHub 連結
+                      </label>
+                      <input
+                        type="url"
+                        value={profileData.githubUrl}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, githubUrl: e.target.value }))}
+                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
+                        placeholder="https://github.com/username"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Twitter 連結
+                      </label>
+                      <input
+                        type="url"
+                        value={profileData.twitterUrl}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, twitterUrl: e.target.value }))}
+                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
+                        placeholder="https://twitter.com/username"
                       />
                     </div>
 

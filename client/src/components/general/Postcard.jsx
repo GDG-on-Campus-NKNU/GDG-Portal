@@ -71,19 +71,17 @@ export function PostCard({
                 key={tag}
                 whileHover={{ scale: 1.05 }}
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
-                  tag === 'tech' ? 'bg-blue-100/80 text-blue-700 border border-blue-200/50' :
-                  tag === 'event' ? 'bg-purple-100/80 text-purple-700 border border-purple-200/50' :
-                  tag === 'notice' ? 'bg-green-100/80 text-green-700 border border-green-200/50' :
-                  tag === 'course' ? 'bg-yellow-100/80 text-yellow-700 border border-yellow-200/50' :
-                  tag === 'internship' ? 'bg-orange-100/80 text-orange-700 border border-orange-200/50' :
+                  tag === 'welcome' ? 'bg-blue-100/80 text-blue-700 border border-blue-200/50' :
+                  tag === 'community' ? 'bg-purple-100/80 text-purple-700 border border-purple-200/50' :
+                  tag === 'event' ? 'bg-green-100/80 text-green-700 border border-green-200/50' :
+                  tag === 'frontend' ? 'bg-yellow-100/80 text-yellow-700 border border-yellow-200/50' :
                   'bg-slate-100/80 text-slate-700 border border-slate-200/50'
                 }`}
               >
-                {tag === 'tech' ? '技術' :
+                {tag === 'welcome' ? '歡迎' :
+                 tag === 'community' ? '社群' :
                  tag === 'event' ? '活動' :
-                 tag === 'notice' ? '公告' :
-                 tag === 'course' ? '課程' :
-                 tag === 'internship' ? '實習' : tag}
+                 tag === 'frontend' ? '前端' : tag}
               </motion.span>
             ))}
           </div>

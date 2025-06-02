@@ -46,7 +46,7 @@ export const getAllEvents = async (req, res) => {
     // 標籤篩選
     if (queryParams.tags.length > 0) {
       includeClause[1].where = {
-        name: { [Op.in]: queryParams.tags }
+        tag_name: { [Op.in]: queryParams.tags }
       };
     }
 
@@ -198,7 +198,7 @@ export const getHistoricalEvents = async (req, res) => {
     // 標籤篩選
     if (tagArray.length > 0) {
       includeClause[1].where = {
-        name: { [Op.in]: tagArray }
+        tag_name: { [Op.in]: tagArray }
       };
     }
 

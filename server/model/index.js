@@ -1,5 +1,6 @@
 import sequelize from '../config/database.js';
 import User from './userModel.js';
+import Profile from './profileModel.js';
 import { CoreTeam, Category, CoreTeamCategory } from './coreteamModel.js';
 import { Event, EventSpeaker, EventTag, EventRegistration } from './eventModel.js';
 import { Announcement, AnnouncementTag } from './announcementModel.js';
@@ -7,6 +8,21 @@ import Gallery from './galleryModel.js';
 
 // 定義模型關聯
 const defineAssociations = () => {
+  // User 和 Profile 的 1:1 關聯
+  User.hasOne(Profile, {
+    foreignKey: 'user_id',
+    as: 'profile',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  });
+
+  Profile.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  });
+
   // CoreTeam 和 Category 的多對多關聯
   CoreTeam.belongsToMany(Category, { 
     through: CoreTeamCategory,
@@ -123,6 +139,7 @@ const initializeDatabase = async () => {
 export {
   sequelize,
   User,
+  Profile,
   CoreTeam,
   Category,
   CoreTeamCategory,

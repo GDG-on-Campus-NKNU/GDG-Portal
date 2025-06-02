@@ -10,8 +10,8 @@ import {
   simulateApiDelay 
 } from '../data/mockData';
 
-// 是否使用假資料模式 (開發時設為 true)
-const USE_MOCK_DATA = true;
+// 是否使用假資料模式 (開發時設為 false，使用真實API)
+const USE_MOCK_DATA = false;
 
 // 創建認證上下文
 const AuthContext = createContext();

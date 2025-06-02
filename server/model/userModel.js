@@ -20,6 +20,10 @@ const User = sequelize.define('User', {
       isEmail: true
     }
   },
+  password: {
+    type: DataTypes.STRING(255),
+    allowNull: false // 密碼為必填，Google 登入在綁定時也需要設定密碼
+  },
   name: {
     type: DataTypes.STRING(100),
     allowNull: false
@@ -35,6 +39,18 @@ const User = sequelize.define('User', {
   is_active: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
+  },
+  email_verified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  refresh_token: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  last_login: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
 }, {
   tableName: 'users',
