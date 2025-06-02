@@ -15,7 +15,7 @@ export const getAllGalleries = async (req, res) => {
 
     // 構建查詢條件
     const whereClause = {
-      is_published: true
+      is_featured: true
     };
 
     // 關鍵字搜尋
@@ -45,7 +45,7 @@ export const getAllGalleries = async (req, res) => {
       }],
       limit: queryParams.limit,
       offset: offset,
-      order: [['photo_date', 'DESC']],
+      order: [['date_taken', 'DESC']],
       distinct: true
     });
 
@@ -76,7 +76,7 @@ export const getGalleryById = async (req, res) => {
     const gallery = await Gallery.findOne({
       where: {
         id: galleryId,
-        is_published: true
+        is_featured: true
       },
       include: [{
         model: Event,
@@ -109,7 +109,7 @@ export const getPopularGalleries = async (req, res) => {
 
     const galleries = await Gallery.findAll({
       where: {
-        is_published: true
+        is_featured: true
       },
       include: [{
         model: Event,
@@ -117,7 +117,7 @@ export const getPopularGalleries = async (req, res) => {
         attributes: ['id', 'title', 'start_date']
       }],
       limit: limit,
-      order: [['view_count', 'DESC'], ['photo_date', 'DESC']]
+      order: [['view_count', 'DESC'], ['date_taken', 'DESC']]
     });
 
     // 轉換資料格式
@@ -137,7 +137,7 @@ export const getLatestGalleries = async (req, res) => {
 
     const galleries = await Gallery.findAll({
       where: {
-        is_published: true
+        is_featured: true
       },
       include: [{
         model: Event,
@@ -169,7 +169,7 @@ export const createGallery = async (req, res) => {
       photographer, 
       photo_date,
       event_id,
-      is_published 
+      is_featured 
     } = req.body;
 
     // 創建照片集
@@ -177,11 +177,11 @@ export const createGallery = async (req, res) => {
       title,
       description,
       cover_image: cover_image_url,
-      photos: Array.isArray(image_urls) ? image_urls : [],
+      images: Array.isArray(image_urls) ? image_urls : [],
       photographer,
-      photo_date: photo_date ? new Date(photo_date) : new Date(),
+      date_taken: photo_date ? new Date(photo_date) : new Date(),
       event_id: event_id ? parseInt(event_id) : null,
-      is_published: is_published !== undefined ? is_published : true,
+      is_featured: is_featured !== undefined ? is_featured : true,
       view_count: 0,
       created_by: req.user.id, // 從認證中間件獲取用戶 ID
       created_at: new Date(),
@@ -222,7 +222,7 @@ export const updateGallery = async (req, res) => {
       photographer, 
       photo_date,
       event_id,
-      is_published 
+      is_featured 
     } = req.body;
 
     // 查找照片集
@@ -239,11 +239,11 @@ export const updateGallery = async (req, res) => {
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (cover_image_url !== undefined) updateData.cover_image = cover_image_url;
-    if (image_urls !== undefined) updateData.photos = Array.isArray(image_urls) ? image_urls : [];
+    if (image_urls !== undefined) updateData.images = Array.isArray(image_urls) ? image_urls : [];
     if (photographer !== undefined) updateData.photographer = photographer;
-    if (photo_date !== undefined) updateData.photo_date = new Date(photo_date);
+    if (photo_date !== undefined) updateData.date_taken = new Date(photo_date);
     if (event_id !== undefined) updateData.event_id = event_id ? parseInt(event_id) : null;
-    if (is_published !== undefined) updateData.is_published = is_published;
+    if (is_featured !== undefined) updateData.is_featured = is_featured;
 
     await gallery.update(updateData);
 
@@ -315,9 +315,9 @@ export const getAllGalleriesAdmin = async (req, res) => {
 
     // 發布狀態篩選
     if (queryParams.isPublished === 'true') {
-      whereClause.is_published = true;
+      whereClause.is_featured = true;
     } else if (queryParams.isPublished === 'false') {
-      whereClause.is_published = false;
+      whereClause.is_featured = false;
     }
 
     // 計算偏移量
@@ -333,12 +333,12 @@ export const getAllGalleriesAdmin = async (req, res) => {
       }],
       limit: queryParams.limit,
       offset: offset,
-      order: [['photo_date', 'DESC']],
+      order: [['date_taken', 'DESC']],
       distinct: true
     });
 
     const result = {
-      galleries: rows,
+      galleries: rows.map(gallery => transformGallery(gallery)),
       totalCount: count,
       totalPages: Math.ceil(count / queryParams.limit),
       currentPage: queryParams.page,

@@ -100,6 +100,7 @@ export const getMemberById = async (req, res) => {
 export const getCategoryOptions = async (req, res) => {
   try {
     const categories = await Category.findAll({
+      where: { type: 'member', is_active: true },
       order: [['name', 'ASC']]
     });
     

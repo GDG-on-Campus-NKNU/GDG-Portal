@@ -64,10 +64,15 @@ export default function EventsPage() {
   })
 
   const availableTags = [
-    { label: '線上', value: 'online' },
-    { label: '實體', value: 'offline' },
-    { label: '工作坊', value: 'workshop' },
-    { label: '分享會', value: 'talk' },
+    { label: 'Frontend 前端', value: 'frontend' },
+    { label: 'Backend 後端', value: 'backend' },
+    { label: 'Mobile 行動開發', value: 'mobile' },
+    { label: 'Cloud 雲端技術', value: 'cloud' },
+    { label: 'AI 人工智慧', value: 'ai' },
+    { label: 'Workshop 工作坊', value: 'workshop' },
+    { label: 'Lecture 講座', value: 'lecture' },
+    { label: 'React', value: 'react' },
+    { label: 'Google', value: 'google' },
   ]
 
   // Animation variants

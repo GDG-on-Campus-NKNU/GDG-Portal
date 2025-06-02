@@ -46,11 +46,10 @@ export default function AnnouncementsPage() {
   });
 
   const availableTags = [
-    { label: '技術', value: 'tech' },
-    { label: '活動', value: 'event' },
-    { label: '公告', value: 'notice' },
-    { label: '課程', value: 'course' },
-    { label: '實習', value: 'internship' },
+    { label: 'Welcome 歡迎', value: 'welcome' },
+    { label: 'Community 社群', value: 'community' },
+    { label: 'Event 活動', value: 'event' },
+    { label: 'Frontend 前端', value: 'frontend' },
   ];
 
   // Animation variants

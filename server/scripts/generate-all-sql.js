@@ -74,9 +74,18 @@ const sampleCoreTeamData = [
 
 // 樣本分類資料
 const sampleCategories = [
-  { name: 'member', type: 'member', color: '#3B82F6' },
+  // Member categories - 對應前端的 getCategoryLabel 映射
+  { name: 'tech', type: 'member', color: '#4F46E5' }, // 技術教學
+  { name: 'pr', type: 'member', color: '#059669' }, // 公關行銷
+  { name: 'core', type: 'member', color: '#DC2626' }, // 核心幹部
+  { name: 'design', type: 'member', color: '#7C3AED' }, // 美術設計
+  { name: 'affairs', type: 'member', color: '#EA580C' }, // 總務攝影
+  
+  // Base type categories
   { name: 'event', type: 'event', color: '#10B981' },
   { name: 'announcement', type: 'announcement', color: '#F59E0B' },
+  
+  // Event categories
   { name: 'frontend', type: 'event', color: '#3B82F6' },
   { name: 'backend', type: 'event', color: '#10B981' },
   { name: 'mobile', type: 'event', color: '#F59E0B' },
@@ -341,7 +350,7 @@ function generateCoreSQL() {
   sql += `-- ============================================\n\n`;
 
   sql += `INSERT INTO core_team_categories (member_id, category_id) VALUES\n`;
-  sql += `(1, 1);\n\n`; // 顏榕嶙 關聯到 member category
+  sql += `(1, 1);\n\n`; // 顏榕嶙 關聯到 'tech' (技術教學) 分類
 
   // Announcements 資料
   sql += `-- ============================================\n`;
