@@ -111,27 +111,46 @@ function transformAnnouncement(announcement) {
 
 // 轉換 Gallery 資料格式
 function transformGallery(gallery) {
-  if (!gallery) return null;
-
   const galleryData = gallery.get ? gallery.get({ plain: true }) : gallery;
+
+  // 將images字串陣列轉換為物件陣列
+  const processedImages = Array.isArray(galleryData.images)
+    ? galleryData.images.map((imageUrl, index) => ({
+        id: `${galleryData.id}_${index + 1}`,
+        url: imageUrl,
+        caption: `圖片 ${index + 1}`,
+        alt: `${galleryData.title} - 圖片 ${index + 1}`
+      }))
+    : [];
+
+  // 從tags推導eventType
+  const tags = galleryData.tags || [];
+  let eventType = 'other';
+  if (tags.includes('workshop')) eventType = 'workshop';
+  else if (tags.includes('lecture') || tags.includes('talk')) eventType = 'talk';
+  else if (tags.includes('community') || tags.includes('team-building')) eventType = 'social';
+  else if (tags.includes('hackathon')) eventType = 'hackathon';
 
   return {
     id: galleryData.id,
     title: galleryData.title,
     description: galleryData.description,
-    eventId: galleryData.event_id,
     coverImage: galleryData.cover_image,
-    images: galleryData.photos || galleryData.images || [], // 支援兩種欄位名稱
-    tags: galleryData.tags || [],
+    images: processedImages, // 使用處理過的圖片結構
+    imageCount: processedImages.length, // 前端期望的欄位名
+    photoCount: processedImages.length, // 保持向後相容
+    tags: tags,
     photographer: galleryData.photographer,
-    dateTaken: galleryData.photo_date || galleryData.date_taken, // 支援兩種欄位名稱
-    isFeatured: galleryData.is_published || galleryData.is_featured, // 支援兩種欄位名稱
-    viewCount: galleryData.view_count,
-
-    // 關聯資料
-    event: galleryData.event,
-
-    // 時間戳
+    date: galleryData.date_taken, // 前端期望的欄位名
+    dateTaken: galleryData.date_taken, // 保持向後相容
+    isFeatured: galleryData.is_featured,
+    eventId: galleryData.event_id,
+    eventType: eventType, // 新增前端期望的欄位
+    event: galleryData.event ? {
+      id: galleryData.event.id,
+      title: galleryData.event.title,
+      type: galleryData.event.event_type || eventType
+    } : null,
     createdAt: galleryData.created_at,
     updatedAt: galleryData.updated_at
   };

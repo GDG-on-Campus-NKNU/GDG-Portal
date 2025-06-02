@@ -5,7 +5,7 @@ export default function WelcomeBox() {
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-green-500/5"></div>
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-transparent rounded-full blur-2xl"></div>
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-400/10 to-transparent rounded-full blur-2xl"></div>
-      
+
       <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
         <div className="flex-1">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-6 tracking-tight">
@@ -33,7 +33,7 @@ export default function WelcomeBox() {
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
             <img
-              src="/api/placeholder/400/300"
+              src="/assets/welcome-box.jpg"
               alt="GDG Community"
               className="relative rounded-2xl shadow-xl border border-white/20 transform group-hover:scale-105 transition-all duration-300"
             />

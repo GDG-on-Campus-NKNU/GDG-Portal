@@ -100,7 +100,7 @@ const defineAssociations = () => {
     as: 'creator'
   });
 
-  // User 關聯
+  // User 關聯 (合併到一起避免重複)
   User.hasMany(EventRegistration, {
     foreignKey: 'user_id',
     as: 'registrations'
@@ -108,7 +108,7 @@ const defineAssociations = () => {
 
   User.hasMany(Gallery, {
     foreignKey: 'created_by',
-    as: 'galleries'
+    as: 'createdGalleries'  // 改變別名避免衝突
   });
 };
 

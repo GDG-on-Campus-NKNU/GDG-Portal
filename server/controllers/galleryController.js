@@ -1,71 +1,100 @@
 import Gallery from '../model/galleryModel.js';
 import { Event } from '../model/eventModel.js';
 import { Op } from 'sequelize';
+import sequelize from '../config/database.js'; // 添加這個import
 import { transformGallery } from '../utils/dataTransform.js';
 import { saveBase64Image } from '../utils/imageHandler.js';
 
 // 獲取所有照片集
 export const getAllGalleries = async (req, res) => {
   try {
-    const queryParams = {
-      page: parseInt(req.query.page) || 1,
-      limit: parseInt(req.query.limit) || 12,
-      keyword: req.query.keyword || '',
-      eventId: req.query.eventId
-    };
+    const { page = 1, limit = 12, keyword, eventType, year, tags } = req.query;
+    const offset = (page - 1) * limit;
 
-    // 構建查詢條件
-    const whereClause = {
-      is_featured: true
+    // 基礎查詢條件 - 重新加入 featured 篩選
+    let whereClause = {
+      is_featured: true  // 只顯示 featured 的相簿
     };
 
     // 關鍵字搜尋
-    if (queryParams.keyword) {
+    if (keyword) {
       whereClause[Op.or] = [
-        { title: { [Op.like]: `%${queryParams.keyword}%` } },
-        { description: { [Op.like]: `%${queryParams.keyword}%` } },
-        { photographer: { [Op.like]: `%${queryParams.keyword}%` } }
+        { title: { [Op.like]: `%${keyword}%` } },
+        { description: { [Op.like]: `%${keyword}%` } },
+        { photographer: { [Op.like]: `%${keyword}%` } }
       ];
     }
 
-    // 特定活動篩選
-    if (queryParams.eventId) {
-      whereClause.event_id = parseInt(queryParams.eventId);
+    // 年份篩選
+    if (year) {
+      whereClause.date_taken = {
+        [Op.between]: [`${year}-01-01`, `${year}-12-31`]
+      };
     }
 
-    // 計算偏移量
-    const offset = (queryParams.page - 1) * queryParams.limit;
+    // 標籤篩選 - 修復這個部分
+    let tagArray = [];
+    if (tags) {
+      tagArray = Array.isArray(tags) ? tags : [tags];
+    }
 
-    // 執行查詢
-    const { count, rows } = await Gallery.findAndCountAll({
+    // 如果有標籤篩選，先獲取符合條件的gallery IDs
+    if (tagArray.length > 0) {
+      try {
+        const galleryIds = await sequelize.query(
+          `SELECT DISTINCT gallery_id FROM gallery_tags WHERE tag_name IN (${tagArray.map(() => '?').join(',')})`,
+          {
+            replacements: tagArray,
+            type: sequelize.QueryTypes.SELECT
+          }
+        );
+
+        const ids = galleryIds.map(row => row.gallery_id);
+        if (ids.length > 0) {
+          whereClause.id = { [Op.in]: ids };
+        } else {
+          // 如果沒有符合條件的gallery，返回空結果
+          return res.json({
+            galleries: [],
+            totalPages: 0,
+            currentPage: parseInt(page),
+            totalCount: 0
+          });
+        }
+      } catch (tagError) {
+        console.error('標籤篩選錯誤:', tagError);
+        // 如果標籤篩選失敗，忽略標籤條件繼續查詢
+      }
+    }
+
+    // 查詢相簿
+    const { count, rows: galleries } = await Gallery.findAndCountAll({
       where: whereClause,
-      include: [{
-        model: Event,
-        as: 'event',
-        attributes: ['id', 'title', 'start_date']
-      }],
-      limit: queryParams.limit,
-      offset: offset,
+      include: [
+        {
+          model: Event,
+          as: 'event',
+          required: false,
+          attributes: ['id', 'title']
+        }
+      ],
       order: [['date_taken', 'DESC']],
-      distinct: true
+      limit: parseInt(limit),
+      offset: parseInt(offset)
     });
 
-    // 轉換資料格式
-    const transformedGalleries = rows.map(gallery => transformGallery(gallery));
+    const transformedGalleries = galleries.map(gallery => transformGallery(gallery));
 
-    const result = {
+    res.json({
       galleries: transformedGalleries,
-      totalCount: count,
-      totalPages: Math.ceil(count / queryParams.limit),
-      currentPage: queryParams.page,
-      hasNext: queryParams.page * queryParams.limit < count,
-      hasPrevious: queryParams.page > 1
-    };
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page),
+      totalCount: count
+    });
 
-    res.status(200).json(result);
   } catch (error) {
-    console.error('Error in getAllGalleries:', error);
-    res.status(500).json({ message: '獲取照片集失敗', error: error.message });
+    console.error('獲取相簿錯誤:', error);
+    res.status(500).json({ message: '獲取相簿失敗', error: error.message });
   }
 };
 
@@ -73,7 +102,7 @@ export const getAllGalleries = async (req, res) => {
 export const getGalleryById = async (req, res) => {
   try {
     const galleryId = parseInt(req.params.id);
-    
+
     const gallery = await Gallery.findOne({
       where: {
         id: galleryId,
@@ -162,15 +191,15 @@ export const getLatestGalleries = async (req, res) => {
 // 創建新照片集
 export const createGallery = async (req, res) => {
   try {
-    const { 
-      title, 
-      description, 
-      cover_image_url, 
-      image_urls, 
-      photographer, 
+    const {
+      title,
+      description,
+      cover_image_url,
+      image_urls,
+      photographer,
       photo_date,
       event_id,
-      is_featured 
+      is_featured
     } = req.body;
 
     // 處理 Base64 封面圖片
@@ -239,15 +268,15 @@ export const createGallery = async (req, res) => {
 export const updateGallery = async (req, res) => {
   try {
     const galleryId = parseInt(req.params.id);
-    const { 
-      title, 
-      description, 
-      cover_image_url, 
-      image_urls, 
-      photographer, 
+    const {
+      title,
+      description,
+      cover_image_url,
+      image_urls,
+      photographer,
       photo_date,
       event_id,
-      is_featured 
+      is_featured
     } = req.body;
 
     // 查找照片集

@@ -29,6 +29,7 @@
   "dependencies": {
     "date-fns": "^4.1.0",
     "framer-motion": "^12.9.1",
-    "gdg-on-campus-portal": "file:"
+    "gdg-on-campus-portal": "file:",
+    "node-fetch": "^3.3.2"
   }
 }

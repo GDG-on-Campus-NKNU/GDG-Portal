@@ -257,3 +257,13 @@
 
 ---
 
+## Fixed several issues regarding gallery. 06/03
+
+> 2025-06-03 03:20:24
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `b4f183b8d6146a8743400f90f79addea1818ebef`
+
+---
+
