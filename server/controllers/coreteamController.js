@@ -1,4 +1,5 @@
 import { CoreTeam, Category, CoreTeamCategory } from '../model/coreteamModel.js';
+import { User } from '../model/index.js'; // 導入 User 模型以建立關聯
 import { Op } from 'sequelize';
 import { transformCoreTeamMember } from '../utils/dataTransform.js';
 
@@ -14,11 +15,19 @@ export const getAllMembers = async (req, res) => {
 
     // 構建查詢條件
     const whereClause = {};
-    const includeClause = [{
-      model: Category,
-      as: 'categories',
-      through: { attributes: [] }
-    }];
+    const includeClause = [
+      {
+        model: Category,
+        as: 'categories',
+        through: { attributes: [] }
+      },
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name', 'email', 'avatar_url'], // 只選擇需要的欄位
+        required: false // LEFT JOIN，允許沒有關聯使用者的 CoreTeam 成員
+      }
+    ];
 
     // 關鍵字搜尋
     if (queryParams.keyword) {
@@ -75,11 +84,19 @@ export const getMemberById = async (req, res) => {
     const memberId = parseInt(req.params.id);
     
     const member = await CoreTeam.findByPk(memberId, {
-      include: [{
-        model: Category,
-        as: 'categories',
-        through: { attributes: [] }
-      }]
+      include: [
+        {
+          model: Category,
+          as: 'categories',
+          through: { attributes: [] }
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'avatar_url'],
+          required: false
+        }
+      ]
     });
 
     if (!member) {
@@ -128,19 +145,54 @@ export const getCategoryOptions = async (req, res) => {
 // 創建新幹部
 export const createMember = async (req, res) => {
   try {
-    const { name, title, bio, avatar_url, linkedin_url, github_url, position, categories } = req.body;
+    const { 
+      user_id, 
+      name, 
+      title, 
+      photo, 
+      department, 
+      year, 
+      skills, 
+      description, 
+      full_bio, 
+      achievements, 
+      contact_email, 
+      social_links, 
+      additional_photos, 
+      sort_order, 
+      categories 
+    } = req.body;
+
+    // 如果指定了 user_id，檢查該使用者是否存在
+    if (user_id) {
+      const user = await User.findByPk(user_id);
+      if (!user) {
+        return res.status(400).json({ message: '指定的使用者不存在' });
+      }
+      
+      // 檢查該使用者是否已經有 CoreTeam 記錄
+      const existingMember = await CoreTeam.findOne({ where: { user_id } });
+      if (existingMember) {
+        return res.status(400).json({ message: '該使用者已經是核心團隊成員' });
+      }
+    }
 
     // 創建幹部
     const member = await CoreTeam.create({
+      user_id: user_id || null,
       name,
       title,
-      bio,
-      avatar_url,
-      linkedin_url,
-      github_url,
-      position: position || 0,
-      created_at: new Date(),
-      updated_at: new Date()
+      photo,
+      department,
+      year,
+      skills: skills || [],
+      description,
+      full_bio,
+      achievements: achievements || [],
+      contact_email,
+      social_links: social_links || {},
+      additional_photos: additional_photos || [],
+      sort_order: sort_order || 0
     });
 
     // 如果有分類，處理分類關聯
@@ -156,13 +208,21 @@ export const createMember = async (req, res) => {
       await member.setCategories(categoryInstances);
     }
 
-    // 獲取完整的幹部資料（包含分類）
+    // 獲取完整的幹部資料（包含分類和使用者資料）
     const createdMember = await CoreTeam.findByPk(member.id, {
-      include: [{
-        model: Category,
-        as: 'categories',
-        through: { attributes: [] }
-      }]
+      include: [
+        {
+          model: Category,
+          as: 'categories',
+          through: { attributes: [] }
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'avatar_url'],
+          required: false
+        }
+      ]
     });
 
     // 轉換資料格式
@@ -182,7 +242,23 @@ export const createMember = async (req, res) => {
 export const updateMember = async (req, res) => {
   try {
     const memberId = parseInt(req.params.id);
-    const { name, title, bio, avatar_url, linkedin_url, github_url, position, categories } = req.body;
+    const { 
+      user_id, 
+      name, 
+      title, 
+      photo, 
+      department, 
+      year, 
+      skills, 
+      description, 
+      full_bio, 
+      achievements, 
+      contact_email, 
+      social_links, 
+      additional_photos, 
+      sort_order, 
+      categories 
+    } = req.body;
 
     // 查找幹部
     const member = await CoreTeam.findByPk(memberId);
@@ -190,18 +266,44 @@ export const updateMember = async (req, res) => {
       return res.status(404).json({ message: '找不到該幹部' });
     }
 
-    // 更新幹部基本資料
-    const updateData = {
-      updated_at: new Date()
-    };
+    // 如果要更新 user_id，檢查該使用者是否存在且未被其他 CoreTeam 使用
+    if (user_id !== undefined) {
+      if (user_id !== null) {
+        const user = await User.findByPk(user_id);
+        if (!user) {
+          return res.status(400).json({ message: '指定的使用者不存在' });
+        }
+        
+        // 檢查該使用者是否已經被其他 CoreTeam 成員使用
+        const existingMember = await CoreTeam.findOne({ 
+          where: { 
+            user_id,
+            id: { [Op.ne]: memberId } // 排除當前成員
+          } 
+        });
+        if (existingMember) {
+          return res.status(400).json({ message: '該使用者已經是其他核心團隊成員' });
+        }
+      }
+    }
 
+    // 更新幹部基本資料
+    const updateData = {};
+
+    if (user_id !== undefined) updateData.user_id = user_id;
     if (name !== undefined) updateData.name = name;
     if (title !== undefined) updateData.title = title;
-    if (bio !== undefined) updateData.bio = bio;
-    if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
-    if (linkedin_url !== undefined) updateData.linkedin_url = linkedin_url;
-    if (github_url !== undefined) updateData.github_url = github_url;
-    if (position !== undefined) updateData.position = position;
+    if (photo !== undefined) updateData.photo = photo;
+    if (department !== undefined) updateData.department = department;
+    if (year !== undefined) updateData.year = year;
+    if (skills !== undefined) updateData.skills = skills;
+    if (description !== undefined) updateData.description = description;
+    if (full_bio !== undefined) updateData.full_bio = full_bio;
+    if (achievements !== undefined) updateData.achievements = achievements;
+    if (contact_email !== undefined) updateData.contact_email = contact_email;
+    if (social_links !== undefined) updateData.social_links = social_links;
+    if (additional_photos !== undefined) updateData.additional_photos = additional_photos;
+    if (sort_order !== undefined) updateData.sort_order = sort_order;
 
     await member.update(updateData);
 
@@ -225,11 +327,19 @@ export const updateMember = async (req, res) => {
 
     // 獲取更新後的完整資料
     const updatedMember = await CoreTeam.findByPk(memberId, {
-      include: [{
-        model: Category,
-        as: 'categories',
-        through: { attributes: [] }
-      }]
+      include: [
+        {
+          model: Category,
+          as: 'categories',
+          through: { attributes: [] }
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'avatar_url'],
+          required: false
+        }
+      ]
     });
 
     // 轉換資料格式

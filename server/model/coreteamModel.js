@@ -10,7 +10,13 @@ const CoreTeam = sequelize.define('CoreTeam', {
   },
   user_id: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    references: {
+      model: 'users',
+      key: 'id'
+    },
+    onDelete: 'SET NULL', // 當使用者被刪除時，將 user_id 設為 null，保留 CoreTeam 記錄
+    onUpdate: 'CASCADE'
   },
   name: {
     type: DataTypes.STRING(100),

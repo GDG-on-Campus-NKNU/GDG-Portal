@@ -428,6 +428,73 @@ class UserController {
       res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?login=error`);
     }
   }
+
+  // 獲取使用者列表 (供管理員選擇 CoreTeam 成員使用)
+  async getUsersList(req, res) {
+    try {
+      const { page = 1, limit = 20, keyword = '', excludeCoreTeam = false } = req.query;
+
+      // 構建查詢條件
+      const whereClause = {
+        is_active: true
+      };
+
+      // 關鍵字搜尋
+      if (keyword) {
+        whereClause[Op.or] = [
+          { name: { [Op.like]: `%${keyword}%` } },
+          { email: { [Op.like]: `%${keyword}%` } }
+        ];
+      }
+
+      // 排除已經是 CoreTeam 成員的使用者
+      if (excludeCoreTeam === 'true') {
+        const { CoreTeam } = await import('../model/index.js');
+        const coreTeamUserIds = await CoreTeam.findAll({
+          attributes: ['user_id'],
+          where: {
+            user_id: { [Op.ne]: null }
+          },
+          raw: true
+        });
+        const excludeIds = coreTeamUserIds.map(ct => ct.user_id);
+        if (excludeIds.length > 0) {
+          whereClause.id = { [Op.notIn]: excludeIds };
+        }
+      }
+
+      const offset = (parseInt(page) - 1) * parseInt(limit);
+
+      const { count, rows } = await User.findAndCountAll({
+        where: whereClause,
+        attributes: ['id', 'name', 'email', 'avatar_url', 'role'],
+        limit: parseInt(limit),
+        offset: offset,
+        order: [['name', 'ASC']]
+      });
+
+      const users = rows.map(user => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatar_url,
+        role: user.role
+      }));
+
+      res.json({
+        users,
+        pagination: {
+          total: count,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(count / parseInt(limit))
+        }
+      });
+    } catch (error) {
+      console.error('獲取使用者列表錯誤:', error);
+      res.status(500).json({ message: '獲取使用者列表失敗' });
+    }
+  }
 }
 
 export default new UserController();

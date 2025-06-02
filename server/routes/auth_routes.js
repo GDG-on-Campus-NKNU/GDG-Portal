@@ -26,6 +26,9 @@ router.get("/me", authenticateJWT, userController.getCurrentUser);
 router.put("/profile", authenticateJWT, validateProfileUpdate, userController.updateProfile);
 router.post("/change-password", authenticateJWT, validatePasswordChange, userController.changePassword);
 
+// 使用者列表 (供管理員使用)
+router.get("/users", authenticateJWT, userController.getUsersList);
+
 // Google OAuth 路由
 router.get("/login", (req, res) => {
   return res.render("login");

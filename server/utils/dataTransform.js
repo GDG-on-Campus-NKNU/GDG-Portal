@@ -7,6 +7,7 @@ export const transformCoreTeamMember = (member) => {
   return {
     // 基本資訊
     id: memberData.id,
+    userId: memberData.user_id, // 添加 user_id 欄位
     name: memberData.name,
     title: memberData.title,
     photo: memberData.photo,
@@ -30,6 +31,14 @@ export const transformCoreTeamMember = (member) => {
     
     // 分類 (如果有關聯)
     categories: memberData.Categories ? memberData.Categories.map(cat => cat.name) : [],
+    
+    // 關聯的使用者資料 (如果有)
+    user: memberData.user ? {
+      id: memberData.user.id,
+      name: memberData.user.name,
+      email: memberData.user.email,
+      avatarUrl: memberData.user.avatar_url
+    } : null,
     
     // 時間戳
     createdAt: memberData.created_at,

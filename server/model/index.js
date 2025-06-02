@@ -6,20 +6,23 @@ import { Event, EventSpeaker, EventTag, EventRegistration } from './eventModel.j
 import { Announcement, AnnouncementTag } from './announcementModel.js';
 import Gallery from './galleryModel.js';
 
+// 導入關聯定義 - 這會建立 User-Profile 關聯
+import './associations.js';
+
 // 定義模型關聯
 const defineAssociations = () => {
-  // User 和 Profile 的 1:1 關聯
-  User.hasOne(Profile, {
+  // User 和 CoreTeam 的關聯
+  User.hasOne(CoreTeam, {
     foreignKey: 'user_id',
-    as: 'profile',
-    onDelete: 'CASCADE',
+    as: 'coreTeamProfile',
+    onDelete: 'SET NULL', // 使用者被刪除時，保留 CoreTeam 記錄但清除關聯
     onUpdate: 'CASCADE'
   });
 
-  Profile.belongsTo(User, {
+  CoreTeam.belongsTo(User, {
     foreignKey: 'user_id',
     as: 'user',
-    onDelete: 'CASCADE',
+    onDelete: 'SET NULL',
     onUpdate: 'CASCADE'
   });
 
