@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth'
 import { Link, useNavigate } from 'react-router-dom'
+import { isDevelopment } from '../../utils/environmentUtils'
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -236,15 +237,18 @@ export function Navbar() {
                   登入
                   <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 hover:opacity-100 transition-opacity"></div>
                 </motion.a>
-                <motion.a 
-                  href="/register" 
-                  className="relative bg-white/80 backdrop-blur-sm hover:bg-white text-slate-700 hover:text-slate-900 px-6 py-2.5 rounded-xl font-medium transition-all border border-slate-200/50 hover:border-slate-300 shadow-sm hover:shadow-md"
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  註冊
-                </motion.a>
+                {/* 只在開發環境顯示註冊按鈕 */}
+                {isDevelopment() && (
+                  <motion.a 
+                    href="/register" 
+                    className="relative bg-white/80 backdrop-blur-sm hover:bg-white text-slate-700 hover:text-slate-900 px-6 py-2.5 rounded-xl font-medium transition-all border border-slate-200/50 hover:border-slate-300 shadow-sm hover:shadow-md"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    註冊
+                  </motion.a>
+                )}
               </>
             )}
           </div>
@@ -456,20 +460,23 @@ export function Navbar() {
                 <div className="pt-4 mt-4 border-t border-slate-100/50 flex gap-3">
                   <motion.a 
                     href="/login" 
-                    className="flex-1 py-3 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium shadow-lg shadow-blue-500/25"
+                    className={`py-3 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium shadow-lg shadow-blue-500/25 ${isDevelopment() ? 'flex-1' : 'w-full'}`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     登入
                   </motion.a>
-                  <motion.a 
-                    href="/register" 
-                    className="flex-1 py-3 text-center bg-white/80 backdrop-blur-sm text-slate-700 rounded-xl font-medium border border-slate-200/50 shadow-sm"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    註冊
-                  </motion.a>
+                  {/* 只在開發環境顯示註冊按鈕 */}
+                  {isDevelopment() && (
+                    <motion.a 
+                      href="/register" 
+                      className="flex-1 py-3 text-center bg-white/80 backdrop-blur-sm text-slate-700 rounded-xl font-medium border border-slate-200/50 shadow-sm"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      註冊
+                    </motion.a>
+                  )}
                 </div>
               )}
             </motion.div>

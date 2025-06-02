@@ -16,8 +16,8 @@ export default function ProfileBanner({
 }) {
   return (
     <div className="relative">
-      {/* 橫幅區域 */}
-      <div className="relative h-64 bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 rounded-t-2xl overflow-hidden">
+      {/* 橫幅區域 - 添加底部陰影增強層次感 */}
+      <div className="relative h-64 bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 rounded-t-2xl overflow-hidden shadow-md">
         {/* 橫幅背景 */}
         {user.profile?.bannerUrl ? (
           <BlobImage
@@ -48,7 +48,7 @@ export default function ProfileBanner({
       </div>
       
       {/* 頭像區域 - 移到橫幅外部，避免被遮擋 */}
-      <div className="relative -mt-16 mb-4 flex justify-center" style={{ zIndex: 50 }}>
+      <div className="relative -mt-16 mb-2 flex justify-center" style={{ zIndex: 50 }}>
         <div className="relative">
           <BlobImage
             src={user.avatarUrl}

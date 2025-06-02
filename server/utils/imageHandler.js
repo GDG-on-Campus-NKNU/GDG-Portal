@@ -60,38 +60,49 @@ export const saveBase64Image = (base64String, category = 'uploads') => {
     
     // 確定保存目錄
     let uploadDir = '/workspaces/GDG-Portal/client/public/assets/';
-    
+    let urlPrefix = '/assets/';
+
     switch (category) {
       case 'avatar':
-        uploadDir += 'members/';
+        uploadDir += 'user/';
+        urlPrefix += 'user/';
+        break;
+      case 'user':
+        uploadDir += 'user/';
+        urlPrefix += 'user/';
         break;
       case 'banner':
-        uploadDir += 'members/';
+        uploadDir += 'user/';
+        urlPrefix += 'user/';
         break;
       case 'gallery':
         uploadDir += 'gallery/';
+        urlPrefix += 'gallery/';
         break;
       case 'event':
         uploadDir += 'events/';
+        urlPrefix += 'events/';
         break;
       case 'announcement':
         uploadDir += 'announcements/';
+        urlPrefix += 'announcements/';
         break;
       default:
         uploadDir += 'uploads/';
+        urlPrefix += 'uploads/';
     }
-    
+
     ensureDirectoryExists(uploadDir);
-    
+
     // 生成唯一文件名
     const fileName = `${category}-${uuidv4()}${fileExt}`;
     const filePath = path.join(uploadDir, fileName);
-    
+
     // 寫入文件
     fs.writeFileSync(filePath, fileData);
-    
-    // 返回相對於 assets 目錄的路徑
-    return `/assets/${category === 'avatar' || category === 'banner' ? 'members/' : category + '/'}${fileName}`;
+
+    // 返回正確的 URL 路徑
+    return `${urlPrefix}${fileName}`;
     
   } catch (error) {
     console.error('保存 Base64 圖片失敗:', error);

@@ -311,8 +311,8 @@ export default function UserProfilePage() {
             getRoleBadgeColor={getRoleBadgeColor}
           />
 
-          {/* 個人資訊區域 - 調整 padding 因為頭像現在在外部 */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-b-2xl shadow-lg p-8">
+          {/* 個人資訊區域 - 調整樣式使其與橫幅更好地融合 */}
+          <div className="bg-white/70 backdrop-blur-sm rounded-b-2xl shadow-lg pt-0 pb-8 px-8 border-t border-blue-100 mt-0">
             {/* 用戶名稱和基本資訊 */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">{user.name}</h1>
