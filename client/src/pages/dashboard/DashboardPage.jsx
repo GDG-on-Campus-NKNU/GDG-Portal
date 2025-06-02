@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Navbar } from '../../components/general/Navbar'
+import { Navbar, BackgroundEffects } from '../../components/general'
 import { Footer } from '../../components/Footer'
-import { BackgroundEffects } from '../../components/general/BackgroundEffects'
 import { useAuth } from '../../hooks/useAuth'
 import { Link } from 'react-router-dom'
-import { mockStats, mockEvents, mockAnnouncements } from '../../data/mockData'
 
 export default function DashboardPage() {
   const { user, updateProfile, changePassword, linkGoogleAccount, unlinkGoogleAccount } = useAuth()

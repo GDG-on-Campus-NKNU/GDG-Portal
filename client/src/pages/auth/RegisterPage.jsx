@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Navbar } from '../../components/general/Navbar'
+import { Navbar, BackgroundEffects } from '../../components/general'
 import { Footer } from '../../components/Footer'
-import { BackgroundEffects } from '../../components/general/BackgroundEffects'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { isDevelopment, isProduction } from '../../utils/environmentUtils'
+import { isProduction } from '../../utils/environmentUtils'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({

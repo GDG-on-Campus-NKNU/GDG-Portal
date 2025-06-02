@@ -1,14 +1,17 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Navbar } from '../components/general/Navbar';
+import { 
+  Navbar, 
+  BackgroundEffects, 
+  ScrollEffects, 
+  LoadingSpinner, 
+  NotificationToast 
+} from '../components/general';
 import { Footer } from '../components/Footer';
-import { BackgroundEffects } from '../components/general/BackgroundEffects';
-import { ScrollEffects } from '../components/general/ScrollEffects';
-import LoadingSpinner from '../components/general/LoadingSpinner';
-import NotificationToast from '../components/general/NotificationToast';
 import { useEventDetail } from '../hooks/useEventData';
-import { EventTimeInfo, EventLocationInfo, EventDescriptionInfo } from '../components/event/EventDetailInfo';
+import { EventDetailInfo } from '../components/event';
+const { EventTimeInfo, EventLocationInfo, EventDescriptionInfo } = EventDetailInfo;
 
 export default function EventDetailPage() {
   const { id } = useParams();
