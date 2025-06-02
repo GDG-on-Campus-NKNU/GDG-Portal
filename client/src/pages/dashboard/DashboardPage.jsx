@@ -122,12 +122,43 @@ export default function DashboardPage() {
   const handleGoogleLink = async () => {
     setLoading(true)
     try {
-      // 這裡應該實作 Google OAuth 流程
-      // 暫時顯示提示訊息
-      showMessage('Google 帳號連接功能開發中...', 'error')
+      // 開啟新視窗進行 Google OAuth 登入，添加 linkAccount 標記
+      const authWindow = window.open('/api/auth/google?linkAccount=true', 'google-oauth', 'width=500,height=600')
+      
+      // 設置訊息監聽，接收 OAuth 回調結果
+      window.addEventListener('message', async function handleAuthMessage(event) {
+        if (event.data.type === 'google-oauth-success') {
+          authWindow.close()
+          
+          // Google OAuth 成功，將 googleId 發送到後端進行綁定
+          const result = await linkGoogleAccount({
+            googleId: event.data.googleId
+          })
+          
+          if (result.success) {
+            showMessage(result.message || 'Google 帳號連接成功', 'success')
+          } else {
+            showMessage(result.message || 'Google 帳號連接失敗', 'error')
+          }
+          
+          window.removeEventListener('message', handleAuthMessage)
+        } else if (event.data.type === 'google-oauth-error') {
+          authWindow.close()
+          showMessage('Google 帳號連接失敗: ' + event.data.error, 'error')
+          window.removeEventListener('message', handleAuthMessage)
+        }
+      })
+      
+      // 如果用戶關閉窗口而沒有完成授權
+      const checkWindowClosed = setInterval(() => {
+        if (authWindow.closed) {
+          clearInterval(checkWindowClosed)
+          setLoading(false)
+        }
+      }, 1000)
+      
     } catch (error) {
       showMessage('Google 帳號連接失敗', 'error')
-    } finally {
       setLoading(false)
     }
   }
@@ -139,14 +170,17 @@ export default function DashboardPage() {
 
     setLoading(true)
     try {
+      // 呼叫 unlinkGoogleAccount 函數解除帳號連接
       const result = await unlinkGoogleAccount()
+      
       if (result.success) {
-        showMessage('Google 帳號連接已取消', 'success')
+        showMessage(result.message || 'Google 帳號連接已取消', 'success')
       } else {
-        showMessage(result.message, 'error')
+        showMessage(result.message || '取消 Google 帳號連接失敗', 'error')
       }
     } catch (error) {
-      showMessage('取消連接失敗', 'error')
+      console.error('取消 Google 連接失敗:', error)
+      showMessage('取消連接失敗，請稍後再試', 'error')
     } finally {
       setLoading(false)
     }
