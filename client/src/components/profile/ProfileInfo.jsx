@@ -5,8 +5,8 @@ export default function ProfileInfo({ user, formatDate }) {
   return (
     <div className="lg:col-span-2">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{user.name}</h1>
-        <div className="flex items-center gap-4 text-gray-600 mb-4">
+        {/* 移除重複的用戶名稱，只顯示位置和加入日期 */}
+        <div className="flex items-center gap-4 text-gray-600 mb-4 justify-center">
           {user.profile?.location && (
             <div className="flex items-center gap-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

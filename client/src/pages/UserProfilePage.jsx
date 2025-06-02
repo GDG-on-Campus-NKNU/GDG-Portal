@@ -280,16 +280,24 @@ export default function UserProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-4xl mx-auto"
         >
-          {/* 更新訊息 */}
-          <UpdateMessage 
-            message={updateMessage} 
-            type={updateMessageType} 
-          />
+          {/* 更新訊息 - 只在有訊息時顯示 */}
+          {updateMessage && (
+            <UpdateMessage 
+              message={updateMessage} 
+              type={updateMessageType}
+              onClose={() => {
+                setUpdateMessage('');
+                setUpdateMessageType('');
+              }}
+            />
+          )}
 
-          {/* 上傳進度指示器 */}
-          <ProfileUploadProgress 
-            isUploading={isUploading} 
-          />
+          {/* 上傳進度指示器 - 只在上傳時顯示 */}
+          {isUploading && (
+            <ProfileUploadProgress 
+              isUploading={isUploading} 
+            />
+          )}
 
           {/* 個人資料橫幅 */}
           <ProfileBanner 
@@ -303,8 +311,13 @@ export default function UserProfilePage() {
             getRoleBadgeColor={getRoleBadgeColor}
           />
 
-          {/* 個人資訊區域 */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-b-2xl shadow-lg p-8 pt-20">
+          {/* 個人資訊區域 - 調整 padding 因為頭像現在在外部 */}
+          <div className="bg-white/70 backdrop-blur-sm rounded-b-2xl shadow-lg p-8">
+            {/* 用戶名稱和基本資訊 */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{user.name}</h1>
+              <p className="text-gray-600 text-lg">{user.email}</p>
+            </div>
             {/* 頭像編輯界面 */}
             {isOwnProfile && isEditingAvatar && (
               <ProfileEditAvatar 

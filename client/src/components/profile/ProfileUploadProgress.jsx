@@ -3,7 +3,9 @@ import { motion } from 'framer-motion';
 /**
  * 上傳進度指示器組件
  */
-export default function ProfileUploadProgress() {
+export default function ProfileUploadProgress({ isUploading }) {
+  if (!isUploading) return null;
+  
   return (
     <motion.div
       initial={{ opacity: 0, height: 0 }}
