@@ -196,6 +196,17 @@ export function Navbar() {
                           </svg>
                           個人儀表板
                         </Link>
+
+                        <Link 
+                          to={`/users/${user.id}`} 
+                          className="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-teal-50 hover:text-green-600 transition-all mx-2 rounded-lg"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          個人頁面
+                        </Link>
                         
                         <button 
                           onClick={handleLogout}
@@ -405,6 +416,21 @@ export function Navbar() {
                     </div>
                   </div>
                   
+                  <motion.div className="flex items-center bg-slate-100/80 rounded-lg p-2 mb-3"
+                    whileHover={{ x: 5 }}
+                  >
+                    <Link 
+                      to={`/users/${user.id}`}
+                      className="flex items-center w-full text-slate-700"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="font-medium">查看個人頁面</span>
+                    </Link>
+                  </motion.div>
+
                   <div className="flex gap-3">
                     <motion.a 
                       href="/dashboard" 
