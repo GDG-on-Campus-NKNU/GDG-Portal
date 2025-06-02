@@ -267,3 +267,13 @@
 
 ---
 
+## Added logo for the website. 06/03
+
+> 2025-06-03 03:33:03
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `2fe4b626b84bd44fa0eb8140afd3a02a8c40a393`
+
+---
+
