@@ -74,9 +74,11 @@ export default function ProfileBanner({
           )}
 
           {/* 角色徽章 */}
+          {!isOwnProfile && (
           <div className={`absolute -bottom-2 -right-2 px-3 py-1 rounded-full border-2 text-sm font-semibold ${getRoleBadgeColor(user.role)}`}>
             {getRoleDisplayName(user.role)}
           </div>
+          )}
         </div>
       </div>
     </div>

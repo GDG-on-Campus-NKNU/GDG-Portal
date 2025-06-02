@@ -1,4 +1,4 @@
-export { default as Events } from './Events';
+export { default as UpcomingEvents } from './Events';
 export { default as FeatureHighlights } from './FeatureHighlights';
 export { default as GoogleCalendar } from './GoogleCalendar';
 export { default as MainBanner } from './MainBanner';

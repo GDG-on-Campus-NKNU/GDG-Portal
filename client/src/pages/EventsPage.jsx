@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Navbar } from '../components/general/Navbar'
+import { 
+  Navbar, 
+  BackgroundEffects, 
+  ScrollEffects, 
+  LoadingSpinner, 
+  NotificationToast, 
+  Pagination, 
+  SearchFilterSection, 
+  PageBanner 
+} from '../components/general'
 import { Footer } from '../components/Footer'
-import { BackgroundEffects } from '../components/general/BackgroundEffects'
-import { ScrollEffects } from '../components/general/ScrollEffects'
-import LoadingSpinner from '../components/general/LoadingSpinner'
-import NotificationToast from '../components/general/NotificationToast'
-import Pagination from '../components/general/Pagination'
-import SearchFilterSection from '../components/general/SearchFilterSection'
-import PageBanner from '../components/general/PageBanner'
-import EventCard from '../components/event/EventCard'
-import CalendarView from '../components/event/CalendarView'
-import EventSidebar from '../components/event/EventSidebar'
+import { EventCard, CalendarView, EventSidebar } from '../components/event'
 import { useEventData } from '../hooks/useEventData'
 import { formatEventTimeRange } from '../utils/dateUtils'
 

@@ -1,22 +1,23 @@
 // AnnouncementsPage.jsx (Main Page)
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Navbar } from '../components/general/Navbar';
+import { 
+  Navbar, 
+  BackgroundEffects, 
+  ScrollEffects, 
+  PageBanner, 
+  SearchFilterSection, 
+  SubscriptionBox, 
+  NotificationToast, 
+  LoadingSpinner, 
+  Pagination 
+} from '../components/general';
 import { Footer } from '../components/Footer';
-import { BackgroundEffects } from '../components/general/BackgroundEffects';
-import { ScrollEffects } from '../components/general/ScrollEffects';
 import { useAnnouncementData } from '../hooks/useAnnouncementData';
 import { useEventData } from '../hooks/useEventData';
 import { formatEventTimeRange } from '../utils/dateUtils';
-import UpcomingEvents from '../components/event/UpcomingEvents';
-import PageBanner from '../components/general/PageBanner';
-import SearchFilterSection from '../components/general/SearchFilterSection';
-import AnnouncementsList from '../components/announcement/AnnouncementsList';
-import PinnedAnnouncements from '../components/announcement/PinnedAnnouncements';
-import SubscriptionBox from '../components/general/SubscriptionBox';
-import NotificationToast from '../components/general/NotificationToast';
-import LoadingSpinner from '../components/general/LoadingSpinner';
-import Pagination from '../components/general/Pagination';
+import { UpcomingEvents } from '../components/event';
+import { AnnouncementsList, PinnedAnnouncements } from '../components/announcement';
 
 export default function AnnouncementsPage() {
   const [keyword, setKeyword] = useState('')

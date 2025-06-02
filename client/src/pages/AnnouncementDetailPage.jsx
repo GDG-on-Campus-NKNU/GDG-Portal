@@ -1,11 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { Navbar } from '../components/general/Navbar';
+import { 
+  Navbar, 
+  BackgroundEffects, 
+  ScrollEffects, 
+  LoadingSpinner 
+} from '../components/general';
 import { Footer } from '../components/Footer';
-import { BackgroundEffects } from '../components/general/BackgroundEffects';
-import { ScrollEffects } from '../components/general/ScrollEffects';
-import LoadingSpinner from '../components/general/LoadingSpinner';
 import { useAnnouncementDetail } from '../hooks/useAnnouncementData';
 
 export default function AnnouncementDetail() {

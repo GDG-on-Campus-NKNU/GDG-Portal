@@ -118,16 +118,21 @@ const defineAssociations = () => {
 // 初始化資料庫
 const initializeDatabase = async () => {
   try {
-    // 定義關聯
-    defineAssociations();
-    
-    // 驗證連接
+    // 先驗證連接
     await sequelize.authenticate();
     console.log('資料庫連接成功');
     
+    // 先同步 User 模型，確保基本表格結構正確
+    await User.sync({ force: false });
+    console.log('User 模型同步完成');
+    
+    // 定義關聯
+    defineAssociations();
+    
     // 同步模型（開發環境）
     if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
+      // 避免索引過多問題，改用單純 sync 而非 alter
+      await sequelize.sync({ force: false });
       console.log('資料庫模型同步完成');
     }
     

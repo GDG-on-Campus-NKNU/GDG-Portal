@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion'
 import { useAnnouncementData } from '../../hooks/useAnnouncementData'
-import { PostCard } from '../general/Postcard'
+import PostCard from '../general/Postcard'
 import LoadingSpinner from '../general/LoadingSpinner'
 
-export function RecentAnnouncements({ limit = 2, showTitle = true }) {
+export default function RecentAnnouncements({ limit = 2, showTitle = true }) {
   const { announcements, loading, error } = useAnnouncementData({
     page: 1,
     limit,

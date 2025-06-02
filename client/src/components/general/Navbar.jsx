@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { Link, useNavigate } from 'react-router-dom'
 import { isDevelopment } from '../../utils/environmentUtils'
 
-export function Navbar() {
+export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileSubmenuOpen, setMobileSubmenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)

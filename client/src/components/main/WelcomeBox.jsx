@@ -1,4 +1,4 @@
-export function WelcomeBox() {
+export default function WelcomeBox() {
   return (
     <section className="relative bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl p-10 mb-8 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-500 overflow-hidden">
       {/* 背景裝飾漸層 */}

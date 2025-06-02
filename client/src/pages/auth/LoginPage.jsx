@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
-import { Navbar } from '../../components/general/Navbar'
+import { Navbar, BackgroundEffects } from '../../components/general'
 import { Footer } from '../../components/Footer'
-import { BackgroundEffects } from '../../components/general/BackgroundEffects'
 import { useAuth } from '../../hooks/useAuth'
 
 export default function LoginPage() {

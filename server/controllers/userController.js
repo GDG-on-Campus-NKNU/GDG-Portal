@@ -453,11 +453,59 @@ class UserController {
       });
       res.cookie('refreshToken', refreshToken, cookieOptions);
 
-      // 重導向到前端，攜帶成功訊息
-      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?login=success`);
+      // 檢查是否是帳號連接請求 (從 session 中獲取)
+      const isLinkRequest = req.session?.linkAccount === true;
+      
+      if (isLinkRequest) {
+        // 如果是帳號連接請求，向視窗發送成功訊息，只傳回必要的 googleId
+        res.send(`
+          <html>
+          <body>
+            <script>
+              window.opener.postMessage({
+                type: 'google-oauth-success',
+                googleId: '${googleId}'
+              }, window.location.origin);
+            </script>
+            <div style="text-align: center; font-family: sans-serif; padding: 20px;">
+              <h3>Google 帳號驗證成功</h3>
+              <p>請稍候，正在將您重定向回應用程式...</p>
+            </div>
+          </body>
+          </html>
+        `);
+      } else {
+        // 否則重定向到前端，攜帶成功訊息
+        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?login=success`);
+      }
     } catch (error) {
       console.error('Google 回調錯誤:', error);
-      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?login=error`);
+      
+      // 檢查是否是帳號連接請求
+      const isLinkRequest = req.query.linkAccount === 'true';
+      
+      if (isLinkRequest) {
+        // 如果是帳號連接請求，向視窗發送錯誤訊息
+        res.send(`
+          <html>
+          <body>
+            <script>
+              window.opener.postMessage({
+                type: 'google-oauth-error',
+                error: 'Google 驗證失敗'
+              }, window.location.origin);
+            </script>
+            <div style="text-align: center; font-family: sans-serif; padding: 20px;">
+              <h3>Google 帳號驗證失敗</h3>
+              <p>請關閉此視窗並重試</p>
+            </div>
+          </body>
+          </html>
+        `);
+      } else {
+        // 否則重定向到前端，攜帶錯誤訊息
+        res.redirect(`${process.env.CLIENT_URL || 'http://localhost:5173'}?login=error`);
+      }
     }
   }
 
@@ -532,7 +580,12 @@ class UserController {
   async linkGoogleAccount(req, res) {
     try {
       const userId = req.user.id;
-      const { googleId, googleEmail } = req.body;
+      const { googleId } = req.body;
+
+      // 檢查傳入參數是否有效
+      if (!googleId) {
+        return res.status(400).json({ message: '缺少必要的 Google ID 資訊' });
+      }
 
       // 檢查使用者是否存在
       const user = await User.findByPk(userId);

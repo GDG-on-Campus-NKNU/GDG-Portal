@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Navbar } from '../components/general/Navbar'
+import { 
+  Navbar, 
+  BackgroundEffects, 
+  ScrollEffects, 
+  LoadingSpinner, 
+  PageBanner, 
+  SearchFilterSection 
+} from '../components/general'
 import { Footer } from '../components/Footer'
-import { BackgroundEffects } from '../components/general/BackgroundEffects'
-import { ScrollEffects } from '../components/general/ScrollEffects'
-import TeamSidebar from '../components/member/TeamSidebar'
-import MemberList from '../components/member/MemberList'
-import LoadingSpinner from '../components/general/LoadingSpinner'
-import PageBanner from '../components/general/PageBanner'
-import SearchFilterSection from '../components/general/SearchFilterSection'
+import { TeamSidebar, MemberList } from '../components/member'
 import { useCoreTeamData } from '../hooks/useCoreTeamData'
 
 export default function CoreTeamPage() {

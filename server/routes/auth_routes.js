@@ -40,6 +40,12 @@ router.get("/login", (req, res) => {
 
 router.get(
   "/google",
+  (req, res, next) => {
+    // 保存 linkAccount 標記到 session
+    req.session = req.session || {};
+    req.session.linkAccount = req.query.linkAccount === 'true';
+    next();
+  },
   passport.authenticate("google", {
     scope: ["profile", "email"],
     prompt: "select_account",

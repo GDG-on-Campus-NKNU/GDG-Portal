@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Navbar } from '../components/general/Navbar';
+import { Navbar, BackgroundEffects, LoadingSpinner } from '../components/general';
 import { Footer } from '../components/Footer';
-import { BackgroundEffects } from '../components/general/BackgroundEffects';
-import LoadingSpinner from '../components/general/LoadingSpinner';
 import { useAuth } from '../hooks/useAuth';
 import { prepareImageForUpload } from '../services/imageService';
 
@@ -299,66 +297,69 @@ export default function UserProfilePage() {
             />
           )}
 
-          {/* 個人資料橫幅 */}
-          <ProfileBanner 
-            user={user}
-            isOwnProfile={isOwnProfile}
-            isEditingAvatar={isEditingAvatar}
-            isEditingBanner={isEditingBanner}
-            handleEditAvatar={handleEditAvatar}
-            handleEditBanner={handleEditBanner}
-            getRoleDisplayName={getRoleDisplayName}
-            getRoleBadgeColor={getRoleBadgeColor}
-          />
+          {/* 整合的個人資料區域 */}
+          <div className="overflow-hidden rounded-2xl shadow-lg">
+            {/* 個人資料橫幅 */}
+            <ProfileBanner 
+              user={user}
+              isOwnProfile={isOwnProfile}
+              isEditingAvatar={isEditingAvatar}
+              isEditingBanner={isEditingBanner}
+              handleEditAvatar={handleEditAvatar}
+              handleEditBanner={handleEditBanner}
+              getRoleDisplayName={getRoleDisplayName}
+              getRoleBadgeColor={getRoleBadgeColor}
+            />
 
-          {/* 個人資訊區域 - 調整樣式使其與橫幅更好地融合 */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-b-2xl shadow-lg pt-0 pb-8 px-8 border-t border-blue-100 mt-0">
-            {/* 用戶名稱和基本資訊 */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{user.name}</h1>
-              <p className="text-gray-600 text-lg">{user.email}</p>
+            {/* 個人資訊區域 - 無分隔線，更好地融合 */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-b-2xl pt-0 pb-8 px-8">
+              {/* 用戶名稱和基本資訊 */}
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{user.name}</h1>
+                <p className="text-gray-600 text-lg">{user.email}</p>
+              </div>
+              {/* 頭像編輯界面 */}
+              {isOwnProfile && isEditingAvatar && (
+                <ProfileEditAvatar 
+                  editData={editData}
+                  setEditData={setEditData}
+                  user={user}
+                  loading={loading}
+                  isUploading={isUploading}
+                  handleUpdateAvatar={handleUpdateAvatar}
+                  handleCancelEdit={handleCancelEdit}
+                />
+              )}
+
+              {/* 橫幅編輯界面 */}
+              {isOwnProfile && isEditingBanner && (
+                <ProfileEditBanner 
+                  editData={editData}
+                  setEditData={setEditData}
+                  user={user}
+                  loading={loading}
+                  isUploading={isUploading}
+                  handleUpdateBanner={handleUpdateBanner}
+                  handleCancelEdit={handleCancelEdit}
+                />
+              )}
+
+              {/* 正常顯示模式 */}
+              {(!isEditingAvatar && !isEditingBanner) && (
+                <>
+                  {/* 用戶基本資訊 */}
+                  <ProfileInfo 
+                    user={user}
+                    formatDate={formatDate}
+                  />
+
+                  {/* 聯絡資訊 */}
+                  <ProfileContact 
+                    user={user}
+                  />
+                </>
+              )}
             </div>
-            {/* 頭像編輯界面 */}
-            {isOwnProfile && isEditingAvatar && (
-              <ProfileEditAvatar 
-                editData={editData}
-                setEditData={setEditData}
-                user={user}
-                loading={loading}
-                isUploading={isUploading}
-                handleUpdateAvatar={handleUpdateAvatar}
-                handleCancelEdit={handleCancelEdit}
-              />
-            )}
-
-            {/* 橫幅編輯界面 */}
-            {isOwnProfile && isEditingBanner && (
-              <ProfileEditBanner 
-                editData={editData}
-                setEditData={setEditData}
-                user={user}
-                loading={loading}
-                isUploading={isUploading}
-                handleUpdateBanner={handleUpdateBanner}
-                handleCancelEdit={handleCancelEdit}
-              />
-            )}
-
-            {/* 正常顯示模式 */}
-            {(!isEditingAvatar && !isEditingBanner) && (
-              <>
-                {/* 用戶基本資訊 */}
-                <ProfileInfo 
-                  user={user}
-                  formatDate={formatDate}
-                />
-
-                {/* 聯絡資訊 */}
-                <ProfileContact 
-                  user={user}
-                />
-              </>
-            )}
           </div>
         </motion.div>
       </main>

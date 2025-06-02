@@ -1,4 +1,4 @@
-export function Partners() {  
+export default function Partners() {  
  return (  
    <section className="mt-12 mb-8">
      <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-8 text-center tracking-tight">

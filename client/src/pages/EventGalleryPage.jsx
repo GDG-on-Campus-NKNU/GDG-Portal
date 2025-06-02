@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Navbar } from '../components/general/Navbar';
+import { 
+  Navbar, 
+  BackgroundEffects, 
+  ScrollEffects, 
+  PageBanner,
+  LoadingSpinner 
+} from '../components/general';
 import { Footer } from '../components/Footer';
-import { BackgroundEffects } from '../components/general/BackgroundEffects';
-import { ScrollEffects } from '../components/general/ScrollEffects';
-import PageBanner from '../components/general/PageBanner';
-import GalleryFilterSection from '../components/event/GalleryFilterSection';
-import GalleryGrid from '../components/event/GalleryGrid';
-import GallerySidebar from '../components/event/GallerySidebar';
-import GalleryModal from '../components/event/GalleryModal';
-import LoadingSpinner from '../components/general/LoadingSpinner';
+import { 
+  GalleryFilterSection, 
+  GalleryGrid, 
+  GallerySidebar, 
+  GalleryModal 
+} from '../components/event';
 import { useGalleryData, useGalleryStats } from '../hooks/useGalleryData';
 import galleryData from '../data/gallery.json';
 

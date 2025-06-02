@@ -24,20 +24,20 @@ const ensureDirectoryExists = (dirPath) => {
  */
 export const saveBase64Image = (base64String, category = 'uploads') => {
   if (!base64String) return null;
-  
+
   try {
     // 處理 data URI 格式 (data:image/jpeg;base64,...)
     const matches = base64String.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
-    
+
     // 如果不是 Base64 格式，則返回原始字符串（可能是 URL）
     if (!matches || matches.length !== 3) {
       return base64String;
     }
-    
+
     const mimeType = matches[1];
     const base64Data = matches[2];
     const fileData = Buffer.from(base64Data, 'base64');
-    
+
     // 根據 MIME 類型獲取文件擴展名
     let fileExt;
     switch (mimeType) {
@@ -57,53 +57,65 @@ export const saveBase64Image = (base64String, category = 'uploads') => {
       default:
         fileExt = '.jpg'; // 默認 .jpg
     }
-    
+
     // 確定保存目錄
-    let uploadDir = '/workspaces/GDG-Portal/client/public/assets/';
+    // 使用相對於項目根目錄的路徑，而不是硬編碼的絕對路徑
+    let uploadDir = path.join(__dirname, '../../client/public/assets/');
     let urlPrefix = '/assets/';
 
     switch (category) {
       case 'avatar':
-        uploadDir += 'user/';
+        uploadDir = path.join(uploadDir, 'user/');
         urlPrefix += 'user/';
         break;
       case 'user':
-        uploadDir += 'user/';
+        uploadDir = path.join(uploadDir, 'user/');
         urlPrefix += 'user/';
         break;
       case 'banner':
-        uploadDir += 'user/';
+        uploadDir = path.join(uploadDir, 'user/');
         urlPrefix += 'user/';
         break;
       case 'gallery':
-        uploadDir += 'gallery/';
+        uploadDir = path.join(uploadDir, 'gallery/');
         urlPrefix += 'gallery/';
         break;
       case 'event':
-        uploadDir += 'events/';
+        uploadDir = path.join(uploadDir, 'events/');
         urlPrefix += 'events/';
         break;
       case 'announcement':
-        uploadDir += 'announcements/';
+        uploadDir = path.join(uploadDir, 'announcements/');
         urlPrefix += 'announcements/';
         break;
       default:
-        uploadDir += 'uploads/';
+        uploadDir = path.join(uploadDir, 'uploads/');
         urlPrefix += 'uploads/';
     }
 
+    console.log('保存圖片目錄:', uploadDir); // 添加日誌，以便調試
+
+    // 確保目錄存在
     ensureDirectoryExists(uploadDir);
 
     // 生成唯一文件名
     const fileName = `${category}-${uuidv4()}${fileExt}`;
     const filePath = path.join(uploadDir, fileName);
 
-    // 寫入文件
-    fs.writeFileSync(filePath, fileData);
+    try {
+      // 寫入文件
+      fs.writeFileSync(filePath, fileData);
+      console.log('圖片已保存至:', filePath);
 
-    // 返回正確的 URL 路徑
-    return `${urlPrefix}${fileName}`;
-    
+      // 返回正確的 URL 路徑
+      const urlPath = `${urlPrefix}${fileName}`;
+      console.log('返回圖片URL:', urlPath);
+      return urlPath;
+    } catch (error) {
+      console.error('寫入圖片文件失敗:', error);
+      throw new Error('寫入圖片文件失敗: ' + error.message);
+    }
+
   } catch (error) {
     console.error('保存 Base64 圖片失敗:', error);
     return null;
@@ -118,7 +130,7 @@ export const saveBase64Image = (base64String, category = 'uploads') => {
 export const deleteImage = (filePath) => {
   try {
     if (!filePath || typeof filePath !== 'string') return false;
-    
+
     // 如果是 URL 路徑，轉換為文件系統路徑
     let absolutePath = filePath;
     if (filePath.startsWith('/assets/')) {
@@ -127,12 +139,12 @@ export const deleteImage = (filePath) => {
       // 如果是遠程 URL，不處理
       return true;
     }
-    
+
     if (fs.existsSync(absolutePath)) {
       fs.unlinkSync(absolutePath);
       return true;
     }
-    
+
     return false;
   } catch (error) {
     console.error('刪除圖片失敗:', error);
@@ -147,7 +159,7 @@ export const deleteImage = (filePath) => {
  */
 export const isBase64Image = (str) => {
   if (!str || typeof str !== 'string') return false;
-  
+
   // 檢測是否為 data URI 格式的 Base64
   const pattern = /^data:image\/(jpeg|jpg|png|gif|webp);base64,/;
   return pattern.test(str);

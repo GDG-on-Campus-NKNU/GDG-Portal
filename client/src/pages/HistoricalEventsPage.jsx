@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Navbar } from '../components/general/Navbar';
+import { 
+  Navbar, 
+  BackgroundEffects, 
+  ScrollEffects, 
+  PageBanner,
+  Pagination, 
+  LoadingSpinner, 
+  NotificationToast, 
+  SearchFilterSection 
+} from '../components/general';
 import { Footer } from '../components/Footer';
-import { BackgroundEffects } from '../components/general/BackgroundEffects';
-import { ScrollEffects } from '../components/general/ScrollEffects';
-import PageBanner from '../components/general/PageBanner';
-import EventCard from '../components/event/EventCard';
-import HEventSidebar from '../components/event/HEventSidebar';
-import Pagination from '../components/general/Pagination';
-import LoadingSpinner from '../components/general/LoadingSpinner';
-import NotificationToast from '../components/general/NotificationToast';
-import SearchFilterSection from '../components/general/SearchFilterSection';
+import { EventCard, HEventSidebar } from '../components/event';
 import { useHistoricalEvents, useEventTags } from '../hooks/useEventData';
 
 export default function HistoricalEventsPage() {
