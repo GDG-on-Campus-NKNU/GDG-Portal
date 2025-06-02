@@ -1,5 +1,5 @@
 import { Event, EventSpeaker, EventTag, EventRegistration } from '../model/eventModel.js';
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import { transformEvent } from '../utils/dataTransform.js';
 
 // 獲取所有活動
@@ -45,9 +45,30 @@ export const getAllEvents = async (req, res) => {
 
     // 標籤篩選
     if (queryParams.tags.length > 0) {
-      includeClause[1].where = {
-        tag_name: { [Op.in]: queryParams.tags }
-      };
+      // 先查找有匹配標籤的活動 ID
+      const eventIdsWithTags = await EventTag.findAll({
+        where: {
+          tag_name: { [Op.in]: queryParams.tags }
+        },
+        attributes: ['event_id'],
+        raw: true
+      });
+      
+      const eventIds = [...new Set(eventIdsWithTags.map(item => item.event_id))];
+      
+      if (eventIds.length > 0) {
+        whereClause.id = { [Op.in]: eventIds };
+      } else {
+        // 如果沒有匹配的活動，返回空結果
+        return res.status(200).json({
+          events: [],
+          totalCount: 0,
+          totalPages: 0,
+          currentPage: queryParams.page,
+          hasNext: false,
+          hasPrevious: queryParams.page > 1
+        });
+      }
     }
 
     // 計算偏移量

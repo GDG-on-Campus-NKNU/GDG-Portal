@@ -26,6 +26,10 @@ router.get("/me", authenticateJWT, userController.getCurrentUser);
 router.put("/profile", authenticateJWT, validateProfileUpdate, userController.updateProfile);
 router.post("/change-password", authenticateJWT, validatePasswordChange, userController.changePassword);
 
+// Google 帳號連接功能
+router.post("/link-google", authenticateJWT, userController.linkGoogleAccount);
+router.delete("/unlink-google", authenticateJWT, userController.unlinkGoogleAccount);
+
 // 使用者列表 (供管理員使用)
 router.get("/users", authenticateJWT, userController.getUsersList);
 
@@ -55,4 +59,7 @@ router.get("/status", optionalAuth, (req, res) => {
     user: req.user || null
   });
 });
+
+// 獲取使用者公開個人頁面
+router.get("/profile/:id", userController.getUserProfile);
 

@@ -255,6 +255,7 @@ class UserController {
       const { 
         name, 
         avatarUrl, 
+        bannerUrl,
         bio, 
         location, 
         company, 
@@ -312,6 +313,7 @@ class UserController {
       if (linkedinUrl !== undefined) profileUpdateData.linkedin_url = linkedinUrl;
       if (githubUrl !== undefined) profileUpdateData.github_url = githubUrl;
       if (twitterUrl !== undefined) profileUpdateData.twitter_url = twitterUrl;
+      if (bannerUrl !== undefined) profileUpdateData.banner_url = bannerUrl;
       if (skills !== undefined) profileUpdateData.skills = skills;
       if (interests !== undefined) profileUpdateData.interests = interests;
       if (education !== undefined) profileUpdateData.education = education;
@@ -493,6 +495,141 @@ class UserController {
     } catch (error) {
       console.error('獲取使用者列表錯誤:', error);
       res.status(500).json({ message: '獲取使用者列表失敗' });
+    }
+  }
+
+  // Google 帳號連接 (已登入使用者綁定 Google 帳號)
+  async linkGoogleAccount(req, res) {
+    try {
+      const userId = req.user.id;
+      const { googleId, googleEmail } = req.body;
+
+      // 檢查使用者是否存在
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ message: '使用者不存在' });
+      }
+
+      // 檢查該 Google ID 是否已被其他帳號使用
+      const existingGoogleUser = await User.findOne({ 
+        where: { 
+          google_id: googleId,
+          id: { [Op.ne]: userId } // 排除當前使用者
+        } 
+      });
+      
+      if (existingGoogleUser) {
+        return res.status(400).json({ 
+          message: '此 Google 帳號已被其他使用者綁定' 
+        });
+      }
+
+      // 更新使用者的 Google ID
+      await user.update({ google_id: googleId });
+
+      // 重新載入使用者資料
+      const updatedUser = await User.findByPk(userId, {
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
+      });
+
+      res.json({
+        message: 'Google 帳號連接成功',
+        user: transformUser(updatedUser)
+      });
+    } catch (error) {
+      console.error('Google 帳號連接錯誤:', error);
+      res.status(500).json({ message: 'Google 帳號連接失敗' });
+    }
+  }
+
+  // 取消 Google 帳號連接
+  async unlinkGoogleAccount(req, res) {
+    try {
+      const userId = req.user.id;
+
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ message: '使用者不存在' });
+      }
+
+      // 檢查使用者是否有設定密碼
+      if (!user.password) {
+        return res.status(400).json({ 
+          message: '請先設定密碼後再取消 Google 帳號連接' 
+        });
+      }
+
+      // 移除 Google ID
+      await user.update({ google_id: null });
+
+      // 重新載入使用者資料
+      const updatedUser = await User.findByPk(userId, {
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
+      });
+
+      res.json({
+        message: 'Google 帳號連接已取消',
+        user: transformUser(updatedUser)
+      });
+    } catch (error) {
+      console.error('取消 Google 帳號連接錯誤:', error);
+      res.status(500).json({ message: '取消 Google 帳號連接失敗' });
+    }
+  }
+
+  // 獲取使用者公開個人頁面資訊
+  async getUserProfile(req, res) {
+    try {
+      const userId = req.params.id;
+
+      const user = await User.findByPk(userId, {
+        attributes: { exclude: ['password', 'refresh_token', 'email'] }, // 排除敏感資訊
+        include: [{
+          model: Profile,
+          as: 'profile'
+        }]
+      });
+
+      if (!user || !user.is_active) {
+        return res.status(404).json({ message: '使用者不存在或已停用' });
+      }
+
+      // 統計資料 (可選：使用者參與的活動、發布的內容等)
+      // TODO: 可以加入使用者參與活動數量、發布內容數量等統計
+
+      res.json({
+        user: {
+          id: user.id,
+          name: user.name,
+          role: user.role,
+          avatarUrl: user.avatar_url,
+          joinDate: user.created_at,
+          lastActive: user.last_login,
+          profile: user.profile ? {
+            bio: user.profile.bio,
+            location: user.profile.location,
+            company: user.profile.company,
+            website: user.profile.website,
+            bannerUrl: user.profile.banner_url,
+            linkedinUrl: user.profile.linkedin_url,
+            githubUrl: user.profile.github_url,
+            twitterUrl: user.profile.twitter_url,
+            skills: user.profile.skills || [],
+            interests: user.profile.interests || [],
+            education: user.profile.education || [],
+            experience: user.profile.experience || []
+          } : null
+        }
+      });
+    } catch (error) {
+      console.error('獲取使用者個人頁面錯誤:', error);
+      res.status(500).json({ message: '獲取使用者資料失敗' });
     }
   }
 }

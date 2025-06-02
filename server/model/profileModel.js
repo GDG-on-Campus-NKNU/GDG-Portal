@@ -22,6 +22,11 @@ const Profile = sequelize.define('Profile', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  banner_url: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: '個人頁面橫幅圖片URL'
+  },
   location: {
     type: DataTypes.STRING(255),
     allowNull: true

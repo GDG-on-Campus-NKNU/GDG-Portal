@@ -70,8 +70,7 @@ export const transformEvent = (event) => {
     
     // 關聯資料
     speakers: eventData.speakers || [],
-    tags: eventData.eventTags ? eventData.eventTags.map(tag => tag.name) : 
-          eventData.tags ? eventData.tags.map(tag => tag.name) : [], // 支援兩種別名
+    tags: eventData.eventTags ? eventData.eventTags.map(tag => tag.tag_name) : [], // 使用正確的欄位名稱
     registrations: eventData.registrations || [],
     
     // 時間戳
@@ -157,6 +156,7 @@ export const transformUser = (user) => {
     
     // Profile 資料 (如果存在)
     bio: userData.profile?.bio || null,
+    bannerUrl: userData.profile?.banner_url || null,
     location: userData.profile?.location || null,
     company: userData.profile?.company || null,
     website: userData.profile?.website || null,

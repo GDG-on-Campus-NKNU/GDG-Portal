@@ -74,11 +74,10 @@ export default function PinnedAnnouncements({ pinnedAnnouncements, loading }) {
                             className="text-xs px-2 py-1 bg-yellow-100/80 text-yellow-700 
                                      rounded-full border border-yellow-200/50"
                           >
-                            {tag === 'tech' ? '技術' :
+                            {tag === 'welcome' ? '歡迎' :
+                             tag === 'community' ? '社群' :
                              tag === 'event' ? '活動' :
-                             tag === 'notice' ? '公告' :
-                             tag === 'course' ? '課程' :
-                             tag === 'internship' ? '實習' : tag}
+                             tag === 'frontend' ? '前端' : tag}
                           </span>
                         ))}
                         {announcement.tags.length > 2 && (

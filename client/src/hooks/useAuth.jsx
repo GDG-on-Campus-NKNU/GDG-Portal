@@ -230,8 +230,9 @@ export function AuthProvider({ children }) {
           ...profileData,
           profile: {
             ...user.profile,
-            ...profileData.profile
-          }
+            ...(profileData.bannerUrl !== undefined && { bannerUrl: profileData.bannerUrl })
+          },
+          ...(profileData.avatarUrl !== undefined && { avatarUrl: profileData.avatarUrl })
         };
         
         setCurrentUser(updatedUser);
@@ -259,6 +260,54 @@ export function AuthProvider({ children }) {
       }
     } catch (error) {
       console.error('更新資料錯誤:', error);
+      return { success: false, message: '網路錯誤，請稍後再試' };
+    }
+  };
+
+  // Google 帳號連接
+  const linkGoogleAccount = async (googleData) => {
+    try {
+      const response = await fetch('/api/auth/link-google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(googleData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        return { success: true, message: data.message };
+      } else {
+        return { success: false, message: data.message || 'Google 帳號連接失敗' };
+      }
+    } catch (error) {
+      console.error('Google 帳號連接錯誤:', error);
+      return { success: false, message: '網路錯誤，請稍後再試' };
+    }
+  };
+
+  // 取消 Google 帳號連接
+  const unlinkGoogleAccount = async () => {
+    try {
+      const response = await fetch('/api/auth/unlink-google', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        return { success: true, message: data.message };
+      } else {
+        return { success: false, message: data.message || '取消 Google 帳號連接失敗' };
+      }
+    } catch (error) {
+      console.error('取消 Google 帳號連接錯誤:', error);
       return { success: false, message: '網路錯誤，請稍後再試' };
     }
   };
@@ -376,6 +425,8 @@ export function AuthProvider({ children }) {
     changePassword,
     refreshToken,
     checkAuthStatus,
+    linkGoogleAccount,
+    unlinkGoogleAccount,
     
     // 權限檢查 (使用新的函數名稱避免衝突)
     hasRole: hasUserRole,

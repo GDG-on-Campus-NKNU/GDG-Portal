@@ -17,6 +17,7 @@ import { AuthProvider } from './hooks/useAuth'
 import { ScrollEffects, CursorEffect, PageTransition } from './components/general/ScrollEffects'
 import { usePageShow } from './hooks/usePageShow'
 import EventGalleryPage from './pages/EventGalleryPage'
+import UserProfilePage from './pages/UserProfilePage'
 import DevQuickLogin from './components/DevQuickLogin'
 
 function App() {
@@ -75,6 +76,11 @@ function App() {
                 <Route path="/members/:id" element={
                   <PageTransition>
                     <CoreTeamDetailPage />
+                  </PageTransition>
+                } />
+                <Route path="/users/:id" element={
+                  <PageTransition>
+                    <UserProfilePage />
                   </PageTransition>
                 } />
                 <Route path="/login" element={
