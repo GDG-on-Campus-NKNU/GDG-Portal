@@ -317,3 +317,13 @@
 
 ---
 
+## Remoced unneccessary files, and is ready to push to master. 06/03
+
+> 2025-06-03 13:21:48
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `55d359b6baf95252eff9e20f16dfae523ed2ee2f`
+
+---
+
