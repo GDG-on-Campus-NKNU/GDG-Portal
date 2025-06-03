@@ -87,7 +87,7 @@ app.use('/api/*', notFoundHandler);
 // SPA 路由處理 - 所有非 API 請求都返回 index.html
 app.get('*', (req, res) => {
   const indexPath = path.join(__dirname, 'public', 'index.html');
-  
+
   // 檢查檔案是否存在
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
@@ -118,12 +118,11 @@ const startServer = async (port) => {
       console.log(`🔗 Frontend URL: ${process.env.CLIENT_URL || 'http://localhost:5173'}`);
       console.log(`🔐 Auth endpoints: http://localhost:${port}/api/auth`);
       console.log(`📊 API endpoints: http://localhost:${port}/api`);
-    });
-
-    server.on('error', (err) => {
+    });    server.on('error', (err) => {
       if (err.code === 'EADDRINUSE') {
-        console.log(`⚠️ Port ${port} is in use, trying port ${port + 1}...`);
-        setTimeout(() => startServer(parseInt(port) + 1), 1000);
+        const nextPort = parseInt(port) + 1;
+        console.log(`⚠️ Port ${port} is in use, trying port ${nextPort}...`);
+        setTimeout(() => startServer(nextPort), 1000);
       } else {
         console.error(`❌ Server error: ${err.message}`);
         process.exit(1);
