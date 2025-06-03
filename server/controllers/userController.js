@@ -473,12 +473,32 @@ class UserController {
         // 阻止未註冊的 Google 帳號登入
         const errorMessage = encodeURIComponent('此 Google 帳號尚未綁定，請先用本地帳號登入並在個人設定中綁定 Google。');
 
-        // 使用JavaScript重定向，無需硬編碼URL
+        // 取得前端URL
+        let clientUrl = process.env.CLIENT_URL;
+        if (!clientUrl) {
+          const protocol = req.protocol;
+          const host = req.get('host');
+
+          // 檢查是否為 ngrok 域名
+          if (host.includes('ngrok-free.app') || host.includes('ngrok.io') || host.includes('ngrok.app')) {
+            // 對於 Ngrok，假設前端也在相同域名 (可能是不同的 tunnel)
+            // 或者前端在相同 tunnel 的不同路徑
+            clientUrl = `${protocol}://${host}`;
+          } else if (host.includes('localhost')) {
+            // 對於 localhost，將後端端口 5000 替換為前端端口 5173
+            clientUrl = `${protocol}://${host.replace(':5000', ':5173')}`;
+          } else {
+            // 其他情況，使用當前 origin
+            clientUrl = `${protocol}://${host}`;
+          }
+        }
+
+        // 使用計算出的前端URL進行重定向
         return res.send(`
           <html>
           <body>
             <script>
-              window.location.href = window.location.origin + '/auth/error?type=google-not-linked&message=${errorMessage}';
+              window.location.href = '${clientUrl}/auth/error?type=google-not-linked&message=${errorMessage}';
             </script>
             <div style="text-align: center; font-family: sans-serif; padding: 20px;">
               <h3>Google 帳號未綁定</h3>
@@ -515,6 +535,26 @@ class UserController {
       // 檢查是否是帳號連接請求 (從 session 中獲取)
       const isLinkRequest = req.session?.linkAccount === true;
 
+      // 取得前端URL - 優先使用環境變數，否則使用請求的origin但調整端口
+      let clientUrl = process.env.CLIENT_URL;
+      if (!clientUrl) {
+        // 如果沒有設定CLIENT_URL，根據當前請求的host推斷前端URL
+        const protocol = req.protocol;
+        const host = req.get('host');
+
+        // 檢查是否為 ngrok 域名
+        if (host.includes('ngrok-free.app') || host.includes('ngrok.io') || host.includes('ngrok.app')) {
+          // 對於 Ngrok，假設前端也在相同域名
+          clientUrl = `${protocol}://${host}`;
+        } else if (host.includes('localhost')) {
+          // 對於 localhost，將後端端口 5000 替換為前端端口 5173
+          clientUrl = `${protocol}://${host.replace(':5000', ':5173')}`;
+        } else {
+          // 其他情況，使用當前 origin
+          clientUrl = `${protocol}://${host}`;
+        }
+      }
+
       if (isLinkRequest) {
         res.send(`
           <html>
@@ -523,7 +563,7 @@ class UserController {
               window.opener.postMessage({
                 type: 'google-oauth-success',
                 googleId: '${googleId}'
-              }, window.location.origin);
+              }, '${clientUrl}');
               window.close();
             </script>
             <div style="text-align: center; font-family: sans-serif; padding: 20px;">
@@ -534,13 +574,12 @@ class UserController {
           </html>
         `);
       } else {
-        // 使用JavaScript重定向，無需硬編碼URL
+        // 使用計算出的前端URL進行重定向
         res.send(`
           <html>
           <body>
             <script>
-              // 使用JavaScript重定向，自動適應當前域名
-              window.location.href = window.location.origin + '/?login=success';
+              window.location.href = '${clientUrl}/?login=success';
             </script>
             <div style="text-align: center; font-family: sans-serif; padding: 20px;">
               <h3>Google 登入成功</h3>
@@ -554,6 +593,25 @@ class UserController {
       console.error('Google 回調錯誤:', error);
       const isLinkRequest = req.query.linkAccount === 'true';
 
+      // 取得前端URL - 同樣的邏輯
+      let clientUrl = process.env.CLIENT_URL;
+      if (!clientUrl) {
+        const protocol = req.protocol;
+        const host = req.get('host');
+
+        // 檢查是否為 ngrok 域名
+        if (host.includes('ngrok-free.app') || host.includes('ngrok.io') || host.includes('ngrok.app')) {
+          // 對於 Ngrok，假設前端也在相同域名
+          clientUrl = `${protocol}://${host}`;
+        } else if (host.includes('localhost')) {
+          // 對於 localhost，將後端端口 5000 替換為前端端口 5173
+          clientUrl = `${protocol}://${host.replace(':5000', ':5173')}`;
+        } else {
+          // 其他情況，使用當前 origin
+          clientUrl = `${protocol}://${host}`;
+        }
+      }
+
       if (isLinkRequest) {
         res.send(`
           <html>
@@ -562,7 +620,7 @@ class UserController {
               window.opener.postMessage({
                 type: 'google-oauth-error',
                 error: 'Google 驗證失敗'
-              }, window.location.origin);
+              }, '${clientUrl}');
               window.close();
             </script>
             <div style="text-align: center; font-family: sans-serif; padding: 20px;">
@@ -573,12 +631,12 @@ class UserController {
           </html>
         `);
       } else {
-        // 使用JavaScript重定向，無需硬編碼URL
+        // 使用計算出的前端URL進行重定向
         res.send(`
           <html>
           <body>
             <script>
-              window.location.href = window.location.origin + '/?login=error';
+              window.location.href = '${clientUrl}/?login=error';
             </script>
             <div style="text-align: center; font-family: sans-serif; padding: 20px;">
               <h3>Google 登入失敗</h3>

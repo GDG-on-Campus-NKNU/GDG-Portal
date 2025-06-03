@@ -287,3 +287,13 @@
 
 ---
 
+## QOL changes.  06/03
+
+> 2025-06-03 12:20:53
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `9c1723716266bc8e9ba2ba9a6ddc76eeb3462b84`
+
+---
+
