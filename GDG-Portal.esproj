@@ -8,7 +8,9 @@
     </CleanCommand>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="client\public\assets\user\" />
     <Folder Include="client\src\pages\api\" />
     <Folder Include="client\src\pages\auth\" />
+    <Folder Include="server\public\" />
   </ItemGroup>
 </Project>
