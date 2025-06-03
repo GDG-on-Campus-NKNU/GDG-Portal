@@ -337,3 +337,13 @@
 
 ---
 
+## Merge branch 'master' of https://github.com/GDG-on-Campus-NKNU/GDG-Portal into release/v0.1.0-static. 06/03
+
+> 2025-06-03 13:35:29
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `e9517b34c563e4db99139d3bf88108c5f699f43e`
+
+---
+
