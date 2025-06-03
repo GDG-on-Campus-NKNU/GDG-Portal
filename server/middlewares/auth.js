@@ -78,9 +78,14 @@ export function requireAdmin(req, res, next) {
   return requireRole(['admin'])(req, res, next);
 }
 
-// 成員權限檢查 (member 或 admin)
+// 核心團隊權限檢查 (core 或 admin)
+export function requireCore(req, res, next) {
+  return requireRole(['admin', 'core'])(req, res, next);
+}
+
+// 成員權限檢查 (member, core 或 admin)
 export function requireMember(req, res, next) {
-  return requireRole(['admin', 'member'])(req, res, next);
+  return requireRole(['admin', 'core', 'member'])(req, res, next);
 }
 
 // 檢查使用者是否為資源擁有者或管理員

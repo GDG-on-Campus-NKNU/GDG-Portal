@@ -1,15 +1,16 @@
 import { motion } from 'framer-motion'
-import { Navbar } from '../components/general/Navbar'
-import { Sidebar } from '../components/main/Sidebar'
+import { Navbar, BackgroundEffects } from '../components/general'
+import { 
+  Sidebar,
+  MainBanner,
+  WelcomeBox,
+  GoogleCalendar,
+  FeatureHighlights,
+  Partners,
+  RecentAnnouncements,
+  UpcomingEvents
+} from '../components/main'
 import { Footer } from '../components/Footer'
-import { MainBanner } from '../components/main/MainBanner'
-import { WelcomeBox } from '../components/main/WelcomeBox'
-import { GoogleCalendar } from '../components/main/GoogleCalendar'
-import { FeatureHighlights } from '../components/main/FeatureHighlights'
-import { Partners } from '../components/main/Partners'
-import { RecentAnnouncements } from '../components/main/RecentAnnouncements'
-import { UpcomingEvents } from '../components/main/Events'
-import { BackgroundEffects } from '../components/general/BackgroundEffects'
 
 export default function HomePage() {
   // 動畫設定

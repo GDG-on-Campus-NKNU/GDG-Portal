@@ -35,7 +35,6 @@ export default function GalleryModal({ image, gallery, onClose }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [currentImageIndex, gallery]);
 
-  // 阻止背景滾動
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -45,7 +44,7 @@ export default function GalleryModal({ image, gallery, onClose }) {
 
   const goToPrevious = () => {
     if (gallery && gallery.images && gallery.images.length > 0) {
-      setCurrentImageIndex((prev) => 
+      setCurrentImageIndex((prev) =>
         prev === 0 ? gallery.images.length - 1 : prev - 1
       );
       setIsLoading(true);
@@ -54,7 +53,7 @@ export default function GalleryModal({ image, gallery, onClose }) {
 
   const goToNext = () => {
     if (gallery && gallery.images && gallery.images.length > 0) {
-      setCurrentImageIndex((prev) => 
+      setCurrentImageIndex((prev) =>
         prev === gallery.images.length - 1 ? 0 : prev + 1
       );
       setIsLoading(true);
@@ -66,11 +65,11 @@ export default function GalleryModal({ image, gallery, onClose }) {
   if (!currentImage || !gallery) return null;
 
   const modalVariants = {
-    hidden: { 
+    hidden: {
       opacity: 0,
       scale: 0.8
     },
-    visible: { 
+    visible: {
       opacity: 1,
       scale: 1,
       transition: {
@@ -79,7 +78,7 @@ export default function GalleryModal({ image, gallery, onClose }) {
         damping: 30
       }
     },
-    exit: { 
+    exit: {
       opacity: 0,
       scale: 0.8,
       transition: {
@@ -90,8 +89,8 @@ export default function GalleryModal({ image, gallery, onClose }) {
 
   const imageVariants = {
     hidden: { opacity: 0, x: 100 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
       transition: {
         type: "spring",
@@ -99,8 +98,8 @@ export default function GalleryModal({ image, gallery, onClose }) {
         damping: 25
       }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       x: -100,
       transition: { duration: 0.2 }
     }
@@ -143,14 +142,14 @@ export default function GalleryModal({ image, gallery, onClose }) {
               className={`
                 flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden
                 border-2 transition-all duration-300
-                ${index === currentImageIndex 
-                  ? 'border-white shadow-lg' 
+                ${index === currentImageIndex
+                  ? 'border-white shadow-lg'
                   : 'border-transparent opacity-70 hover:opacity-100'
                 }
               `}
             >
-              <img 
-                src={img.url} 
+              <img
+                src={img.url}
                 alt={img.caption || `圖片 ${index + 1}`}
                 className="w-full h-full object-cover"
               />
@@ -184,7 +183,7 @@ export default function GalleryModal({ image, gallery, onClose }) {
                 {currentImageIndex + 1} / {gallery.images.length}
               </span>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               {/* 下載按鈕 */}
               <motion.button
@@ -201,7 +200,7 @@ export default function GalleryModal({ image, gallery, onClose }) {
               >
                 📥
               </motion.button>
-              
+
               {/* 關閉按鈕 */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -216,8 +215,8 @@ export default function GalleryModal({ image, gallery, onClose }) {
           </div>
         </motion.div>
 
-        {/* 主要圖片區域 */}
-        <div className="flex-1 flex items-center justify-center p-4 pt-20 pb-32 relative">
+        {/* 主要圖片區域 - 修復尺寸問題 */}
+        <div className="flex-1 flex items-center justify-center p-4 pt-20 pb-32 relative min-h-0 overflow-hidden">
           {/* 載入指示器 */}
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -228,20 +227,20 @@ export default function GalleryModal({ image, gallery, onClose }) {
           {/* 導航按鈕 */}
           {gallery.images && gallery.images.length > 1 && (
             <>
-              <NavButton 
-                direction="left" 
+              <NavButton
+                direction="left"
                 onClick={goToPrevious}
                 disabled={gallery.images.length <= 1}
               />
-              <NavButton 
-                direction="right" 
+              <NavButton
+                direction="right"
                 onClick={goToNext}
                 disabled={gallery.images.length <= 1}
               />
             </>
           )}
 
-          {/* 圖片 */}
+          {/* 圖片容器 - 修正響應式尺寸 */}
           <AnimatePresence mode="wait">
             <motion.div
               key={currentImage.id}
@@ -249,12 +248,18 @@ export default function GalleryModal({ image, gallery, onClose }) {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="max-w-full max-h-full flex items-center justify-center"
+              className="flex items-center justify-center w-full h-full relative"
             >
               <img
                 src={currentImage.url}
                 alt={currentImage.caption || `圖片 ${currentImageIndex + 1}`}
                 className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                style={{
+                  maxWidth: 'min(90vw, 1200px)',
+                  maxHeight: 'min(70vh, 800px)',
+                  width: 'auto',
+                  height: 'auto'
+                }}
                 onLoad={() => setIsLoading(false)}
                 onError={() => setIsLoading(false)}
               />
@@ -275,7 +280,7 @@ export default function GalleryModal({ image, gallery, onClose }) {
               {currentImage.tags && currentImage.tags.length > 0 && (
                 <div className="flex justify-center space-x-2 mt-2">
                   {currentImage.tags.map((tag, index) => (
-                    <span 
+                    <span
                       key={index}
                       className="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-sm rounded-full"
                     >

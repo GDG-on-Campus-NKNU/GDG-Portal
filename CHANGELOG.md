@@ -217,3 +217,103 @@
 
 ---
 
+## First hand new schema testing. (Went wrong) 06/02
+
+> 2025-06-02 02:23:40
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `bc2bc99b8e9dc0b4bcb1c18147051ee5479d7471`
+
+---
+
+## Fixed several issues with module importing, and fixed image storage as well. 06/02
+
+> 2025-06-02 22:36:58
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `b0cbc310e57bebc6e87272294b1f6132ea791cd4`
+
+---
+
+## Solved conflict, and rebuilt database. 06/03
+
+> 2025-06-03 00:14:56
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `65766245bb4dca4ddc2de470a94d0f19ee94ca41`
+
+---
+
+## Fixed several issues related to database and stuff. 06/03
+
+> 2025-06-03 01:53:27
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `4bb7db6f69c882ac49aa1f90c87b6dbcf7255469`
+
+---
+
+## Fixed several issues regarding gallery. 06/03
+
+> 2025-06-03 03:20:24
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `b4f183b8d6146a8743400f90f79addea1818ebef`
+
+---
+
+## Added logo for the website. 06/03
+
+> 2025-06-03 03:33:03
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `2fe4b626b84bd44fa0eb8140afd3a02a8c40a393`
+
+---
+
+## Fixed problems with fixed client url. 06/03
+
+> 2025-06-03 03:39:36
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `14fcd3b91e354357515193b65b6d2513b5eb5544`
+
+---
+
+## QOL changes.  06/03
+
+> 2025-06-03 12:20:53
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `9c1723716266bc8e9ba2ba9a6ddc76eeb3462b84`
+
+---
+
+## More QOL changes. 06/03
+
+> 2025-06-03 12:33:08
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `90b3093bd3af3fa23f37b8f04bea3f1270aafa99`
+
+---
+
+## Finally updated README.md. 06/03
+
+> 2025-06-03 13:16:19
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `e7802eddced10b1f97d056aaba9d19384b33bb06`
+
+---
+

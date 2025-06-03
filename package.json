@@ -1,5 +1,6 @@
 {
-  "name": "GDG on Campus-portal",
+  "name": "gdg-on-campus-portal",
+  "type": "module",
   "version": "0.0.0",
   "description": "GDG on Campus-Portal",
   "main": "app.js",
@@ -9,18 +10,27 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "build": "cd client && npm run build",
     "start": "cd server && npm start",
-    "install:all": "npm install && cd client && npm install && cd ../server && npm install"
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "db:setup": "./scripts/setup-database.sh",
+    "db:init": "node scripts/init-database.js",
+    "db:clear": "node scripts/init-database.js --clear",
+    "db:check": "node scripts/check-database.js",
+    "db:generate-sql": "node scripts/generate-sql.js",
+    "test:all": "./tests/run-all-tests.sh"
   },
   "author": {
     "name": ""
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.1"
   },
   "eslintConfig": {},
   "dependencies": {
     "date-fns": "^4.1.0",
-    "framer-motion": "^12.9.1"
+    "dotenv": "^16.5.0",
+    "framer-motion": "^12.9.1",
+    "gdg-on-campus-portal": "file:",
+    "node-fetch": "^3.3.2"
   }
 }

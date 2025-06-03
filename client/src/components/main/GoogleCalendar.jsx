@@ -1,4 +1,4 @@
-export function GoogleCalendar() {
+export default function GoogleCalendar() {
   return (
     <section className="relative bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl p-3 sm:p-4 lg:p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.01] transition-all duration-300 overflow-hidden">
       {/* 背景裝飾 */}

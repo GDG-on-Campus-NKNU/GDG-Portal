@@ -1,17 +1,17 @@
 import { useState, useEffect, useContext, createContext } from 'react';
-import { 
-  mockUsers, 
-  mockRoles, 
-  getCurrentUser, 
-  setCurrentUser, 
-  validateCredentials, 
-  hasPermission, 
-  hasRole, 
-  simulateApiDelay 
+import {
+  mockUsers,
+  mockRoles,
+  getCurrentUser,
+  setCurrentUser,
+  validateCredentials,
+  hasPermission,
+  hasRole,
+  simulateApiDelay
 } from '../data/mockData';
 
-// 是否使用假資料模式 (開發時設為 true)
-const USE_MOCK_DATA = true;
+// 是否使用假資料模式 (開發時設為 false，使用真實API)
+const USE_MOCK_DATA = false;
 
 // 創建認證上下文
 const AuthContext = createContext();
@@ -64,7 +64,7 @@ export function AuthProvider({ children }) {
         const response = await fetch('/api/auth/status', {
           credentials: 'include'
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.isAuthenticated && data.user) {
@@ -86,7 +86,7 @@ export function AuthProvider({ children }) {
       if (USE_MOCK_DATA) {
         // 使用假資料模式
         await simulateApiDelay(800);
-        
+
         const validUser = validateCredentials(email, password);
         if (validUser) {
           const userWithLastLogin = {
@@ -133,13 +133,13 @@ export function AuthProvider({ children }) {
       if (USE_MOCK_DATA) {
         // 使用假資料模式
         await simulateApiDelay(1000);
-        
+
         // 檢查電子郵件是否已存在
         const existingUser = Object.values(mockUsers).find(u => u.email === email);
         if (existingUser) {
           return { success: false, message: '此電子郵件已被註冊' };
         }
-        
+
         // 創建新使用者
         const newUser = {
           id: `user_${Date.now()}`,
@@ -160,7 +160,7 @@ export function AuthProvider({ children }) {
           },
           lastLogin: new Date().toISOString()
         };
-        
+
         setCurrentUser(newUser);
         setUser(newUser);
         setIsAuthenticated(true);
@@ -220,20 +220,21 @@ export function AuthProvider({ children }) {
       if (USE_MOCK_DATA) {
         // 使用假資料模式
         await simulateApiDelay(600);
-        
+
         if (!user) {
           return { success: false, message: '使用者未登入' };
         }
-        
+
         const updatedUser = {
           ...user,
           ...profileData,
           profile: {
             ...user.profile,
-            ...profileData.profile
-          }
+            ...(profileData.bannerUrl !== undefined && { bannerUrl: profileData.bannerUrl })
+          },
+          ...(profileData.avatarUrl !== undefined && { avatarUrl: profileData.avatarUrl })
         };
-        
+
         setCurrentUser(updatedUser);
         setUser(updatedUser);
         return { success: true, message: '個人資料更新成功' };
@@ -259,6 +260,54 @@ export function AuthProvider({ children }) {
       }
     } catch (error) {
       console.error('更新資料錯誤:', error);
+      return { success: false, message: '網路錯誤，請稍後再試' };
+    }
+  };
+
+  // Google 帳號連接
+  const linkGoogleAccount = async (googleData) => {
+    try {
+      const response = await fetch('/api/auth/link-google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(googleData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        return { success: true, message: data.message };
+      } else {
+        return { success: false, message: data.message || 'Google 帳號連接失敗' };
+      }
+    } catch (error) {
+      console.error('Google 帳號連接錯誤:', error);
+      return { success: false, message: '網路錯誤，請稍後再試' };
+    }
+  };
+
+  // 取消 Google 帳號連接
+  const unlinkGoogleAccount = async () => {
+    try {
+      const response = await fetch('/api/auth/unlink-google', {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        return { success: true, message: data.message };
+      } else {
+        return { success: false, message: data.message || '取消 Google 帳號連接失敗' };
+      }
+    } catch (error) {
+      console.error('取消 Google 帳號連接錯誤:', error);
       return { success: false, message: '網路錯誤，請稍後再試' };
     }
   };
@@ -321,7 +370,7 @@ export function AuthProvider({ children }) {
     } else {
       // 原本的角色層級檢查邏輯
       if (!user) return false;
-      
+
       const roleHierarchy = {
         guest: 0,
         member: 1,
@@ -349,10 +398,10 @@ export function AuthProvider({ children }) {
 
   const hasPermission = (permission) => {
     if (!user) return false;
-    
+
     // 管理員擁有所有權限
     if (user.role === 'admin') return true;
-    
+
     // 根據角色定義權限
     const permissions = {
       member: ['view_member_content', 'register_events'],
@@ -367,7 +416,7 @@ export function AuthProvider({ children }) {
     user,
     loading,
     isAuthenticated,
-    
+
     // 方法
     login,
     register,
@@ -376,23 +425,23 @@ export function AuthProvider({ children }) {
     changePassword,
     refreshToken,
     checkAuthStatus,
-    
-    // 權限檢查 (使用新的函數名稱避免衝突)
+    linkGoogleAccount,
+    unlinkGoogleAccount,
+      // 權限檢查 (使用新的函數名稱避免衝突)
     hasRole: hasUserRole,
     hasPermission: hasUserPermission,
-    
+
     // 額外的便利方法
     isAdmin: () => hasUserRole('admin'),
     isCoreTeam: () => hasUserRole('core') || hasUserRole('admin'),
     isMember: () => hasUserRole('member') || hasUserRole('core') || hasUserRole('admin'),
-    
+
     // 快速權限檢查
     canManageUsers: () => hasUserPermission('manage_users'),
     canManageEvents: () => hasUserPermission('manage_events'),
     canManageAnnouncements: () => hasUserPermission('manage_announcements'),
     canWrite: () => hasUserPermission('write'),
-    canDelete: () => hasUserPermission('delete'),
-    hasPermission
+    canDelete: () => hasUserPermission('delete')
   };
 
   return (

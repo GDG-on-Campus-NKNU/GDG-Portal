@@ -16,46 +16,43 @@ import authRoutes from "./routes/auth_routes.js";
 import eventRoutes from "./routes/eventRoutes.js"; // 引入活動路由
 import announcementRoutes from "./routes/announcementRoutes.js"; // 引入公告路由
 import coreteamRoutes from "./routes/coreteamRoutes.js"; // 引入幹部路由
+import galleryRoutes from "./routes/galleryRoutes.js"; // 引入照片集路由
+import uploadRoutes from "./routes/uploadRoutes.js"; // 引入檔案上傳路由
 import "./config/passport.js";
 import { authenticateJWT } from './middlewares/auth.js';
-import sequelize from './config/database.js';
+import { initializeDatabase } from './model/index.js';
+import { getLogger, requestDetailsLogger, responseLogger } from './middlewares/logger.js';
+import { notFoundHandler, globalErrorHandler } from './middlewares/errorHandler.js';
 
 const app = express()
 const PORT = process.env.PORT || 5000
-
-// 資料庫連線初始化
-const initializeDatabase = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('✅ Database connection has been established successfully.');
-    
-    // 開發環境下同步資料庫模型
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('✅ Database models synchronized.');
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
-    return false;
-  }
-};
 
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173', // 允許的來源
   credentials: true, // 允許攜帶 Cookie
 }));
 
+// 日誌中間件
+app.use(getLogger());
+
+// 開發環境下的詳細日誌
+if (process.env.NODE_ENV === 'development') {
+  app.use(requestDetailsLogger);
+  app.use(responseLogger);
+}
+
 // 重要：cookie-parser 必須在路由之前設定
 app.use(cookieParser());
 app.use(express.static('public'));
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes); // 活動路由
 app.use("/api/announcements", announcementRoutes); // 公告路由
 app.use("/api/coreteam", coreteamRoutes); // 幹部路由
+app.use("/api/gallery", galleryRoutes); // 照片集路由
+app.use("/api/upload", uploadRoutes); // 檔案上傳路由
 
 app.get('/', (req, res) => {
   res.send('伺服器運行中 🚀');
@@ -73,18 +70,24 @@ app.get('/api/test', authenticateJWT, (req, res) =>{
   });
 })
 
-// 404 處理 - 只處理 API 路由
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ 
-    error: 'API 端點不存在',
-    message: `找不到路由：${req.originalUrl}` 
-  });
+app.get('/api/placeholder/:w/:h', (req, res) => {
+  const { w, h } = req.params;
+  // 這裡可以回傳一張 SVG 或 PNG 佔位圖
+  res.type('svg').send(
+    `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#eee"/>
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#aaa" font-size="20">${w}x${h}</text>
+    </svg>`
+  );
 });
+
+// 404 處理 - 只處理 API 路由
+app.use('/api/*', notFoundHandler);
 
 // SPA 路由處理 - 所有非 API 請求都返回 index.html
 app.get('*', (req, res) => {
   const indexPath = path.join(__dirname, 'public', 'index.html');
-  
+
   // 檢查檔案是否存在
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
@@ -99,13 +102,7 @@ app.get('*', (req, res) => {
 });
 
 // 全域錯誤處理中介軟體
-app.use((err, req, res, next) => {
-  console.error('伺服器錯誤:', err.stack);
-  res.status(500).json({ 
-    error: '伺服器內部錯誤',
-    message: process.env.NODE_ENV === 'development' ? err.message : '請稍後再試'
-  });
-});
+app.use(globalErrorHandler);
 
 const startServer = async (port) => {
   try {
@@ -121,12 +118,11 @@ const startServer = async (port) => {
       console.log(`🔗 Frontend URL: ${process.env.CLIENT_URL || 'http://localhost:5173'}`);
       console.log(`🔐 Auth endpoints: http://localhost:${port}/api/auth`);
       console.log(`📊 API endpoints: http://localhost:${port}/api`);
-    });
-
-    server.on('error', (err) => {
+    });    server.on('error', (err) => {
       if (err.code === 'EADDRINUSE') {
-        console.log(`⚠️ Port ${port} is in use, trying port ${port + 1}...`);
-        setTimeout(() => startServer(parseInt(port) + 1), 1000);
+        const nextPort = parseInt(port) + 1;
+        console.log(`⚠️ Port ${port} is in use, trying port ${nextPort}...`);
+        setTimeout(() => startServer(nextPort), 1000);
       } else {
         console.error(`❌ Server error: ${err.message}`);
         process.exit(1);
@@ -137,6 +133,7 @@ const startServer = async (port) => {
     process.on('SIGINT', () => {
       console.log('\n⚠️ 正在關閉伺服器...');
       server.close(async () => {
+        const { sequelize } = await import('./model/index.js');
         await sequelize.close();
         console.log('✅ 伺服器已安全關閉');
         process.exit(0);

@@ -1,27 +1,32 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Navbar } from '../../components/general/Navbar'
+import { Navbar, BackgroundEffects } from '../../components/general'
 import { Footer } from '../../components/Footer'
-import { BackgroundEffects } from '../../components/general/BackgroundEffects'
 import { useAuth } from '../../hooks/useAuth'
 import { Link } from 'react-router-dom'
-import { mockStats, mockEvents, mockAnnouncements } from '../../data/mockData'
 
 export default function DashboardPage() {
-  const { user, updateProfile, changePassword } = useAuth()
+  const { user, updateProfile, changePassword, linkGoogleAccount, unlinkGoogleAccount, checkAuthStatus } = useAuth()
   const [activeTab, setActiveTab] = useState('profile')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState('') // 'success' or 'error'
-  
+
   // 個人資料表單
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
     bio: '',
+    bannerUrl: '',
     location: '',
     company: '',
-    website: ''
+    website: '',
+    phone: '',
+    linkedinUrl: '',
+    githubUrl: '',
+    twitterUrl: '',
+    skills: [],
+    interests: []
   })
 
   // 密碼變更表單
@@ -37,10 +42,17 @@ export default function DashboardPage() {
       setProfileData({
         name: user.name || '',
         email: user.email || '',
-        bio: user.profile?.bio || user.bio || '',
-        location: user.profile?.location || user.location || '',
-        company: user.profile?.department || user.company || '',
-        website: user.profile?.social?.website || user.website || ''
+        bio: user.bio || '',
+        bannerUrl: user.bannerUrl || '',
+        location: user.location || '',
+        company: user.company || '',
+        website: user.website || '',
+        phone: user.phone || '',
+        linkedinUrl: user.linkedinUrl || '',
+        githubUrl: user.githubUrl || '',
+        twitterUrl: user.twitterUrl || '',
+        skills: user.skills || [],
+        interests: user.interests || []
       })
     }
   }, [user])
@@ -107,6 +119,79 @@ export default function DashboardPage() {
     }
   }
 
+  const handleGoogleLink = async () => {
+    setLoading(true)
+    try {
+      // 開啟新視窗進行 Google OAuth 登入，添加 linkAccount 標記
+      const authWindow = window.open('/api/auth/google?linkAccount=true', 'google-oauth', 'width=500,height=600')
+
+      // 設置訊息監聽，接收 OAuth 回調結果
+      window.addEventListener('message', async function handleAuthMessage(event) {
+        if (event.data.type === 'google-oauth-success') {
+          authWindow.close()
+
+          // Google OAuth 成功，將 googleId 發送到後端進行綁定
+          const result = await linkGoogleAccount({
+            googleId: event.data.googleId
+          })
+
+          if (result.success) {
+            showMessage(result.message || 'Google 帳號連接成功', 'success')
+          } else {
+            showMessage(result.message || 'Google 帳號連接失敗', 'error')
+          }
+          // 自動刷新 user 狀態
+          if (typeof checkAuthStatus === 'function') {
+            await checkAuthStatus()
+          } else {
+            window.location.reload()
+          }
+
+          window.removeEventListener('message', handleAuthMessage)
+        } else if (event.data.type === 'google-oauth-error') {
+          authWindow.close()
+          showMessage('Google 帳號連接失敗: ' + event.data.error, 'error')
+          window.removeEventListener('message', handleAuthMessage)
+        }
+      })
+
+      // 如果用戶關閉窗口而沒有完成授權
+      const checkWindowClosed = setInterval(() => {
+        if (authWindow.closed) {
+          clearInterval(checkWindowClosed)
+          setLoading(false)
+        }
+      }, 1000)
+
+    } catch (error) {
+      showMessage('Google 帳號連接失敗', 'error')
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleUnlink = async () => {
+    if (!confirm('確定要取消 Google 帳號連接嗎？取消後您需要使用密碼登入。')) {
+      return
+    }
+
+    setLoading(true)
+    try {
+      // 呼叫 unlinkGoogleAccount 函數解除帳號連接
+      const result = await unlinkGoogleAccount()
+
+      if (result.success) {
+        showMessage(result.message || 'Google 帳號連接已取消', 'success')
+      } else {
+        showMessage(result.message || '取消 Google 帳號連接失敗', 'error')
+      }
+    } catch (error) {
+      console.error('取消 Google 連接失敗:', error)
+      showMessage('取消連接失敗，請稍後再試', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // 動畫設定
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -121,8 +206,8 @@ export default function DashboardPage() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    show: { 
-      opacity: 1, 
+    show: {
+      opacity: 1,
       y: 0,
       transition: {
         type: "spring",
@@ -140,8 +225,8 @@ export default function DashboardPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-slate-800 mb-4">請先登入</h1>
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               className="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 transition-all duration-300"
             >
               前往登入
@@ -157,7 +242,7 @@ export default function DashboardPage() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 text-slate-800 relative overflow-hidden">
       <BackgroundEffects />
       <Navbar />
-      
+
       <motion.main
         initial="hidden"
         animate="show"
@@ -165,7 +250,7 @@ export default function DashboardPage() {
         className="flex-1 w-full max-w-7xl mx-auto px-4 py-12 relative z-10"
       >
         {/* 頁面標題 */}
-        <motion.div 
+        <motion.div
           className="text-center mb-12"
           variants={itemVariants}
         >
@@ -179,10 +264,10 @@ export default function DashboardPage() {
 
         {/* 訊息提示 */}
         {message && (
-          <motion.div 
+          <motion.div
             className={`mb-6 p-4 rounded-xl ${
-              messageType === 'success' 
-                ? 'bg-green-50/80 border border-green-200/50 text-green-700' 
+              messageType === 'success'
+                ? 'bg-green-50/80 border border-green-200/50 text-green-700'
                 : 'bg-red-50/80 border border-red-200/50 text-red-700'
             }`}
             initial={{ opacity: 0, y: -20 }}
@@ -190,9 +275,9 @@ export default function DashboardPage() {
             exit={{ opacity: 0, y: -20 }}
           >
             <div className="flex items-center">
-              <svg 
-                className="w-5 h-5 mr-2" 
-                fill="currentColor" 
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
                 viewBox="0 0 20 20"
               >
                 {messageType === 'success' ? (
@@ -206,7 +291,7 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        <motion.div 
+        <motion.div
           className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl overflow-hidden"
           variants={itemVariants}
         >
@@ -346,6 +431,72 @@ export default function DashboardPage() {
                       />
                     </div>
 
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        聯絡電話
+                      </label>
+                      <input
+                        type="tel"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
+                        placeholder="+886 912-345-678"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        LinkedIn 連結
+                      </label>
+                      <input
+                        type="url"
+                        value={profileData.linkedinUrl}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, linkedinUrl: e.target.value }))}
+                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
+                        placeholder="https://linkedin.com/in/username"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        GitHub 連結
+                      </label>
+                      <input
+                        type="url"
+                        value={profileData.githubUrl}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, githubUrl: e.target.value }))}
+                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
+                        placeholder="https://github.com/username"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        Twitter 連結
+                      </label>
+                      <input
+                        type="url"
+                        value={profileData.twitterUrl}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, twitterUrl: e.target.value }))}
+                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
+                        placeholder="https://twitter.com/username"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">
+                        個人橫幅圖片 URL
+                      </label>
+                      <input
+                        type="url"
+                        value={profileData.bannerUrl}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, bannerUrl: e.target.value }))}
+                        className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 focus:outline-none transition-all duration-300"
+                        placeholder="https://example.com/banner-image.jpg"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">用於個人頁面的橫幅背景圖片（建議尺寸：1200x400px）</p>
+                    </div>
+
                     <div className="md:col-span-2">
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         自我介紹
@@ -461,6 +612,62 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Google 帳號連接管理 */}
+                <div className="mt-8 pt-8 border-t border-slate-200/50">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4">Google 帳號連接</h3>
+                  <div className="bg-white/30 rounded-xl p-6 border border-slate-200/30">
+                    {user.googleId ? (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
+                            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="font-medium text-slate-800">已連接 Google 帳號</div>
+                            <div className="text-sm text-slate-600">您可以使用 Google 帳號快速登入</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleGoogleUnlink}
+                          disabled={loading}
+                          className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 border border-red-200 rounded-lg font-medium transition-colors disabled:opacity-50"
+                        >
+                          取消連接
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                            <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="font-medium text-slate-800">未連接 Google 帳號</div>
+                            <div className="text-sm text-slate-600">連接 Google 帳號以便快速登入</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleGoogleLink}
+                          disabled={loading}
+                          className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-200 rounded-lg font-medium transition-colors disabled:opacity-50"
+                        >
+                          連接 Google
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             )}
 
@@ -482,14 +689,14 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-sm text-green-700 font-medium">參與活動</div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-200/50 rounded-xl p-6 text-center">
                     <div className="text-2xl font-bold text-blue-600 mb-2">
                       {user.postsCreated || 0}
                     </div>
                     <div className="text-sm text-blue-700 font-medium">發布貼文</div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-purple-500/10 to-purple-600/10 border border-purple-200/50 rounded-xl p-6 text-center">
                     <div className="text-2xl font-bold text-purple-600 mb-2">
                       {user.badgesEarned || 0}

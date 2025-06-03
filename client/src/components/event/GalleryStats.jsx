@@ -6,23 +6,48 @@ export default function GalleryStats({ galleries, totalImages, eventTypes }) {
   const totalEvents = eventTypes.length;
   const averageImagesPerGallery = totalGalleries > 0 ? Math.round(totalImages / totalGalleries) : 0;
 
-  // 各類型活動數量統計
-  const eventTypeStats = eventTypes.map(type => ({
-    type: type.id,
-    name: type.name,
-    count: galleries.filter(gallery => gallery.eventType === type.id).length,
-    color: type.color
-  }));
+  // 各類型活動數量統計 - 適配API返回的格式
+  const eventTypeStats = eventTypes.map(type => {
+    // 如果是從 API 獲取的數據（有 count 屬性）
+    if (type.count !== undefined) {
+      return {
+        type: type.value,
+        name: type.label,
+        count: type.count,
+        color: getEventTypeColor(type.value)
+      };
+    }
+
+    // 如果是從 JSON 文件獲取的數據（舊格式）
+    return {
+      type: type.value || type.id,
+      name: type.label || type.name,
+      count: galleries.filter(gallery => gallery.eventType === (type.value || type.id)).length,
+      color: type.color || getEventTypeColor(type.value || type.id)
+    };
+  });
+
+  // 獲取活動類型顏色的輔助函數
+  function getEventTypeColor(eventType) {
+    const colorMap = {
+      workshop: '#3b82f6', // blue-500
+      talk: '#10b981', // green-500
+      social: '#8b5cf6', // purple-500
+      hackathon: '#ef4444', // red-500
+      other: '#6b7280' // gray-500
+    };
+    return colorMap[eventType] || '#6b7280';
+  }
 
   // 最新活動
-  const latestGallery = galleries.length > 0 
+  const latestGallery = galleries.length > 0
     ? galleries.sort((a, b) => new Date(b.date) - new Date(a.date))[0]
     : null;
 
   const statsVariants = {
     hidden: { opacity: 0, y: 20 },
-    show: { 
-      opacity: 1, 
+    show: {
+      opacity: 1,
       y: 0,
       transition: {
         type: "spring",
@@ -77,21 +102,21 @@ export default function GalleryStats({ galleries, totalImages, eventTypes }) {
           label="活動相簿"
           color="purple"
         />
-        
+
         <StatCard
           icon="📷"
           value={totalImages}
           label="總照片數"
           color="blue"
         />
-        
+
         <StatCard
           icon="🎯"
           value={totalEvents}
           label="活動類型"
           color="green"
         />
-        
+
         <StatCard
           icon="📈"
           value={averageImagesPerGallery}
@@ -108,7 +133,7 @@ export default function GalleryStats({ galleries, totalImages, eventTypes }) {
             {eventTypeStats.map((stat) => (
               <div key={stat.type} className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <div 
+                  <div
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: stat.color }}
                   />
@@ -126,8 +151,8 @@ export default function GalleryStats({ galleries, totalImages, eventTypes }) {
         <motion.div variants={statsVariants} className="mt-4 pt-4 border-t border-slate-200/50">
           <h4 className="text-xs font-semibold text-slate-700 mb-2">最新活動</h4>
           <div className="flex items-center space-x-2">
-            <img 
-              src={latestGallery.coverImage} 
+            <img
+              src={latestGallery.coverImage}
               alt={latestGallery.title}
               className="w-10 h-10 rounded-lg object-cover"
             />

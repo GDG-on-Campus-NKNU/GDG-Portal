@@ -10,14 +10,37 @@ import CoreTeamPage from './pages/CoreTeamPage'
 import CoreTeamDetailPage from './pages/CoreTeamDetailPage'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
+import AuthErrorPage from './pages/AuthErrorPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import TestDataPage from './pages/TestDataPage'
 import ProtectedRoute, { RoleProtectedRoute, MemberRoute, CoreTeamRoute, AdminRoute } from './pages/ProtectedRoute'
-import { AuthProvider } from './hooks/useAuth'
-import { ScrollEffects, CursorEffect, PageTransition } from './components/general/ScrollEffects'
+import { AuthProvider, useAuth } from './hooks/useAuth'
+import { ScrollEffects, CursorEffect, PageTransition } from './components/general'
 import { usePageShow } from './hooks/usePageShow'
 import EventGalleryPage from './pages/EventGalleryPage'
-import DevQuickLogin from './components/DevQuickLogin'
+import UserProfilePage from './pages/UserProfilePage'
+import { default as DevQuickLogin } from './components/DevQuickLogin'
+import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
+// 檢測 Google 登入重定向的組件
+function GoogleLoginHandler() {
+  const { checkAuthStatus } = useAuth();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // 檢測 URL 參數中的 login=success
+    if (searchParams.get('login') === 'success') {
+      // Google 登入成功，刷新認證狀態
+      checkAuthStatus();
+
+      // 清除 URL 參數
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [searchParams, checkAuthStatus]);
+
+  return null;
+}
 
 function App() {
   usePageShow(() => {
@@ -30,6 +53,9 @@ function App() {
         <ScrollEffects>
           <CursorEffect />
           <div className="App min-h-screen">
+            {/* 處理 Google 登入重定向 */}
+            <GoogleLoginHandler />
+
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={
@@ -77,14 +103,23 @@ function App() {
                     <CoreTeamDetailPage />
                   </PageTransition>
                 } />
+                <Route path="/users/:id" element={
+                  <PageTransition>
+                    <UserProfilePage />
+                  </PageTransition>
+                } />
                 <Route path="/login" element={
                   <PageTransition>
                     <LoginPage />
                   </PageTransition>
-                } />
-                <Route path="/register" element={
+                } />                <Route path="/register" element={
                   <PageTransition>
                     <RegisterPage />
+                  </PageTransition>
+                } />
+                <Route path="/auth/error" element={
+                  <PageTransition>
+                    <AuthErrorPage />
                   </PageTransition>
                 } />
                 <Route path="/dashboard" element={
@@ -108,8 +143,8 @@ function App() {
                         <div className="text-6xl">😢</div>
                         <h1 className="text-2xl font-bold text-slate-800">找不到頁面</h1>
                         <p className="text-slate-600">您訪問的頁面不存在</p>
-                        <a 
-                          href="/" 
+                        <a
+                          href="/"
                           className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-shadow"
                         >
                           返回首頁
@@ -120,7 +155,7 @@ function App() {
                 } />
               </Routes>
             </AnimatePresence>
-            
+
             {/* 開發模式快速登入工具 */}
             <DevQuickLogin />
           </div>

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState, useCallback, useMemo } from 'react'
 
-export function BackgroundEffects() {
+export default function BackgroundEffects() {
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 })
 
   const handleMouseMove = useCallback((e) => {

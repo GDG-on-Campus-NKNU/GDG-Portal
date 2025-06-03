@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-export function FeatureHighlights() {
+export default function FeatureHighlights() {
   const features = [
     {
       title: "技術分享會",
