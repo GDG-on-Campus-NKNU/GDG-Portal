@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Navbar, 
-  BackgroundEffects, 
-  ScrollEffects, 
-  LoadingSpinner, 
-  NotificationToast, 
-  Pagination, 
-  SearchFilterSection, 
-  PageBanner 
+import {
+  Navbar,
+  BackgroundEffects,
+  ScrollEffects,
+  LoadingSpinner,
+  NotificationToast,
+  Pagination,
+  SearchFilterSection,
+  PageBanner
 } from '../components/general'
 import { Footer } from '../components/Footer'
 import { EventCard, CalendarView, EventSidebar } from '../components/event'
@@ -73,6 +73,7 @@ export default function EventsPage() {
     { label: 'Lecture 講座', value: 'lecture' },
     { label: 'React', value: 'react' },
     { label: 'Google', value: 'google' },
+    { label: 'Meeting 聚會', value: 'meeting' }
   ]
 
   // Animation variants
@@ -89,8 +90,8 @@ export default function EventsPage() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    show: { 
-      opacity: 1, 
+    show: {
+      opacity: 1,
       y: 0,
       transition: {
         type: "spring",
@@ -122,12 +123,12 @@ export default function EventsPage() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 text-slate-800 relative overflow-hidden">
       {/* 動態背景效果 */}
       <BackgroundEffects />
-      
+
       {/* 滾動效果 */}
       <ScrollEffects />
 
       <Navbar />
-      
+
       <motion.main
         initial="hidden"
         animate="show"
@@ -183,10 +184,10 @@ export default function EventsPage() {
                       <motion.div
                         key={ev.id}
                         variants={itemVariants}
-                        whileHover={{ 
-                          scale: 1.02, 
+                        whileHover={{
+                          scale: 1.02,
                           y: -5,
-                          transition: { duration: 0.3, ease: "easeOut" } 
+                          transition: { duration: 0.3, ease: "easeOut" }
                         }}
                         className="h-full"
                       >
@@ -259,7 +260,7 @@ export default function EventsPage() {
           />
         </div>
       </motion.main>
-      
+
       <Footer />
     </div>
   )

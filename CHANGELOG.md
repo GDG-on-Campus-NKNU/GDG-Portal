@@ -307,3 +307,13 @@
 
 ---
 
+## Finally updated README.md. 06/03
+
+> 2025-06-03 13:16:19
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `e7802eddced10b1f97d056aaba9d19384b33bb06`
+
+---
+
