@@ -18,3 +18,13 @@
 
 ---
 
+## Remove sensitive OAuth credentials from .env.docker for security
+
+> 2025-07-24 02:00:11
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `6c6b581df4b82e8b1289aa55131fb78c21785040`
+
+---
+
