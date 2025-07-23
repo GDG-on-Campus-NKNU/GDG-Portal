@@ -86,13 +86,7 @@ This project provides detailed technical documentation, recommended reading orde
 5. **[Environment Configuration](docs/05-環境說明.md)** - Development vs deployment environment setup
 6. **[Docker Container Guide](docs/06-Docker容器說明.md)** - Containerized deployment details
 7. **[Git Workflow](docs/07-Git工作流.md)** - Git branching strategy and commit conventions
-
-### 🎯 For Different Roles
-
-- **Web Development Beginners** → Read docs 1, 2, 3, 7
-- **Frontend Developers** → Focus on docs 2, 3, 5, 7
-- **Backend Developers** → Focus on docs 3, 4, 6, 7
-- **System Administrators** → Focus on docs 5, 6
+8. **[Feature Planning & Development Roadmap](docs/08-功能規劃與開發路線圖.md)** - Future features and implementation plans
 
 ## 🛠 Tech Stack
 

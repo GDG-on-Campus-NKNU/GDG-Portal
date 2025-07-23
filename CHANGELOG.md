@@ -38,3 +38,13 @@
 
 ---
 
+## Added new doc files. 07/24
+
+> 2025-07-24 03:11:03
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `2793c67d36a8e66f5b91ba96111aea59f44add24`
+
+---
+
