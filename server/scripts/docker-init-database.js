@@ -1,70 +1,41 @@
-#!/usr/bin/env // 手動載入環境變數
-import fs from 'fs';
-const envPath = path.join(__dirname, '../.env');
-if (fs.existsSync(envPath)) {
-  const envConfig = fs.readFileSync(envPath, 'utf8');
-  const envLines = envConfig.split('\n');
-  envLines.forEach(line => {
-    const [key, value] = line.split('=');
-    if (key && value) {
-      process.env[key.trim()] = value.trim();
-    }
-  });
-}path: /workspaces/GDG-Portal/scripts/init-database.js
-
+#!/usr/bin/env node
 /**
- * 資料庫初始化腳本
- * 用於創建表格和插入樣本 Core Team 成員資料
+ * Docker 環境專用的資料庫初始化腳本
+ * 簡化版本，專為容器環境設計
  */
 
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { Sequelize, DataTypes } from 'sequelize';
 
-// 設定環境變數路徑
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// 手動載入環境變數
-import fs from 'fs';
-const envPath = path.join(__dirname, '../server/.env');
-if (fs.existsSync(envPath)) {
-  const envConfig = fs.readFileSync(envPath, 'utf8');
-  const envLines = envConfig.split('\n');
-  envLines.forEach(line => {
-    const [key, value] = line.split('=');
-    if (key && value) {
-      process.env[key.trim()] = value.trim();
-    }
-  });
-}
-
-// 動態導入 Sequelize 和模型（確保在 server 目錄執行）
-process.chdir(path.join(__dirname, '../server'));
-
-const { Sequelize } = await import('sequelize');
-
-// 創建 Sequelize 實例
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  dialect: "mysql",
-  logging: process.env.NODE_ENV === "development" ? console.log : false,
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000,
-  },
-  define: {
-    timestamps: true,
-    underscored: false,
-  },
-});
+// 從環境變數讀取資料庫配置
+const sequelize = new Sequelize(
+  process.env.DB_NAME || 'gdg_portal',
+  process.env.DB_USER || 'gdg_admin',
+  process.env.DB_PASSWORD || 'gdg_admin_password_2024',
+  {
+    host: process.env.DB_HOST || 'mysql',
+    port: process.env.DB_PORT || 3306,
+    dialect: 'mysql',
+    dialectOptions: {
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+    },
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
+    define: {
+      timestamps: true,
+      underscored: false,
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+    },
+  }
+);
 
 // 定義模型
-const { DataTypes } = Sequelize;
-
-// CoreTeam 核心團隊成員模型
 const CoreTeam = sequelize.define('CoreTeam', {
   id: {
     type: DataTypes.INTEGER,
@@ -138,7 +109,6 @@ const CoreTeam = sequelize.define('CoreTeam', {
   updatedAt: 'updated_at'
 });
 
-// Categories 分類模型
 const Category = sequelize.define('Category', {
   id: {
     type: DataTypes.INTEGER,
@@ -168,7 +138,6 @@ const Category = sequelize.define('Category', {
   updatedAt: 'updated_at'
 });
 
-// CoreTeamCategories 關聯表模型
 const CoreTeamCategory = sequelize.define('CoreTeamCategory', {
   id: {
     type: DataTypes.INTEGER,
@@ -189,7 +158,7 @@ const CoreTeamCategory = sequelize.define('CoreTeamCategory', {
 });
 
 /**
- * 樣本 Core Team 成員資料
+ * 樣本資料 - 只保留顏榕嶙
  */
 const sampleCoreTeamData = [
   {
@@ -233,13 +202,9 @@ const sampleCoreTeamData = [
     ],
     is_active: true,
     sort_order: 1
-  },
-
+  }
 ];
 
-/**
- * 樣本分類資料
- */
 const sampleCategories = [
   {
     name: 'Technical Education',
@@ -258,18 +223,6 @@ const sampleCategories = [
     type: 'member',
     color: '#DC2626',
     is_active: true
-  },
-  {
-    name: 'Design',
-    type: 'member',
-    color: '#7C3AED',
-    is_active: true
-  },
-  {
-    name: 'Marketing',
-    type: 'member',
-    color: '#EA580C',
-    is_active: true
   }
 ];
 
@@ -278,19 +231,19 @@ const sampleCategories = [
  */
 async function initializeDatabase() {
   try {
-    console.log('🚀 Starting database initialization...');
+    console.log('🚀 Starting database initialization for Docker...');
 
-    // 1. 測試資料庫連接
+    // 測試資料庫連接
     console.log('📡 Testing database connection...');
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
 
-    // 2. 同步模型（創建表格）
+    // 同步模型
     console.log('🔄 Synchronizing database models...');
     await sequelize.sync({ alter: true });
     console.log('✅ Database models synchronized successfully.');
 
-    // 3. 插入分類資料
+    // 插入分類資料
     console.log('📋 Inserting category data...');
     for (const categoryData of sampleCategories) {
       const [category, created] = await Category.findOrCreate({
@@ -305,7 +258,7 @@ async function initializeDatabase() {
       }
     }
 
-    // 4. 插入 Core Team 成員資料
+    // 插入 Core Team 成員資料
     console.log('👥 Inserting Core Team member data...');
     for (const memberData of sampleCoreTeamData) {
       const [member, created] = await CoreTeam.findOrCreate({
@@ -316,9 +269,9 @@ async function initializeDatabase() {
       if (created) {
         console.log(`  ✅ Created Core Team member: ${member.name} (${member.title})`);
 
-        // 5. 建立成員與分類的關聯
+        // 建立成員與分類的關聯
         const category = await Category.findOne({
-          where: { name: memberData.department, type: 'member' }
+          where: { name: 'Technical Education', type: 'member' }
         });
 
         if (category) {
@@ -335,7 +288,7 @@ async function initializeDatabase() {
       }
     }
 
-    // 6. 顯示結果統計
+    // 顯示結果統計
     const totalMembers = await CoreTeam.count();
     const totalCategories = await Category.count({ where: { type: 'member' } });
     const totalLinks = await CoreTeamCategory.count();
@@ -347,50 +300,30 @@ async function initializeDatabase() {
 
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
-    process.exit(1);
+    throw error;
   } finally {
     await sequelize.close();
     console.log('🔌 Database connection closed.');
   }
 }
 
-/**
- * 清空資料庫（僅用於開發環境）
- */
-async function clearDatabase() {
-  try {
-    console.log('⚠️  Clearing database...');
-
-    await CoreTeamCategory.destroy({ where: {} });
-    await CoreTeam.destroy({ where: {} });
-    await Category.destroy({ where: {} });
-
-    console.log('✅ Database cleared successfully.');
-  } catch (error) {
-    console.error('❌ Failed to clear database:', error);
-    throw error;
-  }
+// 執行初始化
+if (process.argv.includes('--clear')) {
+  console.log('⚠️  Clear flag detected, but not implemented in Docker version');
 }
 
-/**
- * 主執行函數
- */
-async function main() {
-  const args = process.argv.slice(2);
-
-  if (args.includes('--clear')) {
-    await clearDatabase();
-  }
-
-  await initializeDatabase();
-}
+// 導出初始化函數以供其他模組使用
+export default initializeDatabase;
 
 // 如果直接執行此腳本
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(error => {
-    console.error('💥 Script execution failed:', error);
-    process.exit(1);
-  });
+  initializeDatabase()
+    .then(() => {
+      console.log('✅ Docker database initialization completed successfully');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('💥 Docker database initialization failed:', error);
+      process.exit(1);
+    });
 }
-
-export { initializeDatabase, clearDatabase, sampleCoreTeamData, sampleCategories };
