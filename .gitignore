@@ -18,6 +18,7 @@ out/
 
 # env & config
 .env
+.env.docker
 .env.local
 .env.*.local
 .env.production

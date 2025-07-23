@@ -58,6 +58,15 @@ app.get('/', (req, res) => {
   res.send('伺服器運行中 🚀');
 });
 
+// 健康檢查端點 (用於 Docker healthcheck)
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    service: 'GDG Portal Backend'
+  });
+});
+
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from GDG Backend! We\'ll go from here now.' })
 })

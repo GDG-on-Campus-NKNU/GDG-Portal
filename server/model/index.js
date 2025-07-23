@@ -126,11 +126,29 @@ const initializeDatabase = async () => {
     // 定義關聯
     defineAssociations();
 
-    // 同步模型（開發環境）
-    if (process.env.NODE_ENV === 'development') {
+    // 同步模型 - 在 Docker 環境中也需要創建表格
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production') {
       // 避免索引過多問題，改用單純 sync 而非 alter
       await sequelize.sync({ force: false });
       console.log('資料庫模型同步完成');
+
+      // 在生產環境中執行資料初始化
+      if (process.env.NODE_ENV === 'production') {
+        console.log('🔄 開始執行資料庫初始化腳本...');
+        try {
+          // 動態導入初始化腳本
+          const initModule = await import('../scripts/docker-init-database.js');
+          const initFunction = initModule.default;
+          if (typeof initFunction === 'function') {
+            await initFunction();
+            console.log('✅ 資料庫初始化腳本執行完成');
+          } else {
+            console.log('⚠️ 初始化腳本沒有導出函數，跳過執行');
+          }
+        } catch (initError) {
+          console.error('⚠️ 資料庫初始化腳本執行失敗，但表格已創建:', initError.message);
+        }
+      }
     }
 
     return true;
