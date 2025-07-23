@@ -33,11 +33,15 @@ services:
       DB_PORT: 3306
       DB_NAME: gdg_portal
       DB_USER: gdg_admin
-      DB_PASSWORD: gdg_secure_2025
-      JWT_SECRET: your_super_secure_jwt_secret_key_here_please_change_this
-      GOOGLE_CLIENT_ID: your_google_oauth_client_id
-      GOOGLE_CLIENT_SECRET: your_google_oauth_client_secret
-      SESSION_SECRET: your_super_secure_session_secret_here
+      DB_PASSWORD: ${DB_PASSWORD:-your_secure_password}
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_here}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your_jwt_refresh_secret_here}
+      COOKIE_SECRET: ${COOKIE_SECRET:-your_cookie_secret_here}
+      SESSION_SECRET: ${SESSION_SECRET:-your_session_secret_here}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your_google_oauth_client_id}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-your_google_oauth_client_secret}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+      OAUTH_CALLBACK_URL: ${OAUTH_CALLBACK_URL:-http://localhost:3000/api/auth/google/redirect}
     volumes:
       - uploads_data:/app/server/public/assets/uploads
     depends_on:

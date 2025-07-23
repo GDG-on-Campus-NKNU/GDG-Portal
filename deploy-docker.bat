@@ -21,14 +21,16 @@ if errorlevel 1 (
     )
 )
 
-REM 檢查是否有 .env 檔案
-if not exist .env (
-    if exist .env.example (
-        echo 📋 Copying .env.example to .env...
-        copy .env.example .env
-        echo ⚠️  Please edit .env file with your actual configuration before running the application.
+REM 檢查是否有 .env.docker 檔案
+if not exist .env.docker (
+    if exist .env.docker.example (
+        echo 📋 Copying .env.docker.example to .env.docker...
+        copy .env.docker.example .env.docker
+        echo ⚠️  Please edit .env.docker file with your actual configuration before running the application.
+        echo    Include: OAuth credentials, JWT secrets, database passwords, etc.
+        pause
     ) else (
-        echo ❌ No .env.example file found. Please create a .env file with your configuration.
+        echo ❌ No .env.docker.example file found. Please create a .env.docker file with your configuration.
         pause
         exit /b 1
     )

@@ -24,6 +24,31 @@ cd GDG-Portal
 - **主要網站**: http://localhost:3000
 - **資料庫管理**: http://localhost:8080 (Adminer)
 
+#### 🔧 環境變數設定
+
+首次部署時，部署腳本會提示您設定必要的環境變數：
+
+1. **複製範本檔案**：`.env.docker.example` → `.env.docker`
+2. **設定 Google OAuth**：配置 `GOOGLE_CLIENT_ID` 和 `GOOGLE_CLIENT_SECRET`
+3. **設定安全金鑰**：產生安全的 `JWT_SECRET` 和 `SESSION_SECRET`
+4. **設定資料庫密碼**：配置 `DB_PASSWORD`
+
+範例 `.env.docker` 檔案結構：
+```env
+# Google OAuth 設定
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+
+# JWT 和 Session 安全設定
+JWT_SECRET=your_jwt_secret_here
+SESSION_SECRET=your_session_secret_here
+
+# 資料庫設定
+DB_PASSWORD=your_secure_database_password
+```
+
+**注意**：`.env.docker` 檔案包含敏感資訊，請勿提交到版本控制系統中。
+
 ### 📝 環境需求
 
 - **Docker Desktop** (推薦方式)
@@ -76,6 +101,8 @@ docker-compose down
 5. **[環境說明](docs/05-環境說明.md)** - 開發 vs 部署環境配置
 6. **[Docker 容器說明](docs/06-Docker容器說明.md)** - 容器化部署詳解
 7. **[Git 工作流](docs/07-Git工作流.md)** - Git 分支策略和提交規範
+
+> 📋 **快速參考**：環境變數設定請參考專案根目錄的 `.env.docker.example` 範本檔案，或查看文檔 5 獲得詳細說明。
 
 ### 🎯 適合不同角色
 

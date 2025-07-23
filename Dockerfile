@@ -25,9 +25,6 @@ RUN npm ci && cd server && npm ci
 # Copy server source code
 COPY server/ ./server/
 
-# Copy Docker-specific environment configuration
-COPY .env.docker ./server/.env
-
 # Copy built client files
 COPY --from=client-builder /app/client/dist ./server/public
 

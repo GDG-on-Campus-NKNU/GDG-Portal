@@ -16,9 +16,19 @@ The easiest way to get started is using Docker:
 git clone <repository-url>
 cd GDG-Portal
 
+# First time setup: Configure environment variables
+copy .env.docker.example .env.docker
+notepad .env.docker  # Edit with your actual values
+
 # Run the one-click deployment script
 .\deploy-docker.bat
 ```
+
+> **⚠️ Important**: Before first deployment, you must create `.env.docker` from the example template and fill in your actual values:
+> - Google OAuth credentials (Client ID & Secret)
+> - JWT & session secrets (use strong random strings)
+> - Database passwords
+> - Other sensitive configuration
 
 After deployment, access:
 - **Main Website**: http://localhost:3000
