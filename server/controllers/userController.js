@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { Op } from 'sequelize';
-import { User, Profile } from '../model/associations.js';
+import { User, Profile } from '../model/index.js';
 import { transformUser } from '../utils/dataTransform.js';
 import {
   generateAccessToken,
@@ -377,11 +377,11 @@ class UserController {
       if (bio !== undefined) profileUpdateData.bio = bio;
       if (location !== undefined) profileUpdateData.location = location;
       if (company !== undefined) profileUpdateData.company = company;
-      if (website !== undefined) profileUpdateData.website = website;
+      if (website !== undefined) profileUpdateData.website = website === '' ? null : website;
       if (phone !== undefined) profileUpdateData.phone = phone;
-      if (linkedinUrl !== undefined) profileUpdateData.linkedin_url = linkedinUrl;
-      if (githubUrl !== undefined) profileUpdateData.github_url = githubUrl;
-      if (twitterUrl !== undefined) profileUpdateData.twitter_url = twitterUrl;
+      if (linkedinUrl !== undefined) profileUpdateData.linkedin_url = linkedinUrl === '' ? null : linkedinUrl;
+      if (githubUrl !== undefined) profileUpdateData.github_url = githubUrl === '' ? null : githubUrl;
+      if (twitterUrl !== undefined) profileUpdateData.twitter_url = twitterUrl === '' ? null : twitterUrl;
 
       // 處理橫幅，如果是 Base64 格式則保存為文件
       if (bannerUrl !== undefined) {
@@ -825,6 +825,13 @@ class UserController {
 
       // 統計資料 (可選：使用者參與的活動、發布的內容等)
       // TODO: 可以加入使用者參與活動數量、發布內容數量等統計
+
+      // 設置快取控制標頭，避免快取問題
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
 
       res.json({
         user: {

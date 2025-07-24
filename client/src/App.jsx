@@ -19,6 +19,7 @@ import { ScrollEffects, CursorEffect, PageTransition } from './components/genera
 import { usePageShow } from './hooks/usePageShow'
 import EventGalleryPage from './pages/EventGalleryPage'
 import UserProfilePage from './pages/UserProfilePage'
+import UserProfilePageDebug from './pages/UserProfilePageDebug'
 import { default as DevQuickLogin } from './components/DevQuickLogin'
 import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -104,9 +105,7 @@ function App() {
                   </PageTransition>
                 } />
                 <Route path="/users/:id" element={
-                  <PageTransition>
-                    <UserProfilePage />
-                  </PageTransition>
+                  <UserProfilePage />
                 } />
                 <Route path="/login" element={
                   <PageTransition>

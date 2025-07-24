@@ -88,7 +88,7 @@ const CoreTeam = sequelize.define('CoreTeam', {
 {
   "id": 1,
   "name": "顏榕嶙",
-  "position": "負責人",
+  "position": "技術教學",
   "email": "example@email.com",
   "profile": {
     "photo": "/assets/members/yen_profile.png"

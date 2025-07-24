@@ -154,10 +154,24 @@ services:
     container_name: gdg-app
     ports:
       - "3000:3000"
+      - "5000:5000"
     depends_on:
       - mysql
     environment:
-      - NODE_ENV=production
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: gdg_portal
+      DB_USER: gdg_admin
+      DB_PASSWORD: ${DB_PASSWORD:-your_secure_password}
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_here}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your_google_oauth_client_id}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-your_google_oauth_client_secret}
+    volumes:
+      - uploads_data:/app/server/public/assets/uploads
+      - static_assets:/app/server/public/assets
+      - resources_data:/app/server/public/resources
     restart: unless-stopped
     networks:
       - gdg-network
@@ -166,18 +180,19 @@ services:
     image: mysql:8.0
     container_name: gdg-mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_ROOT_PASSWORD: gdg_root_password_2025
       MYSQL_DATABASE: gdg_portal
       MYSQL_USER: gdg_admin
-      MYSQL_PASSWORD: gdg_secure_2024
+      MYSQL_PASSWORD: gdg_secure_2025
     command: >
       --character-set-server=utf8mb4 
       --collation-server=utf8mb4_unicode_ci 
       --default-authentication-plugin=mysql_native_password
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
     restart: unless-stopped
     networks:
       - gdg-network
@@ -187,6 +202,9 @@ services:
     container_name: gdg-adminer
     ports:
       - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+      ADMINER_DESIGN: pepa-linha
     depends_on:
       - mysql
     restart: unless-stopped
@@ -195,7 +213,9 @@ services:
 
 volumes:
   mysql_data:
-    driver: local
+  uploads_data:
+  static_assets:
+  resources_data:
 
 networks:
   gdg-network:
@@ -285,6 +305,9 @@ docker system prune -a
 
 ## 資料持久化
 
+### 重要概念
+本專案使用 **Docker Volumes** 來確保重要資料的持久化，避免容器重建時資料遺失。
+
 ### MySQL 資料存儲
 ```bash
 # 資料存儲位置
@@ -298,14 +321,207 @@ docker-compose exec mysql mysqldump -u gdg_admin -p gdg_portal > backup.sql
 docker-compose exec -i mysql mysql -u gdg_admin -p gdg_portal < backup.sql
 ```
 
-### 檔案上傳存儲
+### 檔案上傳與資源存儲
 ```bash
-# 上傳的檔案存儲在容器內
-Container path: /app/server/public/assets/
+# 📁 多層級檔案持久化策略
 
-# 持久化檔案上傳 (可選配置)
+# 1. 動態上傳檔案 (用戶上傳的內容)
+Volume: uploads_data
+Container path: /app/server/public/assets/uploads
+用途: 成員照片、活動照片、用戶上傳檔案
+
+# 2. 靜態資源檔案 (預設的資源)
+Volume: static_assets  
+Container path: /app/server/public/assets
+用途: 預設頭像、LOGO、圖示等靜態資源
+
+# 3. 文檔資源檔案 (可下載的文檔)
+Volume: resources_data
+Container path: /app/server/public/resources
+用途: PDF檔案、教學文件、工具下載等
+
+# 4. 系統日誌檔案 (應用程式運行日誌)
+Volume: logs_data
+Container path: /app/server/logs
+用途: 系統運行日誌、API 呼叫記錄、錯誤日誌等
+```
+
+### Volume 配置說明
+```yaml
+# 在 docker-compose.yml 中的 volumes 設定
 volumes:
-  - ./uploads:/app/server/public/assets/
+  mysql_data:           # 資料庫資料
+  uploads_data:         # 用戶上傳檔案
+  static_assets:        # 靜態資源
+  resources_data:       # 文檔資源
+  logs_data:            # 系統日誌
+```
+
+### 檔案管理優勢
+```markdown
+✅ **容器重建不影響檔案** - 所有檔案都儲存在 Docker Volume 中
+✅ **動態新增檔案** - 無需重建容器即可新增檔案
+✅ **分類管理** - 不同類型檔案分別存儲，便於管理
+✅ **備份容易** - 可以獨立備份不同類型的資料
+✅ **日誌持久化** - 系統日誌檔案永久保存，便於除錯和監控
+```
+
+### 實際檔案操作
+```bash
+# 檢視 Volume 中的檔案
+docker-compose exec app ls -la /app/server/public/assets/uploads
+docker-compose exec app ls -la /app/server/public/assets  
+docker-compose exec app ls -la /app/server/public/resources
+docker-compose exec app ls -la /app/server/logs
+
+# 新增檔案到容器 (從主機複製到容器)
+docker cp ./local-file.pdf gdg-portal-app:/app/server/public/resources/
+
+# 從容器複製檔案到主機 (備份)
+docker cp gdg-portal-app:/app/server/public/assets/uploads ./backup/
+
+# 備份整個 Volume
+docker run --rm -v gdg-portal_uploads_data:/data -v $(pwd):/backup alpine tar czf /backup/uploads_backup.tar.gz /data
+
+# 還原 Volume 備份
+docker run --rm -v gdg-portal_uploads_data:/data -v $(pwd):/backup alpine tar xzf /backup/uploads_backup.tar.gz -C /
+```
+
+## 日誌系統管理
+
+### 日誌檔案分類
+本專案的日誌系統會自動產生不同類型的日誌檔案，按日期分類存儲：
+
+```bash
+# 日誌檔案命名格式
+/app/server/logs/
+├── access-2024-07-24.log    # HTTP 存取日誌
+├── api-2024-07-24.log       # API 呼叫日誌  
+├── error-2024-07-24.log     # 錯誤日誌
+└── ...                      # 其他日期的日誌檔案
+```
+
+### 日誌內容說明
+```bash
+# Access 日誌 - 記錄所有 HTTP 請求
+[2024-07-24T10:30:15.123Z] 127.0.0.1 - - [24/Jul/2024:10:30:15 +0000] "GET /api/core-team HTTP/1.1" 200 1234 "-" "Mozilla/5.0..."
+
+# API 日誌 - 記錄 API 呼叫詳情
+[2024-07-24T10:30:15.123Z] API GET /api/core-team - Status: 200 - 45ms
+
+# Error 日誌 - 記錄錯誤資訊
+[2024-07-24T10:30:15.123Z] API Error - GET /api/users/999 - User not found
+```
+
+### 查看日誌的方法
+
+#### 方法 1：使用日誌管理工具 (推薦)
+```bash
+# 進入容器並使用日誌管理工具
+docker-compose exec app node server/scripts/log-manager.js
+
+# 列出所有日誌檔案
+docker-compose exec app node server/scripts/log-manager.js list
+
+# 查看今天的錯誤日誌
+docker-compose exec app node server/scripts/log-manager.js errors
+
+# 查看今天的 API 統計
+docker-compose exec app node server/scripts/log-manager.js stats
+
+# 查看指定日誌檔案 (顯示最後 100 行)
+docker-compose exec app node server/scripts/log-manager.js show api-2024-07-24.log 100
+
+# 清理 7 天前的舊日誌
+docker-compose exec app node server/scripts/log-manager.js clean 7
+```
+
+#### 方法 2：直接查看檔案
+```bash
+# 查看日誌目錄內容
+docker-compose exec app ls -la /app/server/logs
+
+# 查看今天的 API 日誌
+docker-compose exec app cat /app/server/logs/api-$(date +%Y-%m-%d).log
+
+# 即時監控日誌 (類似 tail -f)
+docker-compose exec app tail -f /app/server/logs/api-$(date +%Y-%m-%d).log
+
+# 搜尋特定關鍵字
+docker-compose exec app grep "Error" /app/server/logs/error-*.log
+```
+
+#### 方法 3：複製日誌到主機
+```bash
+# 複製今天的所有日誌到主機
+docker cp gdg-portal-app:/app/server/logs ./local-logs
+
+# 複製特定日誌檔案
+docker cp gdg-portal-app:/app/server/logs/api-2024-07-24.log ./api-log.txt
+
+# 在主機上查看
+type local-logs\api-2024-07-24.log
+```
+
+#### 方法 4：Docker Compose 日誌
+```bash
+# 查看容器終端輸出 (開發模式才會有詳細輸出)
+docker-compose logs -f app
+
+# 查看最近 100 行日誌
+docker-compose logs --tail=100 app
+
+# 查看特定時間範圍的日誌
+docker-compose logs --since="2024-07-24T10:00:00" app
+```
+
+### 日誌監控和分析
+
+#### 即時監控腳本範例
+```bash
+# 建立監控腳本 monitor-logs.sh
+#!/bin/bash
+echo "🔍 GDG Portal 日誌即時監控"
+echo "============================="
+
+# 同時監控多種日誌
+docker-compose exec app sh -c "
+  echo '📊 API 日誌:' && tail -n 5 /app/server/logs/api-\$(date +%Y-%m-%d).log 2>/dev/null || echo '無 API 日誌'
+  echo ''
+  echo '🚨 錯誤日誌:' && tail -n 5 /app/server/logs/error-\$(date +%Y-%m-%d).log 2>/dev/null || echo '無錯誤日誌'
+  echo ''
+  echo '📈 存取日誌:' && tail -n 3 /app/server/logs/access-\$(date +%Y-%m-%d).log 2>/dev/null || echo '無存取日誌'
+"
+```
+
+#### 日誌分析指令
+```bash
+# 統計今天的 API 呼叫次數
+docker-compose exec app sh -c "grep -c 'API' /app/server/logs/api-\$(date +%Y-%m-%d).log 2>/dev/null || echo 0"
+
+# 統計錯誤數量
+docker-compose exec app sh -c "grep -c 'Error' /app/server/logs/error-\$(date +%Y-%m-%d).log 2>/dev/null || echo 0"
+
+# 找出最常被呼叫的 API 端點
+docker-compose exec app sh -c "grep 'API' /app/server/logs/api-\$(date +%Y-%m-%d).log 2>/dev/null | awk '{print \$4}' | sort | uniq -c | sort -nr | head -10"
+```
+
+### 日誌維護
+
+#### 自動清理設定
+```bash
+# 在生產環境中，建議設定定期清理舊日誌的 cron job
+# 例如：每週清理 30 天前的日誌
+0 2 * * 0 docker-compose exec app node server/scripts/log-manager.js clean 30
+```
+
+#### 日誌備份
+```bash
+# 備份日誌 Volume
+docker run --rm -v gdg-portal_logs_data:/data -v $(pwd):/backup alpine tar czf /backup/logs_backup_$(date +%Y%m%d).tar.gz /data
+
+# 還原日誌備份
+docker run --rm -v gdg-portal_logs_data:/data -v $(pwd):/backup alpine tar xzf /backup/logs_backup_20240724.tar.gz -C /
 ```
 
 ## 網路配置
@@ -313,19 +529,21 @@ volumes:
 ### 端口映射
 ```
 主機端口 → 容器端口
-3000    → 3000 (應用程式)
-3306    → 3306 (MySQL)
-8080    → 8080 (Adminer)
+3000    → 3000 (應用程式主端口)
+5000    → 5000 (應用程式備用端口)
+3307    → 3306 (MySQL - 避免本機 MySQL 衝突)
+8080    → 8080 (Adminer 資料庫管理)
 ```
 
 ### 防火牆設定 (生產環境)
 ```bash
 # 允許特定端口
 sudo ufw allow 3000/tcp
+sudo ufw allow 5000/tcp
 sudo ufw allow 8080/tcp
 
-# 限制 MySQL 僅本地存取
-sudo ufw deny 3306/tcp
+# 限制 MySQL 僅本地存取 (注意是 3307)
+sudo ufw deny 3307/tcp
 ```
 
 ## 效能最佳化
@@ -403,13 +621,51 @@ SHOW VARIABLES LIKE 'collation%';
 -- 應該顯示 utf8mb4
 ```
 
-#### 4. 檔案上傳問題
+#### 4. 檔案上傳與存取問題
 ```bash
+# 檢查 Volume 是否正確掛載
+docker-compose exec app ls -la /app/server/public/assets/uploads
+docker-compose exec app ls -la /app/server/public/resources
+docker-compose exec app ls -la /app/server/logs
+
+# 檢查 Volume 使用情況
+docker volume ls
+docker volume inspect gdg-portal_uploads_data
+docker volume inspect gdg-portal_static_assets
+docker volume inspect gdg-portal_logs_data
+
 # 檢查容器內目錄權限
-docker-compose exec app ls -la /app/server/public/assets/
+docker-compose exec app ls -la /app/server/public/
 
 # 檢查容器可用空間
 docker-compose exec app df -h
+
+# 測試檔案寫入權限
+docker-compose exec app touch /app/server/public/assets/uploads/test.txt
+docker-compose exec app rm /app/server/public/assets/uploads/test.txt
+
+# 測試日誌寫入權限
+docker-compose exec app touch /app/server/logs/test.log
+docker-compose exec app rm /app/server/logs/test.log
+```
+
+#### 5. 日誌相關問題
+```bash
+# 檢查日誌檔案是否正常產生
+docker-compose exec app ls -la /app/server/logs
+
+# 檢查日誌檔案權限
+docker-compose exec app ls -la /app/server/logs/*.log
+
+# 手動測試日誌寫入
+docker-compose exec app node server/scripts/log-manager.js list
+
+# 如果日誌檔案無法產生，檢查目錄權限
+docker-compose exec app mkdir -p /app/server/logs
+docker-compose exec app chmod 755 /app/server/logs
+
+# 查看日誌相關的環境變數
+docker-compose exec app env | grep NODE_ENV
 ```
 
 ### 除錯技巧
@@ -426,6 +682,59 @@ docker-compose exec app curl http://localhost:3000/api/health
 # 檢查網路連通性
 docker-compose exec app ping mysql
 docker-compose exec app nslookup mysql
+
+# 測試日誌功能
+docker-compose exec app node server/scripts/log-manager.js list
+docker-compose exec app curl http://localhost:3000/api/core-team
+docker-compose exec app node server/scripts/log-manager.js stats
 ```
 
-這個 Docker 容器化解決方案提供了完整的開發和部署環境，確保了跨平台的一致性和易於管理的特性。
+### 日誌除錯流程
+```bash
+# 1. 確認日誌目錄存在
+docker-compose exec app ls -la /app/server/logs
+
+# 2. 測試 API 呼叫以產生日誌
+docker-compose exec app curl http://localhost:3000/api/health
+docker-compose exec app curl http://localhost:3000/api/core-team
+
+# 3. 檢查是否有新的日誌檔案
+docker-compose exec app ls -la /app/server/logs
+
+# 4. 查看日誌內容
+docker-compose exec app node server/scripts/log-manager.js list
+docker-compose exec app node server/scripts/log-manager.js stats
+
+# 5. 如果沒有日誌，檢查 logger 中間件是否正確載入
+docker-compose logs app | grep -i "log\|middleware"
+```
+
+## 系統特色總結
+
+這個 Docker 容器化解決方案提供了完整的開發和部署環境，具備以下特色：
+
+### 🚀 **部署特色**
+- **一鍵部署** - 使用 `docker-compose up --build -d` 即可完成整個系統部署
+- **環境隔離** - 每個服務運行在獨立容器中，避免環境衝突
+- **跨平台** - 在 Windows、macOS、Linux 上都能保持一致的運行環境
+- **可擴展性** - 容易添加新的服務或擴展現有功能
+
+### 📊 **監控特色**  
+- **多層級日誌** - 分離 access、api、error 不同類型的日誌
+- **智能分析** - 內建日誌管理工具提供統計和分析功能
+- **即時監控** - 支援即時日誌監控和告警
+- **自動清理** - 可設定自動清理舊日誌，避免磁碟空間不足
+
+### 🛠️ **管理特色**
+- **資料持久化** - 所有重要資料都使用 Docker Volume 持久化存儲
+- **便捷備份** - 獨立的 Volume 設計讓備份和還原變得簡單
+- **健康檢查** - 自動監控應用程式健康狀態
+- **優雅管理** - 提供完整的管理指令和疑難排解流程
+
+### 🔧 **開發特色**
+- **快速啟動** - 新開發者可以在幾分鐘內建立完整開發環境
+- **一致性保證** - 開發、測試、生產環境完全一致
+- **除錯友善** - 提供多種除錯方法和工具
+- **文檔完整** - 詳細的文檔說明和範例
+
+這個解決方案確保了 GDG Portal 專案的高可靠性、易維護性和優秀的開發體驗。

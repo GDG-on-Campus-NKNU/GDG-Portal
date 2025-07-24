@@ -2,6 +2,31 @@
  * 用戶個人資料資訊組件
  */
 export default function ProfileInfo({ user, formatDate }) {
+  // 解析 JSON 字串格式的 skills 和 interests
+  const parseSkills = (skills) => {
+    if (!skills) return [];
+    if (Array.isArray(skills)) return skills;
+    try {
+      return JSON.parse(skills);
+    } catch (e) {
+      console.error('解析 skills 失敗:', e);
+      return [];
+    }
+  };
+
+  const parseInterests = (interests) => {
+    if (!interests) return [];
+    if (Array.isArray(interests)) return interests;
+    try {
+      return JSON.parse(interests);
+    } catch (e) {
+      console.error('解析 interests 失敗:', e);
+      return [];
+    }
+  };
+
+  const skillsArray = parseSkills(user.profile?.skills);
+  const interestsArray = parseInterests(user.profile?.interests);
   return (
     <div className="lg:col-span-2">
       <div className="mb-6">
@@ -32,11 +57,11 @@ export default function ProfileInfo({ user, formatDate }) {
       </div>
 
       {/* 技能標籤 */}
-      {user.profile?.skills && user.profile.skills.length > 0 && (
+      {skillsArray && skillsArray.length > 0 && (
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">技能</h3>
           <div className="flex flex-wrap gap-2">
-            {user.profile.skills.map((skill, index) => (
+            {skillsArray.map((skill, index) => (
               <span
                 key={index}
                 className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
@@ -49,11 +74,11 @@ export default function ProfileInfo({ user, formatDate }) {
       )}
 
       {/* 興趣 */}
-      {user.profile?.interests && user.profile.interests.length > 0 && (
+      {interestsArray && interestsArray.length > 0 && (
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">興趣</h3>
           <div className="flex flex-wrap gap-2">
-            {user.profile.interests.map((interest, index) => (
+            {interestsArray.map((interest, index) => (
               <span
                 key={index}
                 className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium"

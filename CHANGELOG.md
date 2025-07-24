@@ -38,3 +38,53 @@
 
 ---
 
+## Added new doc files. 07/24
+
+> 2025-07-24 03:11:03
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `2793c67d36a8e66f5b91ba96111aea59f44add24`
+
+---
+
+## Document changes, and altered the data lest exposure. 07/24
+
+> 2025-07-24 12:56:13
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `59c72a3715ca3f3fdf6397336c51162f154a9a75`
+
+---
+
+## Relocated local database to docker, altered most data and fixed bugs. 07/24
+
+> 2025-07-24 17:04:11
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `98943ecaeed99c0a45fa3fcd42f02981d7c4807b`
+
+---
+
+## Vaildated all environments, but some issue are yet to be fixed. 07/24
+
+> 2025-07-24 18:59:54
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `d51474c0f6ecad103ecc835090a7b3ac06140852`
+
+---
+
+## Added a DEPLOYMENT.md for fast deployment guide. 07/24
+
+> 2025-07-24 22:44:47
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `3aff520be0451f7d22079b44b8c0d34b88526e03`
+
+---
+

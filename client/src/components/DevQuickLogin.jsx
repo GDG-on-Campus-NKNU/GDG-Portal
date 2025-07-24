@@ -124,13 +124,13 @@ export default function DevQuickLogin() {
           )}
 
           <div className="space-y-2">
-            {/* 管理員登入 */}
+            {/* 開發測試管理員 */}
             <button
-              onClick={() => handleQuickLogin('admin')}
+              onClick={() => handleQuickLogin('devadmin')}
               className="w-full text-left px-3 py-2 text-xs bg-red-50 hover:bg-red-100 rounded border border-red-200 transition-colors"
             >
-              <div className="font-medium text-red-800">👑 管理員</div>
-              <div className="text-red-600">{mockUsers.admin.email}</div>
+              <div className="font-medium text-red-800">🔧 開發管理員</div>
+              <div className="text-red-600">{mockUsers.devadmin.email}</div>
             </button>
 
             {/* 核心團隊登入 */}

@@ -4,11 +4,13 @@ services:
     image: mysql:8.0
     container_name: gdg-portal-mysql
     restart: unless-stopped
+    env_file:
+      - .env.docker
     environment:
-      MYSQL_ROOT_PASSWORD: gdg_root_password_2025
-      MYSQL_DATABASE: gdg_portal
-      MYSQL_USER: gdg_admin
-      MYSQL_PASSWORD: gdg_secure_2025
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-gdg_root_password_2025}
+      MYSQL_DATABASE: ${DB_NAME:-gdg_portal}
+      MYSQL_USER: ${DB_USER:-gdg_admin}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-gdg_secure_NEW_2025}
     ports:
       - "3307:3306"
     volumes:
@@ -23,19 +25,23 @@ services:
     build: .
     container_name: gdg-portal-app
     restart: unless-stopped
+    env_file:
+      - .env.docker
     ports:
       - "3000:3000"
-      - "5000:5000"
     environment:
-      NODE_ENV: production
-      PORT: 3000
+      NODE_ENV: ${NODE_ENV:-production}
+      DOCKER_ENV: "true"
+      PORT: ${PORT:-3000}
       DB_HOST: mysql
-      DB_PORT: 3306
-      DB_NAME: gdg_portal
-      DB_USER: gdg_admin
-      DB_PASSWORD: ${DB_PASSWORD:-your_secure_password}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-gdg_portal}
+      DB_USER: ${DB_USER:-gdg_admin}
+      DB_PASSWORD: ${DB_PASSWORD:-gdg_secure_NEW_2025}
       JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_here}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your_jwt_refresh_secret_here}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
       COOKIE_SECRET: ${COOKIE_SECRET:-your_cookie_secret_here}
       SESSION_SECRET: ${SESSION_SECRET:-your_session_secret_here}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your_google_oauth_client_id}
@@ -44,6 +50,8 @@ services:
       OAUTH_CALLBACK_URL: ${OAUTH_CALLBACK_URL:-http://localhost:3000/api/auth/google/redirect}
     volumes:
       - uploads_data:/app/server/public/assets/uploads
+      - resources_data:/app/server/public/resources
+      - logs_data:/app/server/logs
     depends_on:
       - mysql
     networks:
@@ -67,6 +75,8 @@ services:
 volumes:
   mysql_data:
   uploads_data:
+  resources_data:
+  logs_data:
 
 networks:
   gdg-network:

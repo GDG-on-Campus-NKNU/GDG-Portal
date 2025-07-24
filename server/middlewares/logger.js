@@ -1,11 +1,49 @@
 // Logging middleware for GDG Portal backend
 import morgan from 'morgan';
+import fs from 'fs';
+import path from 'path';
+
+// 創建日誌目錄
+const logDir = path.join(process.cwd(), 'logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+
+// 日誌寫入函數
+const writeLog = (message, logType = 'access') => {
+  const timestamp = new Date().toISOString();
+  const date = timestamp.split('T')[0];
+  const logFile = path.join(logDir, `${logType}-${date}.log`);
+  
+  const logEntry = `[${timestamp}] ${message}\n`;
+  
+  try {
+    // 寫入檔案
+    fs.appendFileSync(logFile, logEntry);
+  } catch (error) {
+    console.error('Failed to write log file:', error);
+  }
+  
+  // 開發環境同時輸出到終端
+  if (process.env.NODE_ENV === 'development') {
+    console.log(message);
+  }
+};
 
 // 自定義日誌格式
 const customLogFormat = ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" - :response-time ms';
 
-// 開發環境日誌配置
-export const developmentLogger = morgan('dev');
+// 開發環境日誌配置 - 同時輸出到終端和文件
+export const developmentLogger = morgan('dev', {
+  stream: {
+    write: (message) => {
+      // 開發環境輸出到終端
+      process.stdout.write(message);
+      // 同時寫入存取日誌檔案
+      writeLog(message.trim(), 'access');
+    }
+  }
+});
 
 // 生產環境日誌配置
 export const productionLogger = morgan(customLogFormat, {
@@ -17,8 +55,8 @@ export const productionLogger = morgan(customLogFormat, {
   },
   stream: {
     write: (message) => {
-      // 可以在這裡配置將日誌寫入檔案或外部日誌服務
-      console.log(message.trim());
+      // 寫入存取日誌檔案
+      writeLog(message.trim(), 'access');
     }
   }
 });
@@ -59,25 +97,49 @@ export const responseLogger = (req, res, next) => {
   const originalSend = res.send;
   
   res.send = function(data) {
-    if (process.env.NODE_ENV === 'development' && req.originalUrl.startsWith('/api/')) {
-      console.log(`\n=== API 回應 ===`);
-      console.log(`URL: ${req.originalUrl}`);
-      console.log(`狀態: ${res.statusCode}`);
-      console.log(`回應時間: ${Date.now() - req.startTime}ms`);
+    if (req.originalUrl.startsWith('/api/')) {
+      const responseTime = Date.now() - req.startTime;
+      const logMessage = `API ${req.method} ${req.originalUrl} - Status: ${res.statusCode} - ${responseTime}ms`;
       
-      try {
-        const responseBody = JSON.parse(data);
-        if (responseBody.message) {
-          console.log(`訊息: ${responseBody.message}`);
+      // 寫入 API 日誌檔案
+      writeLog(logMessage, 'api');
+      
+      // 如果是錯誤狀態，記錄詳細資訊
+      if (res.statusCode >= 400) {
+        try {
+          const responseBody = JSON.parse(data);
+          if (responseBody.error || responseBody.message) {
+            const errorMessage = `API Error - ${req.method} ${req.originalUrl} - ${responseBody.error || responseBody.message}`;
+            writeLog(errorMessage, 'error');
+          }
+        } catch (e) {
+          // 如果不是 JSON 格式就跳過
+          const errorMessage = `API Error - ${req.method} ${req.originalUrl} - Status: ${res.statusCode}`;
+          writeLog(errorMessage, 'error');
         }
-        if (responseBody.error) {
-          console.log(`錯誤: ${responseBody.error}`);
-        }
-      } catch (e) {
-        // 如果不是 JSON 格式就跳過
       }
       
-      console.log('===============\n');
+      // 開發環境輸出到終端
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`\n=== API 回應 ===`);
+        console.log(`URL: ${req.originalUrl}`);
+        console.log(`狀態: ${res.statusCode}`);
+        console.log(`回應時間: ${responseTime}ms`);
+        
+        try {
+          const responseBody = JSON.parse(data);
+          if (responseBody.message) {
+            console.log(`訊息: ${responseBody.message}`);
+          }
+          if (responseBody.error) {
+            console.log(`錯誤: ${responseBody.error}`);
+          }
+        } catch (e) {
+          // 如果不是 JSON 格式就跳過
+        }
+        
+        console.log('===============\n');
+      }
     }
     
     originalSend.call(this, data);

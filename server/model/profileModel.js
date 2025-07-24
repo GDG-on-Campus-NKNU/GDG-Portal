@@ -39,7 +39,15 @@ const Profile = sequelize.define('Profile', {
     type: DataTypes.STRING(255),
     allowNull: true,
     validate: {
-      isUrl: true
+      isValidUrl: function(value) {
+        if (value && value.trim() !== '') {
+          // 只有當值存在且不為空時才驗證 URL
+          const urlPattern = /^https?:\/\/.+/;
+          if (!urlPattern.test(value)) {
+            throw new Error('網站必須是有效的 URL（需包含 http:// 或 https://）');
+          }
+        }
+      }
     }
   },
   phone: {
@@ -50,21 +58,45 @@ const Profile = sequelize.define('Profile', {
     type: DataTypes.STRING(255),
     allowNull: true,
     validate: {
-      isUrl: true
+      isValidUrl: function(value) {
+        if (value && value.trim() !== '') {
+          // 只有當值存在且不為空時才驗證 URL
+          const urlPattern = /^https?:\/\/.+/;
+          if (!urlPattern.test(value)) {
+            throw new Error('LinkedIn URL 必須是有效的 URL（需包含 http:// 或 https://）');
+          }
+        }
+      }
     }
   },
   github_url: {
     type: DataTypes.STRING(255),
     allowNull: true,
     validate: {
-      isUrl: true
+      isValidUrl: function(value) {
+        if (value && value.trim() !== '') {
+          // 只有當值存在且不為空時才驗證 URL
+          const urlPattern = /^https?:\/\/.+/;
+          if (!urlPattern.test(value)) {
+            throw new Error('GitHub URL 必須是有效的 URL（需包含 http:// 或 https://）');
+          }
+        }
+      }
     }
   },
   twitter_url: {
     type: DataTypes.STRING(255),
     allowNull: true,
     validate: {
-      isUrl: true
+      isValidUrl: function(value) {
+        if (value && value.trim() !== '') {
+          // 只有當值存在且不為空時才驗證 URL
+          const urlPattern = /^https?:\/\/.+/;
+          if (!urlPattern.test(value)) {
+            throw new Error('Twitter URL 必須是有效的 URL（需包含 http:// 或 https://）');
+          }
+        }
+      }
     }
   },
   skills: {

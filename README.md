@@ -7,13 +7,15 @@
 
 ## Quick Start
 
+📖 **[完整部署指南 Complete Deployment Guide](./DEPLOYMENT.md)**
+
 ### 🐳 One-Click Docker Deployment (Recommended)
 
 The easiest way to get started is using Docker:
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/GDG-on-Campus-NKNU/GDG-Portal.git
 cd GDG-Portal
 
 # First time setup: Configure environment variables
@@ -28,6 +30,8 @@ notepad .env.docker  # Edit with your actual values
 > - Google OAuth credentials (Client ID & Secret)
 > - JWT & session secrets (use strong random strings)
 > - Database passwords
+
+For detailed step-by-step instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
 > - Other sensitive configuration
 
 After deployment, access:
@@ -86,13 +90,7 @@ This project provides detailed technical documentation, recommended reading orde
 5. **[Environment Configuration](docs/05-環境說明.md)** - Development vs deployment environment setup
 6. **[Docker Container Guide](docs/06-Docker容器說明.md)** - Containerized deployment details
 7. **[Git Workflow](docs/07-Git工作流.md)** - Git branching strategy and commit conventions
-
-### 🎯 For Different Roles
-
-- **Web Development Beginners** → Read docs 1, 2, 3, 7
-- **Frontend Developers** → Focus on docs 2, 3, 5, 7
-- **Backend Developers** → Focus on docs 3, 4, 6, 7
-- **System Administrators** → Focus on docs 5, 6
+8. **[Feature Planning & Development Roadmap](docs/08-功能規劃與開發路線圖.md)** - Future features and implementation plans
 
 ## 🛠 Tech Stack
 
