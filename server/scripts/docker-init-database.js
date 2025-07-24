@@ -162,38 +162,41 @@ const CoreTeamCategory = sequelize.define('CoreTeamCategory', {
  */
 const sampleCoreTeamData = [
   {
-    name: '顏榕嶙',
-    title: 'Technical Education Lead',
+    name: '顏榕嶙 (Bernie)',
+    title: 'Full Stack Lead / Creative Director',
     photo: '/assets/members/yen_profile.png',
     department: '軟體工程與管理學系',
-    year: '大三',
-    description: 'Technical Education Lead - 負責技術教育規劃、工作坊設計與技術分享活動推廣',
-    full_bio: '技術教育專家，致力於推廣現代 Web 開發技術與最佳實踐。擁有豐富的前端框架經驗，特別專精於 React 和 Vue.js 開發。熱衷於教學分享，希望能透過技術傳授幫助更多同學成長。',
+    year: '大四',
+    description: 'Full Stack Lead & Creative Director - 跨域推動技術教育、敘事設計與創作應用，聚焦於AI、Web全端開發與創意整合。',
+    full_bio: '全端工程師、創作者。熱愛開發創新專案與跨領域合作，擅長用技術打造故事世界，並以敘事與音樂激發學習熱情。擁有豐富 React、Node.js 與 AI 實作經驗，樂於以簡單直觀方式傳遞複雜觀念。現任 GDSC NKNU 技術教育核心成員，致力於培育下一代的開發者，並推動創作與科技的深度融合。',
     skills: [
+      'Full Stack Development',
       'JavaScript',
       'TypeScript',
-      'Node.js',
-      'React',
-      'Vue.js',
       'Python',
-      'Workshop Design',
+      'React',
+      'Node.js',
+      'AI Integration',
       'Technical Writing',
+      'Storytelling',
+      'Music Composition',
+      'Workshop Design',
       'Public Speaking'
     ],
     achievements: [
-      '組織 15+ 場技術工作坊',
-      '指導 50+ 位學生程式設計',
-      '在 5 場技術研討會擔任講者',
-      '發表 20+ 篇技術文章',
-      '建立校園技術學習社群',
-      '推動開源專案參與文化'
+      '主導開發 GDSC 專屬教學網站及資源平台',
+      '設計與執行 20+ 場跨領域技術/創作工作坊',
+      '協作開發 U.E.P AI 助理與多項創新專案',
+      '指導 80+ 位學生參與全端、AI 專題開發',
+      '建立 NKNU 校園技術 x 創作社群',
+      '發表 30+ 篇技術與創作文章/樂曲'
     ],
-    contact_email: 'technical.education@gdg.nknu.edu.tw',
+    contact_email: 'ptyc4076@gmail.com',
     social_links: {
-      linkedin: 'https://linkedin.com/in/yen-jung-lin',
-      github: 'https://github.com/yen-jung-lin',
-      twitter: 'https://twitter.com/yen_jung_lin',
-      facebook: 'https://facebook.com/yen.jung.lin'
+      linkedin: 'https://www.linkedin.com/in/bernie-yen-8325122b4/',
+      github: 'https://github.com/Unforgettableeternalproject',
+      twitter: 'https://x.com/Lightingbird11',
+      facebook: 'https://www.facebook.com/TheOverlordOfTheImagintion47/'
     },
     additional_photos: [
       '/assets/members/yen_workshop_1.jpg',
@@ -204,6 +207,7 @@ const sampleCoreTeamData = [
     sort_order: 1
   }
 ];
+
 
 const sampleCategories = [
   {

@@ -154,10 +154,24 @@ services:
     container_name: gdg-app
     ports:
       - "3000:3000"
+      - "5000:5000"
     depends_on:
       - mysql
     environment:
-      - NODE_ENV=production
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: gdg_portal
+      DB_USER: gdg_admin
+      DB_PASSWORD: ${DB_PASSWORD:-your_secure_password}
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_here}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your_google_oauth_client_id}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-your_google_oauth_client_secret}
+    volumes:
+      - uploads_data:/app/server/public/assets/uploads
+      - static_assets:/app/server/public/assets
+      - resources_data:/app/server/public/resources
     restart: unless-stopped
     networks:
       - gdg-network
@@ -166,18 +180,19 @@ services:
     image: mysql:8.0
     container_name: gdg-mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_ROOT_PASSWORD: gdg_root_password_2025
       MYSQL_DATABASE: gdg_portal
       MYSQL_USER: gdg_admin
-      MYSQL_PASSWORD: gdg_secure_2024
+      MYSQL_PASSWORD: gdg_secure_2025
     command: >
       --character-set-server=utf8mb4 
       --collation-server=utf8mb4_unicode_ci 
       --default-authentication-plugin=mysql_native_password
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
     restart: unless-stopped
     networks:
       - gdg-network
@@ -187,6 +202,9 @@ services:
     container_name: gdg-adminer
     ports:
       - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+      ADMINER_DESIGN: pepa-linha
     depends_on:
       - mysql
     restart: unless-stopped
@@ -195,7 +213,9 @@ services:
 
 volumes:
   mysql_data:
-    driver: local
+  uploads_data:
+  static_assets:
+  resources_data:
 
 networks:
   gdg-network:
@@ -285,6 +305,9 @@ docker system prune -a
 
 ## 資料持久化
 
+### 重要概念
+本專案使用 **Docker Volumes** 來確保重要資料的持久化，避免容器重建時資料遺失。
+
 ### MySQL 資料存儲
 ```bash
 # 資料存儲位置
@@ -298,14 +321,62 @@ docker-compose exec mysql mysqldump -u gdg_admin -p gdg_portal > backup.sql
 docker-compose exec -i mysql mysql -u gdg_admin -p gdg_portal < backup.sql
 ```
 
-### 檔案上傳存儲
+### 檔案上傳與資源存儲
 ```bash
-# 上傳的檔案存儲在容器內
-Container path: /app/server/public/assets/
+# 📁 多層級檔案持久化策略
 
-# 持久化檔案上傳 (可選配置)
+# 1. 動態上傳檔案 (用戶上傳的內容)
+Volume: uploads_data
+Container path: /app/server/public/assets/uploads
+用途: 成員照片、活動照片、用戶上傳檔案
+
+# 2. 靜態資源檔案 (預設的資源)
+Volume: static_assets  
+Container path: /app/server/public/assets
+用途: 預設頭像、LOGO、圖示等靜態資源
+
+# 3. 文檔資源檔案 (可下載的文檔)
+Volume: resources_data
+Container path: /app/server/public/resources
+用途: PDF檔案、教學文件、工具下載等
+```
+
+### Volume 配置說明
+```yaml
+# 在 docker-compose.yml 中的 volumes 設定
 volumes:
-  - ./uploads:/app/server/public/assets/
+  mysql_data:           # 資料庫資料
+  uploads_data:         # 用戶上傳檔案
+  static_assets:        # 靜態資源
+  resources_data:       # 文檔資源
+```
+
+### 檔案管理優勢
+```markdown
+✅ **容器重建不影響檔案** - 所有檔案都儲存在 Docker Volume 中
+✅ **動態新增檔案** - 無需重建容器即可新增檔案
+✅ **分類管理** - 不同類型檔案分別存儲，便於管理
+✅ **備份容易** - 可以獨立備份不同類型的資料
+```
+
+### 實際檔案操作
+```bash
+# 檢視 Volume 中的檔案
+docker-compose exec app ls -la /app/server/public/assets/uploads
+docker-compose exec app ls -la /app/server/public/assets  
+docker-compose exec app ls -la /app/server/public/resources
+
+# 新增檔案到容器 (從主機複製到容器)
+docker cp ./local-file.pdf gdg-portal-app:/app/server/public/resources/
+
+# 從容器複製檔案到主機 (備份)
+docker cp gdg-portal-app:/app/server/public/assets/uploads ./backup/
+
+# 備份整個 Volume
+docker run --rm -v gdg-portal_uploads_data:/data -v $(pwd):/backup alpine tar czf /backup/uploads_backup.tar.gz /data
+
+# 還原 Volume 備份
+docker run --rm -v gdg-portal_uploads_data:/data -v $(pwd):/backup alpine tar xzf /backup/uploads_backup.tar.gz -C /
 ```
 
 ## 網路配置
@@ -313,19 +384,21 @@ volumes:
 ### 端口映射
 ```
 主機端口 → 容器端口
-3000    → 3000 (應用程式)
-3306    → 3306 (MySQL)
-8080    → 8080 (Adminer)
+3000    → 3000 (應用程式主端口)
+5000    → 5000 (應用程式備用端口)
+3307    → 3306 (MySQL - 避免本機 MySQL 衝突)
+8080    → 8080 (Adminer 資料庫管理)
 ```
 
 ### 防火牆設定 (生產環境)
 ```bash
 # 允許特定端口
 sudo ufw allow 3000/tcp
+sudo ufw allow 5000/tcp
 sudo ufw allow 8080/tcp
 
-# 限制 MySQL 僅本地存取
-sudo ufw deny 3306/tcp
+# 限制 MySQL 僅本地存取 (注意是 3307)
+sudo ufw deny 3307/tcp
 ```
 
 ## 效能最佳化
@@ -403,13 +476,26 @@ SHOW VARIABLES LIKE 'collation%';
 -- 應該顯示 utf8mb4
 ```
 
-#### 4. 檔案上傳問題
+#### 4. 檔案上傳與存取問題
 ```bash
+# 檢查 Volume 是否正確掛載
+docker-compose exec app ls -la /app/server/public/assets/uploads
+docker-compose exec app ls -la /app/server/public/resources
+
+# 檢查 Volume 使用情況
+docker volume ls
+docker volume inspect gdg-portal_uploads_data
+docker volume inspect gdg-portal_static_assets
+
 # 檢查容器內目錄權限
-docker-compose exec app ls -la /app/server/public/assets/
+docker-compose exec app ls -la /app/server/public/
 
 # 檢查容器可用空間
 docker-compose exec app df -h
+
+# 測試檔案寫入權限
+docker-compose exec app touch /app/server/public/assets/uploads/test.txt
+docker-compose exec app rm /app/server/public/assets/uploads/test.txt
 ```
 
 ### 除錯技巧
