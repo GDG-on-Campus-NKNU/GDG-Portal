@@ -377,11 +377,11 @@ class UserController {
       if (bio !== undefined) profileUpdateData.bio = bio;
       if (location !== undefined) profileUpdateData.location = location;
       if (company !== undefined) profileUpdateData.company = company;
-      if (website !== undefined) profileUpdateData.website = website;
+      if (website !== undefined) profileUpdateData.website = website === '' ? null : website;
       if (phone !== undefined) profileUpdateData.phone = phone;
-      if (linkedinUrl !== undefined) profileUpdateData.linkedin_url = linkedinUrl;
-      if (githubUrl !== undefined) profileUpdateData.github_url = githubUrl;
-      if (twitterUrl !== undefined) profileUpdateData.twitter_url = twitterUrl;
+      if (linkedinUrl !== undefined) profileUpdateData.linkedin_url = linkedinUrl === '' ? null : linkedinUrl;
+      if (githubUrl !== undefined) profileUpdateData.github_url = githubUrl === '' ? null : githubUrl;
+      if (twitterUrl !== undefined) profileUpdateData.twitter_url = twitterUrl === '' ? null : twitterUrl;
 
       // 處理橫幅，如果是 Base64 格式則保存為文件
       if (bannerUrl !== undefined) {

@@ -68,3 +68,13 @@
 
 ---
 
+## Vaildated all environments, but some issue are yet to be fixed. 07/24
+
+> 2025-07-24 18:59:54
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `d51474c0f6ecad103ecc835090a7b3ac06140852`
+
+---
+

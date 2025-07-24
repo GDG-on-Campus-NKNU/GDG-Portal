@@ -58,10 +58,20 @@ export const saveBase64Image = (base64String, category = 'uploads') => {
         fileExt = '.jpg'; // 默認 .jpg
     }
 
+    
     // 確定保存目錄
-    // 使用相對於項目根目錄的路徑，而不是硬編碼的絕對路徑
-    let uploadDir = path.join(__dirname, '../../client/public/assets/');
+    // 在 Docker 環境中，靜態文件保存在 server/public/assets/
+    let uploadDir;
     let urlPrefix = '/assets/';
+
+    // 檢查是否在 Docker 環境中
+    if (process.env.NODE_ENV === 'production' || process.env.DOCKER_ENV === 'true') {
+      // Docker 或生產環境：使用 server/public/assets/
+      uploadDir = path.join(__dirname, '../public/assets/');
+    } else {
+      // 開發環境：使用 client/public/assets/
+      uploadDir = path.join(__dirname, '../../client/public/assets/');
+    }
 
     switch (category) {
       case 'avatar':

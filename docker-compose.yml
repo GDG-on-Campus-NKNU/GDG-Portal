@@ -31,6 +31,7 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: ${NODE_ENV:-production}
+      DOCKER_ENV: "true"
       PORT: ${PORT:-3000}
       DB_HOST: mysql
       DB_PORT: ${DB_PORT:-3306}
@@ -49,7 +50,6 @@ services:
       OAUTH_CALLBACK_URL: ${OAUTH_CALLBACK_URL:-http://localhost:3000/api/auth/google/redirect}
     volumes:
       - uploads_data:/app/server/public/assets/uploads
-      - static_assets:/app/server/public/assets
       - resources_data:/app/server/public/resources
       - logs_data:/app/server/logs
     depends_on:
@@ -75,7 +75,6 @@ services:
 volumes:
   mysql_data:
   uploads_data:
-  static_assets:
   resources_data:
   logs_data:
 

@@ -7,17 +7,9 @@
  * @returns {boolean} 如果是開發環境則返回 true，否則返回 false
  */
 export const isDevelopment = () => {
-  // 檢查是否為明確的開發環境
-  if (
-    import.meta.env.DEV === true || 
-    import.meta.env.MODE === 'development' ||
-    window.location.hostname === 'localhost' || 
-    window.location.hostname === '127.0.0.1'
-  ) {
-    return true;
-  }
-  
-  return false;
+  // 只檢查 Vite 的環境變數，不依賴 hostname
+  // 因為生產構建也可能在 localhost 上運行
+  return import.meta.env.DEV === true || import.meta.env.MODE === 'development';
 };
 
 /**
