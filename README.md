@@ -7,13 +7,15 @@
 
 ## Quick Start
 
+📖 **[完整部署指南 Complete Deployment Guide](./DEPLOYMENT.md)**
+
 ### 🐳 One-Click Docker Deployment (Recommended)
 
 The easiest way to get started is using Docker:
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/GDG-on-Campus-NKNU/GDG-Portal.git
 cd GDG-Portal
 
 # First time setup: Configure environment variables
@@ -28,6 +30,8 @@ notepad .env.docker  # Edit with your actual values
 > - Google OAuth credentials (Client ID & Secret)
 > - JWT & session secrets (use strong random strings)
 > - Database passwords
+
+For detailed step-by-step instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
 > - Other sensitive configuration
 
 After deployment, access:

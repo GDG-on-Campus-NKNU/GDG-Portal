@@ -78,3 +78,13 @@
 
 ---
 
+## Added a DEPLOYMENT.md for fast deployment guide. 07/24
+
+> 2025-07-24 22:44:47
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `3aff520be0451f7d22079b44b8c0d34b88526e03`
+
+---
+
