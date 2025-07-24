@@ -97,14 +97,14 @@ export default function BlobImage({
         else {
           if (isMounted) {
             setError(true);
-            setImageSrc(fallbackSrc || '');
+            setImageSrc(fallbackSrc || null);
           }
         }
       } catch (err) {
         console.error('處理圖片錯誤:', err);
         if (isMounted) {
           setError(true);
-          setImageSrc(fallbackSrc || '');
+          setImageSrc(fallbackSrc || null);
         }
       }
     };
@@ -126,9 +126,17 @@ export default function BlobImage({
     }
   };
 
+  // 確保 src 不是空字串
+  const finalSrc = error ? fallbackSrc : imageSrc;
+  const shouldRender = finalSrc && finalSrc.trim() !== '';
+
+  if (!shouldRender) {
+    return null;
+  }
+
   return (
     <img
-      src={error ? fallbackSrc : imageSrc}
+      src={finalSrc}
       alt={alt || 'Image'}
       className={className}
       style={style}

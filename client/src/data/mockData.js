@@ -2,10 +2,10 @@
 
 // 假使用者資料
 export const mockUsers = {
-  // 管理員
-  admin: {
-    id: 'user_001',
-    name: '管理員 Bernie',
+  // 開發測試管理員
+  devadmin: {
+    id: 'user_004',
+    name: '管理員 Simon',
     email: 'admin@gdg.dev.tw',
     password: 'Admin123!',
     role: 'admin',

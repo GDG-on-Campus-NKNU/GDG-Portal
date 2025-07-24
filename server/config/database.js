@@ -7,8 +7,28 @@ import path from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 根據 NODE_ENV 選擇環境配置文件
+let envFile;
+switch (process.env.NODE_ENV) {
+  case 'development':
+    envFile = '.env.development';
+    break;
+  case 'docker':
+    envFile = '.env.docker';
+    break;
+  case 'production':
+    envFile = '.env.production';
+    break;
+  default:
+    envFile = '.env';
+}
+const envPath = path.join(__dirname, `../${envFile}`);
+
 // 確保環境變數正確載入
-dotenv.config({ path: path.join(__dirname, "../.env") });
+dotenv.config({ path: envPath });
+
+console.log(`🔧 Loading environment from: ${envFile}`);
+console.log(`📡 Database Host: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
   host: process.env.DB_HOST,

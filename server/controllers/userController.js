@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { Op } from 'sequelize';
-import { User, Profile } from '../model/associations.js';
+import { User, Profile } from '../model/index.js';
 import { transformUser } from '../utils/dataTransform.js';
 import {
   generateAccessToken,
@@ -825,6 +825,13 @@ class UserController {
 
       // 統計資料 (可選：使用者參與的活動、發布的內容等)
       // TODO: 可以加入使用者參與活動數量、發布內容數量等統計
+
+      // 設置快取控制標頭，避免快取問題
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
 
       res.json({
         user: {

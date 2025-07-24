@@ -10,7 +10,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 const sequelize = new Sequelize(
   process.env.DB_NAME || 'gdg_portal',
   process.env.DB_USER || 'gdg_admin',
-  process.env.DB_PASSWORD || 'gdg_admin_password_2024',
+  process.env.DB_PASSWORD || 'gdg_secure_NEW_2025',
   {
     host: process.env.DB_HOST || 'mysql',
     port: process.env.DB_PORT || 3306,

@@ -29,7 +29,6 @@ services:
       - .env.docker
     ports:
       - "3000:3000"
-      - "5000:5000"
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${PORT:-3000}
@@ -52,6 +51,7 @@ services:
       - uploads_data:/app/server/public/assets/uploads
       - static_assets:/app/server/public/assets
       - resources_data:/app/server/public/resources
+      - logs_data:/app/server/logs
     depends_on:
       - mysql
     networks:
@@ -77,6 +77,7 @@ volumes:
   uploads_data:
   static_assets:
   resources_data:
+  logs_data:
 
 networks:
   gdg-network:

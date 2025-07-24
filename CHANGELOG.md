@@ -58,3 +58,13 @@
 
 ---
 
+## Relocated local database to docker, altered most data and fixed bugs. 07/24
+
+> 2025-07-24 17:04:11
+
+> Author: Bernie <ptyc4076@gmail.com>
+
+> Commit: `98943ecaeed99c0a45fa3fcd42f02981d7c4807b`
+
+---
+

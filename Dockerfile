@@ -32,8 +32,8 @@ COPY --from=client-builder /app/client/dist ./server/public
 COPY docs/ ./docs/
 
 # Create directory for uploads and ensure permissions
-RUN mkdir -p ./server/public/assets/uploads && \
-    chown -R node:node ./server/public/assets
+RUN mkdir -p ./server/public/assets/uploads ./server/logs && \
+    chown -R node:node ./server/public/assets ./server/logs
 
 # Switch to non-root user
 USER node

@@ -89,13 +89,13 @@ export function CursorEffect() {
     }
 
     const handleMouseEnter = (e) => {
-      if (e.target.closest('a, button, [role="button"], .cursor-pointer')) {
+      if (e.target && typeof e.target.closest === 'function' && e.target.closest('a, button, [role="button"], .cursor-pointer')) {
         setIsHovering(true)
       }
     }
 
     const handleMouseLeave = (e) => {
-      if (!e.relatedTarget || !e.relatedTarget.closest('a, button, [role="button"], .cursor-pointer')) {
+      if (!e.relatedTarget || typeof e.relatedTarget.closest !== 'function' || !e.relatedTarget.closest('a, button, [role="button"], .cursor-pointer')) {
         setIsHovering(false)
       }
     }

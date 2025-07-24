@@ -39,7 +39,51 @@ export default function UserProfilePage() {
   const isOwnProfile = currentUser && user && currentUser.id === user.id;
 
   useEffect(() => {
-    fetchUserProfile();
+    const fetchUserProfile = async () => {
+      try {
+        console.log('🔍 正在獲取用戶資料，ID:', id);
+        setLoading(true);
+        // 添加時間戳參數來強制繞過快取
+        const timestamp = new Date().getTime();
+        const url = `/api/auth/profile/${id}?_t=${timestamp}`;
+        console.log('📡 API URL:', url);
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        
+        console.log('📊 API Response Status:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ 成功獲取用戶資料:', data);
+          setUser(data.user);
+        } else {
+          const errorData = await response.json();
+          console.error('❌ API 錯誤回應:', errorData);
+          setError(errorData.message || '無法載入使用者資料');
+        }
+      } catch (error) {
+        console.error('💥 獲取使用者資料失敗:', error);
+        setError('網路錯誤，請稍後再試');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      console.log('🚀 開始獲取用戶資料，ID:', id);
+      fetchUserProfile();
+    } else {
+      console.error('❌ 沒有提供用戶 ID');
+      setError('未提供用戶 ID');
+      setLoading(false);
+    }
   }, [id]);
 
   useEffect(() => {
@@ -56,26 +100,6 @@ export default function UserProfilePage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
-
-  const fetchUserProfile = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/auth/profile/${id}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || '無法載入使用者資料');
-      }
-    } catch (error) {
-      console.error('獲取使用者資料失敗:', error);
-      setError('網路錯誤，請稍後再試');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const showUpdateMessage = (text, type) => {
     setUpdateMessage(text);
@@ -262,6 +286,18 @@ export default function UserProfilePage() {
               返回首頁
             </Link>
           </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // 如果沒有 user 資料，顯示 loading
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-screen">
+          <LoadingSpinner />
         </div>
       </div>
     );
